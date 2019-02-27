@@ -1,5 +1,4 @@
 import React from "react";
-import { graphql, Link } from "gatsby";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import {
@@ -7,45 +6,43 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardActions,
   TextField,
   Button,
-  Paper,
-  Avatar,
-  Typography,
   FormControl,
   FormGroup,
   FormControlLabel,
   Checkbox
 } from "@material-ui/core";
 
-import { Account } from "mdi-material-ui";
-
-// import Card from "../../../components/Card";
 import Page from "../../../components/Page";
 import withRoot from "../../../utils/withRoot";
 
 const styles = theme => ({
-    root: {
-      backgroundColor: "orange"
-    },
     card: {
       marginBottom: 16
     },
     nextOfKin: {
       padding: "0 16px"
+    },
+    button: {
+      marginTop: theme.spacing.unit * 3,
+      marginLeft: theme.spacing.unit
+    },
+    buttons: {
+      display: "flex",
+      justifyContent: "flex-end"
     }
   }),
   MentalHealth = props => {
     return (
       <Page>
-        {/* <Paper> */}
         <form
           onSubmit={e => {
             alert("Boom");
+            e.preventDefault();
           }}
         >
-          {/* Client */}
+          {/* Client Details */}
           <Card className={props.classes.card}>
             <CardHeader
               title="Client Details"
@@ -176,7 +173,7 @@ const styles = theme => ({
             </CardContent>
           </Card>
 
-          {/* Medical */}
+          {/* Medical Details */}
           <Card className={props.classes.card}>
             <CardHeader
               title="Medical Details"
@@ -320,42 +317,18 @@ const styles = theme => ({
             <CardContent>
               <Grid container spacing={16}>
                 <Grid item xs={12}>
-                  <FormControl
-                    component="fieldset"
-                    // className={classes.formControl}
-                  >
+                  <FormControl component="fieldset">
                     <FormGroup>
                       <FormControlLabel
-                        // classes={{
-                        //   label: classes.formControlLabel
-                        // }}
                         control={<Checkbox name="clientConsent" />}
                         label="Has the person you are referring given consent to release information?"
                       />
                       <FormControlLabel
-                        // classes={{
-                        //   label: classes.formControlLabel
-                        // }}
-                        control={
-                          <Checkbox
-                            name="clientRequestingService"
-                            // value={
-                            //   values["clientRequestingService"] ? "true" : ""
-                            // }
-                          />
-                        }
+                        control={<Checkbox name="clientRequestingService" />}
                         label="Are they requesting the service?"
                       />
                       <FormControlLabel
-                        // classes={{
-                        //   label: classes.formControlLabel
-                        // }}
-                        control={
-                          <Checkbox
-                            name="parentalConsent"
-                            // value={values["parentalConsent"] ? "true" : ""}
-                          />
-                        }
+                        control={<Checkbox name="parentalConsent" />}
                         label="If the person you are referring is under 16 years of age, have you gained parental consent?"
                       />
                     </FormGroup>
@@ -478,10 +451,6 @@ const styles = theme => ({
                   />
                 </Grid>
 
-                {/* <Grid item xs={12}>
-                  <FormHeader heading="Relevant History" />
-                </Grid> */}
-
                 <CardHeader
                   title="Relevant History"
                   titleTypographyProps={{ variant: "h5" }}
@@ -497,15 +466,6 @@ const styles = theme => ({
                     rows={2}
                   />
                 </Grid>
-
-                {/* <Grid item xs={12}>
-                  <FormHeader heading="Risk Issues" />
-
-                  <Typography variant="subtitle1" color="inherit">
-                    E.g. Risk to self, others, property, previous attempts on
-                    life, domestic violence etc
-                  </Typography>
-                </Grid> */}
 
                 <CardHeader
                   title="Risk Issues"
@@ -528,8 +488,19 @@ const styles = theme => ({
               </Grid>
             </CardContent>
           </Card>
+
+          <Grid item xs={12} className={props.classes.buttons}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              // onClick={this.handleNext}
+              className={props.classes.button}
+            >
+              Send Referral
+            </Button>
+          </Grid>
         </form>
-        {/* </Paper> */}
       </Page>
     );
   };

@@ -4,18 +4,26 @@ module.exports = {
     title: "Gatsby Material UI Business Starter",
     contact: {
       phone: "503-555-1111",
-      email: "hi@foxandgeese.com",
+      email: "hi@foxandgeese.com"
     },
     menuLinks: [
       {
+        name: "Demo",
+        link: "/demo"
+      },
+      {
         name: "Products",
-        link: "/products",
+        link: "/products"
       },
       {
         name: "Team",
-        link: "/team",
+        link: "/team"
       },
-    ],
+      {
+        name: "Mental Health",
+        link: "/referral/mental-health"
+      }
+    ]
   },
   plugins: [
     "gatsby-transformer-remark",
@@ -26,8 +34,8 @@ module.exports = {
       resolve: "gatsby-source-filesystem",
       options: {
         path: `${__dirname}/src/pages`,
-        name: "pages",
-      },
-    },
-  ],
+        name: "pages"
+      }
+    }
+  ]
 };

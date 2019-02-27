@@ -26,9 +26,11 @@ const Header = props => {
             <Chip
               id="logo"
               variant="outlined"
-              avatar=<Avatar id="logoIcon">
-                <MaterialUi />
-              </Avatar>
+              avatar={
+                <Avatar id="logoIcon">
+                  <MaterialUi />
+                </Avatar>
+              }
               label={
                 <Link to="/">
                   {props.data.site.siteMetadata.title.toUpperCase()}

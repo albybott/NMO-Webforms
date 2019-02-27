@@ -34,10 +34,11 @@ exports.createPages = ({ graphql, actions }) => {
           path.resolve(`src/templates/${item}.js`)
         : // Or use general template.
           path.resolve(`src/templates/general.js`);
+
       createPage({
         component,
         path: node.frontmatter.path,
-        context: { id: node.id },
+        context: { id: node.id }
       });
     });
   });

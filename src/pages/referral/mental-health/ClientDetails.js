@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
 import { Field } from "formik";
-import { TextField, Select } from "material-ui-formik-components";
+import { TextField, Autocomplete } from "material-ui-formik-components";
+
+import iwi from "./iwi.json";
 
 const styles = theme => ({
     card: {
@@ -118,12 +120,19 @@ const styles = theme => ({
                   },
                   { value: "NZ European", label: "NZ European" }
                 ]}
-                component={Select}
+                component={Autocomplete}
                 fullWidth
               />
             </Grid>
             <Grid item xs={12} sm={12} md={6}>
-              <Field name="iwi" label="Iwi" fullWidth component={TextField} />
+              <Field
+                required
+                name="iwi"
+                label="Iwi"
+                fullWidth
+                options={iwi}
+                component={Autocomplete}
+              />
             </Grid>
 
             <Grid item xs={12}>

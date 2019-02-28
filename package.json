@@ -12,8 +12,11 @@
     "deploy": "gatsby build --prefix-paths && gh-pages -d public"
   },
   "dependencies": {
+    "@date-io/date-fns": "^1.1.0",
     "@material-ui/core": "^3.9.2",
     "core-js": "^2.6.5",
+    "date-fns": "^2.0.0-alpha.25",
+    "formik": "^1.5.1",
     "gatsby": "^2.1.4",
     "gatsby-plugin-react-helmet": "^3.0.6",
     "gatsby-plugin-remove-serviceworker": "^1.0.0",
@@ -22,6 +25,8 @@
     "gatsby-transformer-remark": "^2.2.5",
     "gh-pages": "^2.0.1",
     "jss": "^9.8.7",
+    "material-ui-formik-components": "^0.2.0",
+    "material-ui-pickers": "^2.2.1",
     "mdi-material-ui": "^5.9.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.2",
@@ -29,6 +34,7 @@
     "react-flexbox-grid": "^2.1.2",
     "react-helmet": "^5.2.0",
     "react-jss": "^8.6.1",
+    "react-select": "^2.4.1",
     "react-swipeable-views": "^0.13.1",
     "react-swipeable-views-utils": "^0.13.1"
   }

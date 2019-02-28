@@ -45,7 +45,6 @@ const styles = theme => ({
                 name="medicalIssues"
                 label="Medical Issues"
                 fullWidth
-                rows={2}
                 multiline
                 component={TextField}
               />
@@ -56,7 +55,6 @@ const styles = theme => ({
                 name="otherServicesInvolved"
                 label="Other services involved"
                 fullWidth
-                rows={2}
                 multiline
                 component={TextField}
               />
@@ -147,23 +145,23 @@ MedicalDetails.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-const MedicalDetailsValues = {
-  otherServicesInvolved: "",
-  medicalIssues: "",
-  gpContactNumber: "",
-  nameOfGP: "",
-  nok1Fullname: "",
-  nok1RelationshipToClient: "",
-  nok1HomeAddress: "",
-  nok1HomePhone: "",
-  nok1CellPhone: "",
-  nok2Fullname: "",
-  nok2RelationshipToClient: "",
-  nok2HomeAddress: "",
-  nok2HomePhone: "",
-  nok2CellPhone: ""
+const MedicalValues = {
+  nameOfGP: "Dr Who",
+  gpContactNumber: "07 5794930",
+  medicalIssues: "Has an alergy to nuts",
+  otherServicesInvolved: "Department of social justice",
+  nok1Fullname: "Harry Tutemake",
+  nok1RelationshipToClient: "Brother",
+  nok1HomeAddress: "2300 Jackson Street",
+  nok1HomePhone: "07 5796655",
+  nok1CellPhone: "027 2566565",
+  nok2Fullname: "Sue Tutemake",
+  nok2RelationshipToClient: "Sister",
+  nok2HomeAddress: "25 Chadwick Rd",
+  nok2HomePhone: "09 555223",
+  nok2CellPhone: "024 556446"
 };
 
-export { MedicalDetailsValues };
+export { MedicalValues };
 
 export default withStyles(styles)(MedicalDetails);

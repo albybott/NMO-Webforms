@@ -29,17 +29,16 @@ exports.createPages = ({ graphql, actions }) => {
       `
     );
     result.data[item].edges.forEach(({ node }) => {
-      const component = fs.existsSync(`src/templates/${item}.js`)
-        ? // Use specific template for item, e.g., products.js, if it exists.
-          path.resolve(`src/templates/${item}.js`)
-        : // Or use general template.
-          path.resolve(`src/templates/general.js`);
-
-      createPage({
-        component,
-        path: node.frontmatter.path,
-        context: { id: node.id }
-      });
+      // const component = fs.existsSync(`src/templates/${item}.js`)
+      //   ? // Use specific template for item, e.g., products.js, if it exists.
+      //     path.resolve(`src/templates/${item}.js`)
+      //   : // Or use general template.
+      //     path.resolve(`src/templates/general.js`);
+      // createPage({
+      //   component,
+      //   path: node.frontmatter.path,
+      //   context: { id: node.id }
+      // });
     });
   });
 };

@@ -77,7 +77,7 @@ const styles = theme => ({
                 name="address"
                 label="Address"
                 multiline
-                rows={4}
+                rows={6}
                 margin="dense"
                 fullWidth
                 component={TextField}
@@ -88,50 +88,51 @@ const styles = theme => ({
               <Grid container item xs={12}>
                 <Grid item xs={12}>
                   <Field
-                    name="homePhone"
-                    label="Home Phone"
-                    margin="dense"
+                    required
+                    name="ethnicity"
+                    label="Ethnicity"
+                    options={[
+                      { value: "", label: "" },
+                      { value: "Maori", label: "Maori" },
+                      {
+                        value: "Pacific Islander",
+                        label: "Pacific Islander"
+                      },
+                      { value: "NZ European", label: "NZ European" }
+                    ]}
+                    component={Autocomplete}
                     fullWidth
-                    component={TextField}
                   />
                 </Grid>
                 <Grid item xs={12}>
                   <Field
-                    name="cellPhone"
-                    label="Cell Phone"
-                    margin="dense"
+                    required
+                    name="iwi"
+                    label="Iwi"
                     fullWidth
-                    component={TextField}
+                    options={iwi}
+                    component={Autocomplete}
                   />
                 </Grid>
               </Grid>
             </Grid>
+
             <Grid item xs={12} sm={12} md={6}>
               <Field
-                required
-                name="ethnicity"
-                label="Ethnicity"
-                options={[
-                  { value: "", label: "" },
-                  { value: "Maori", label: "Maori" },
-                  {
-                    value: "Pacific Islander",
-                    label: "Pacific Islander"
-                  },
-                  { value: "NZ European", label: "NZ European" }
-                ]}
-                component={Autocomplete}
+                name="homePhone"
+                label="Home Phone"
+                margin="dense"
                 fullWidth
+                component={TextField}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={6}>
               <Field
-                required
-                name="iwi"
-                label="Iwi"
+                name="cellPhone"
+                label="Cell Phone"
+                margin="dense"
                 fullWidth
-                options={iwi}
-                component={Autocomplete}
+                component={TextField}
               />
             </Grid>
 
@@ -162,20 +163,30 @@ ClientDetails.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-const ClientDetailsValues = {
-  surname: "",
-  firstnames: "",
-  preferredName: "",
-  nhi: "",
-  dateOfBirth: "",
-  address: "",
-  homePhone: "",
-  ethnicity: "",
-  iwi: "",
-  mentalHealthStatus: "",
-  legalConsiderations: ""
+const ClientValues = {
+  surname: "Tutemake",
+  firstnames: "John",
+  preferredName: "JT Jackhammer",
+  nhi: "ABC9999",
+  dateOfBirth: "1980-12-28",
+  address: "157 Fraser Street\nTauranga 3112",
+  homePhone: "07 5780396",
+  cellPhone: "021 624587",
+  ethnicity: [{ value: "Maori", label: "Maori" }],
+  iwi: [
+    {
+      label: "Ngāti Kurī",
+      value: "AF3"
+    },
+    {
+      label: "Ngāpuhi",
+      value: "AF4"
+    }
+  ],
+  mentalHealthStatus: "Good mental status",
+  legalConsiderations: "Has a pending police conviction"
 };
 
-export { ClientDetailsValues };
+export { ClientValues };
 
 export default withStyles(styles)(ClientDetails);

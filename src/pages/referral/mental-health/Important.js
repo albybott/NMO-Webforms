@@ -1,6 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
+import { Field } from "formik";
+import { Switch } from "material-ui-formik-components";
+
 import {
   Grid,
   Card,
@@ -8,8 +11,7 @@ import {
   CardContent,
   FormControl,
   FormGroup,
-  FormControlLabel,
-  Checkbox
+  FormControlLabel
 } from "@material-ui/core";
 
 const styles = theme => ({
@@ -32,16 +34,31 @@ const styles = theme => ({
               <FormControl component="fieldset">
                 <FormGroup>
                   <FormControlLabel
-                    control={<Checkbox name="clientConsent" />}
-                    label="Has the person you are referring given consent to release information?"
+                    control={
+                      <Field
+                        name="clientConsent"
+                        label="Has the person you are referring given consent to release information?"
+                        component={Switch}
+                      />
+                    }
                   />
                   <FormControlLabel
-                    control={<Checkbox name="clientRequestingService" />}
-                    label="Are they requesting the service?"
+                    control={
+                      <Field
+                        name="clientRequestingService"
+                        label="Are they requesting the service?"
+                        component={Switch}
+                      />
+                    }
                   />
                   <FormControlLabel
-                    control={<Checkbox name="parentalConsent" />}
-                    label="If the person you are referring is under 16 years of age, have you gained parental consent?"
+                    control={
+                      <Field
+                        name="parentalConsent"
+                        label="If the person you are referring is under 16 years of age, have you gained parental consent?"
+                        component={Switch}
+                      />
+                    }
                   />
                 </FormGroup>
               </FormControl>
@@ -55,5 +72,13 @@ const styles = theme => ({
 Important.propTypes = {
   classes: PropTypes.object.isRequired
 };
+
+const ImportantValues = {
+  clientConsent: true,
+  clientRequestingService: true,
+  parentalConsent: true
+};
+
+export { ImportantValues };
 
 export default withStyles(styles)(Important);

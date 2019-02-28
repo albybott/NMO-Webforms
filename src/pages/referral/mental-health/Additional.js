@@ -1,24 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import {
-  Grid,
-  Card,
-  CardHeader,
-  CardContent,
-  // TextField,
-  Button,
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  Checkbox
-} from "@material-ui/core";
+import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
 
-import { Formik, Form, Field } from "formik";
-import { TextField, Select } from "material-ui-formik-components";
-
-import Page from "../../../components/Page";
-import withRoot from "../../../utils/withRoot";
+import { Field } from "formik";
+import { TextField } from "material-ui-formik-components";
 
 const styles = theme => ({
     card: {
@@ -27,7 +13,7 @@ const styles = theme => ({
       paddingBottom: 32
     }
   }),
-  MentalHealth = props => {
+  Additional = props => {
     return (
       <Card className={props.classes.card}>
         <CardHeader
@@ -90,8 +76,16 @@ const styles = theme => ({
     );
   };
 
-MentalHealth.propTypes = {
+Additional.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(MentalHealth);
+const AdditionalValues = {
+  reasonForReferral: "Needs some help with drugs and alcohol",
+  relevantHistory: "Has been to see Te Manu Toroa in the past",
+  riskIssues: "He has a dendency to over eat"
+};
+
+export { AdditionalValues };
+
+export default withStyles(styles)(Additional);

@@ -5,11 +5,11 @@ import { Tab, Tabs, Typography } from "@material-ui/core";
 import { Formik, Form } from "formik";
 import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
-import ClientDetails, { ClientDetailsValues } from "./ClientDetails";
-import MedicalDetails, { MedicalDetailsValues } from "./MedicalDetails";
-import Important from "./Important";
-import ReferrerDetails from "./ReferrerDetails";
-import Additional from "./Additional";
+import ClientDetails, { ClientValues } from "./ClientDetails";
+import MedicalDetails, { MedicalValues } from "./MedicalDetails";
+import Important, { ImportantValues } from "./Important";
+import ReferrerDetails, { ReferrerValues } from "./ReferrerDetails";
+import Additional, { AdditionalValues } from "./Additional";
 import Buttons from "./Buttons";
 
 function TabContainer(props) {
@@ -34,7 +34,8 @@ const styles = theme => ({
 
 class MentalHealth extends React.Component {
   state = {
-    value: 0
+    value: 0,
+    values: {}
   };
 
   handleChange = (event, value) => {
@@ -49,11 +50,15 @@ class MentalHealth extends React.Component {
       <Page className={classes.root}>
         <Formik
           initialValues={{
-            ...ClientDetailsValues,
-            ...MedicalDetailsValues
+            ...ClientValues,
+            ...MedicalValues,
+            ...ImportantValues,
+            ...ReferrerValues,
+            ...AdditionalValues
           }}
           onSubmit={values => {
-            alert(JSON.stringify(values, null, 2));
+            // alert(JSON.stringify(values, null, 2));
+            this.setState({ values });
           }}
         >
           <Form>
@@ -67,7 +72,7 @@ class MentalHealth extends React.Component {
             >
               <Tab label="Client Details" />
               <Tab label="Medical Details" />
-              <Tab label="Consent" />
+              <Tab label="Important" />
               <Tab label="Referrer Details" />
               <Tab label="Additional" />
             </Tabs>
@@ -98,9 +103,12 @@ class MentalHealth extends React.Component {
               </TabContainer>
             )}
 
-            <Typography component="div" style={{ padding: "2rem" }}>
+            <div style={{ padding: "2rem" }}>
               <Buttons />
-            </Typography>
+              <p style={{ padding: "2rem" }}>
+                {JSON.stringify(this.state.values, null, 2)}
+              </p>
+            </div>
           </Form>
         </Formik>
       </Page>

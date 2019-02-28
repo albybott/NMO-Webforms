@@ -1,24 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import {
-  Grid,
-  Card,
-  CardHeader,
-  CardContent,
-  // TextField,
-  Button,
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  Checkbox
-} from "@material-ui/core";
+import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
 
-import { Formik, Form, Field } from "formik";
-import { TextField, Select } from "material-ui-formik-components";
-
-import Page from "../../../components/Page";
-import withRoot from "../../../utils/withRoot";
+import { Field } from "formik";
+import { TextField } from "material-ui-formik-components";
 
 const styles = theme => ({
     card: {
@@ -27,7 +13,7 @@ const styles = theme => ({
       paddingBottom: 32
     }
   }),
-  MentalHealth = props => {
+  ReferrerDetails = props => {
     return (
       <>
         <Card className={props.classes.card}>
@@ -115,8 +101,21 @@ const styles = theme => ({
     );
   };
 
-MentalHealth.propTypes = {
+ReferrerDetails.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(MentalHealth);
+const ReferrerValues = {
+  nameOfReferrer: "Dwayne Johnson",
+  relationshipToPerson: "None",
+  referrerOrganisation: "Te Manu Toroa",
+  referrerOrganisationAddress: "21 Tebbs Lane",
+  referrerRole: "Case Worker",
+  referrerPhone: "07 588798",
+  referrerCellPhone: "021 578656",
+  referrerEmail: "d.johnson@temanutoroa.org.nz"
+};
+
+export { ReferrerValues };
+
+export default withStyles(styles)(ReferrerDetails);

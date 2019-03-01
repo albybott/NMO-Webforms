@@ -5,9 +5,8 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import JssProvider from "react-jss/lib/JssProvider";
 import getPageContext from "./getPageContext";
 import Hidden from "@material-ui/core/Hidden";
-
-import client from "./client";
-import { ApolloProvider } from "react-apollo";
+import client from "./client"; // get the ApolloClient
+import { ApolloProvider } from "react-apollo"; // wrapping page in ApolloProvider to make ApolloClient available everywhere
 
 function withRoot(Component) {
   class WithRoot extends React.Component {

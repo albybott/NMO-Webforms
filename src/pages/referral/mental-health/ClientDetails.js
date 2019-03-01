@@ -25,6 +25,7 @@ const styles = theme => ({
               <Field
                 name="nmo_lastname"
                 label="Surname"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -33,6 +34,7 @@ const styles = theme => ({
               <Field
                 name="nmo_firstname"
                 label="First Name"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -42,6 +44,7 @@ const styles = theme => ({
               <Field
                 name="preferredName"
                 label="Preferred Name"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -52,6 +55,7 @@ const styles = theme => ({
                 name="nmo_nhi"
                 label="NHI"
                 placeholder="ABC9999"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -62,6 +66,7 @@ const styles = theme => ({
                 name="nmo_birthdate"
                 label="Date Of Birth"
                 type="date"
+                variant="outlined"
                 InputLabelProps={{
                   shrink: true
                 }}
@@ -70,8 +75,6 @@ const styles = theme => ({
               />
             </Grid>
 
-            <Grid item />
-
             <Grid item xs={12} sm={8}>
               <Field
                 name="address"
@@ -79,6 +82,7 @@ const styles = theme => ({
                 multiline
                 rows={4}
                 margin="dense"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -91,6 +95,7 @@ const styles = theme => ({
                     name="nmo_address1_city"
                     label="City"
                     margin="dense"
+                    variant="outlined"
                     fullWidth
                     component={TextField}
                   />
@@ -100,6 +105,7 @@ const styles = theme => ({
                     name="nmo_address1_postalcode"
                     label="Postcode"
                     margin="dense"
+                    variant="outlined"
                     fullWidth
                     component={TextField}
                   />
@@ -111,11 +117,11 @@ const styles = theme => ({
               <Grid container item xs={12}>
                 <Grid item xs={12}>
                   <Field
+                    style={{ zIndex: 101 }}
                     required
                     name="ethnicity"
                     label="Ethnicity"
                     options={[
-                      { value: "", label: "" },
                       { value: "Maori", label: "Maori" },
                       {
                         value: "Pacific Islander",
@@ -129,9 +135,11 @@ const styles = theme => ({
                 </Grid>
                 <Grid item xs={12}>
                   <Field
+                    style={{ zIndex: 100 }}
                     required
                     name="iwi"
                     label="Iwi"
+                    variant="outlined"
                     fullWidth
                     options={iwi}
                     component={Autocomplete}
@@ -145,6 +153,7 @@ const styles = theme => ({
                 name="homePhone"
                 label="Home Phone"
                 margin="dense"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -154,6 +163,7 @@ const styles = theme => ({
                 name="nmo_mobilephone"
                 label="Cell Phone"
                 margin="dense"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -163,6 +173,7 @@ const styles = theme => ({
               <Field
                 name="mentalHealthStatus"
                 label="Mental Health Act Status"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -172,6 +183,7 @@ const styles = theme => ({
               <Field
                 name="legalConsiderations"
                 label="Legal considerations"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />

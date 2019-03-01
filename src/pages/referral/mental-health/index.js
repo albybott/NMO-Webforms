@@ -66,8 +66,7 @@ const styles = theme => ({
 
 class MentalHealth extends React.Component {
   state = {
-    value: 0,
-    values: {}
+    value: 0
   };
 
   handleChange = (event, value) => {
@@ -79,7 +78,7 @@ class MentalHealth extends React.Component {
     const { value } = this.state;
 
     return (
-      <Mutation mutation={CREATE_ELECTRONIC_SUBMISSION_MUTATION} variables={{}}>
+      <Mutation mutation={CREATE_ELECTRONIC_SUBMISSION_MUTATION}>
         {(createElectronicSubmission, { loading, error }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>{error.message}</p>;
@@ -95,10 +94,7 @@ class MentalHealth extends React.Component {
                   ...AdditionalValues
                 }}
                 onSubmit={values => {
-                  // alert(JSON.stringify(values, null, 2));
-                  // this.setState({ values });
-
-                  createElectronicSubmission()
+                  createElectronicSubmission({ variables: { ...values } })
                     .then(result => {
                       console.log(result);
                     })

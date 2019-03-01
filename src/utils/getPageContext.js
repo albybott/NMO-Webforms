@@ -2,29 +2,28 @@
 import { SheetsRegistry } from "jss";
 import {
   createMuiTheme,
-  createGenerateClassName,
+  createGenerateClassName
 } from "@material-ui/core/styles";
-import purple from "@material-ui/core/colors/purple";
-import green from "@material-ui/core/colors/green";
+
+import blue from "@material-ui/core/colors/blue";
+import pink from "@material-ui/core/colors/pink";
+import { darken } from "@material-ui/core/styles/colorManipulator";
 
 // A theme with custom primary and secondary color.
 // It's optional.
 const theme = createMuiTheme({
-  palette: {
-    primary: {
-      light: purple[300],
-      main: purple[500],
-      dark: purple[700],
-    },
+  direction: "ltr",
+  paletteType: "light",
+  paletteColors: {
+    primary: blue,
     secondary: {
-      light: green[300],
-      main: green[500],
-      dark: green[700],
-    },
+      // Darken so we reach the AA contrast ratio level.
+      main: darken(pink.A400, 0.08)
+    }
   },
   typography: {
-    useNextVariants: true,
-  },
+    useNextVariants: true
+  }
 });
 
 function createPageContext() {
@@ -35,7 +34,7 @@ function createPageContext() {
     // This is needed in order to inject the critical CSS.
     sheetsRegistry: new SheetsRegistry(),
     // The standard class name generator.
-    generateClassName: createGenerateClassName(),
+    generateClassName: createGenerateClassName()
   };
 }
 

@@ -1,5 +1,4 @@
 import React from "react";
-import { graphql } from "gatsby";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import { withStyles } from "@material-ui/core/styles";
@@ -9,9 +8,7 @@ import Page from "../components/Page";
 import withRoot from "../utils/withRoot";
 
 const styles = theme => ({
-    root: {
-      backgroundColor: "orange"
-    }
+    root: {}
   }),
   Home = props => {
     return (
@@ -37,28 +34,6 @@ const styles = theme => ({
       </Page>
     );
   };
-
-export const query = graphql`
-  query {
-    allMarkdownRemark(
-      filter: { fileAbsolutePath: { regex: "/products/" } }
-      sort: { fields: [frontmatter___date], order: DESC }
-    ) {
-      edges {
-        node {
-          id
-          frontmatter {
-            path
-            title
-            date(formatString: "DD MMMM YYYY")
-            image
-          }
-          excerpt
-        }
-      }
-    }
-  }
-`;
 
 Home.propTypes = {
   classes: PropTypes.object.isRequired

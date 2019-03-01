@@ -27,6 +27,7 @@ const styles = theme => ({
                 <Field
                   name="nameOfReferrer"
                   label="Name of referrer"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -36,6 +37,7 @@ const styles = theme => ({
                 <Field
                   name="relationshipToPerson"
                   label="Relationship to person"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -45,6 +47,7 @@ const styles = theme => ({
                 <Field
                   name="referrerOrganisation"
                   label="Organisation"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -54,6 +57,7 @@ const styles = theme => ({
                 <Field
                   name="referrerOrganisationAddress"
                   label="Organisation address"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -63,6 +67,7 @@ const styles = theme => ({
                 <Field
                   name="referrerRole"
                   label="Role"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -72,6 +77,7 @@ const styles = theme => ({
                 <Field
                   name="referrerPhone"
                   label="Phone"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -81,6 +87,7 @@ const styles = theme => ({
                 <Field
                   name="referrerCellPhone"
                   label="Cell Phone"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />
@@ -90,6 +97,7 @@ const styles = theme => ({
                 <Field
                   name="referrerEmail"
                   label="Email"
+                  variant="outlined"
                   fullWidth
                   component={TextField}
                 />

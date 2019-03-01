@@ -26,6 +26,7 @@ const styles = theme => ({
               <Field
                 name="nameOfGP"
                 label="Name of GP"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -35,6 +36,7 @@ const styles = theme => ({
               <Field
                 name="gpContactNumber"
                 label="GP Contact Number"
+                variant="outlined"
                 fullWidth
                 component={TextField}
               />
@@ -44,6 +46,7 @@ const styles = theme => ({
               <Field
                 name="medicalIssues"
                 label="Medical Issues"
+                variant="outlined"
                 fullWidth
                 multiline
                 component={TextField}
@@ -54,6 +57,7 @@ const styles = theme => ({
               <Field
                 name="otherServicesInvolved"
                 label="Other services involved"
+                variant="outlined"
                 fullWidth
                 multiline
                 component={TextField}

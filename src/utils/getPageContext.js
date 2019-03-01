@@ -5,20 +5,15 @@ import {
   createGenerateClassName
 } from "@material-ui/core/styles";
 
-import blue from "@material-ui/core/colors/blue";
-import pink from "@material-ui/core/colors/pink";
-import { darken } from "@material-ui/core/styles/colorManipulator";
-
 // A theme with custom primary and secondary color.
 // It's optional.
 const theme = createMuiTheme({
-  direction: "ltr",
-  paletteType: "light",
-  paletteColors: {
-    primary: blue,
+  palette: {
+    primary: {
+      main: "#303f9f"
+    },
     secondary: {
-      // Darken so we reach the AA contrast ratio level.
-      main: darken(pink.A400, 0.08)
+      main: "#e53935"
     }
   },
   typography: {

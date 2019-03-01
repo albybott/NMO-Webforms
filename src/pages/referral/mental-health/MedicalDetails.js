@@ -15,7 +15,7 @@ const styles = theme => ({
   }),
   MedicalDetails = props => {
     return (
-      <Card className={props.classes.card}>
+      <>
         <CardHeader
           title="Medical Details"
           titleTypographyProps={{ variant: "h5" }}
@@ -141,7 +141,7 @@ const styles = theme => ({
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </>
     );
   };
 

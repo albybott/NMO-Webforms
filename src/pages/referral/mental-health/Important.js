@@ -6,7 +6,6 @@ import { Switch } from "material-ui-formik-components";
 
 import {
   Grid,
-  Card,
   CardHeader,
   CardContent,
   FormControl,
@@ -15,15 +14,11 @@ import {
 } from "@material-ui/core";
 
 const styles = theme => ({
-    card: {
-      marginBottom: 16,
-      padding: 16,
-      paddingBottom: 32
-    }
+    root: {}
   }),
   Important = props => {
     return (
-      <Card className={props.classes.card}>
+      <>
         <CardHeader
           title="Important"
           titleTypographyProps={{ variant: "h5" }}
@@ -65,7 +60,7 @@ const styles = theme => ({
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </>
     );
   };
 

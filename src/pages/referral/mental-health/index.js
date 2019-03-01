@@ -1,8 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Tab, Tabs, Typography } from "@material-ui/core";
+import { Card, Typography, Button } from "@material-ui/core";
 import { Formik, Form } from "formik";
+import Stepper from "@material-ui/core/Stepper";
+import Step from "@material-ui/core/Step";
+import StepLabel from "@material-ui/core/StepLabel";
+
 import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
 import ClientDetails, { ClientValues } from "./ClientDetails";
@@ -10,7 +14,7 @@ import MedicalDetails, { MedicalValues } from "./MedicalDetails";
 import Important, { ImportantValues } from "./Important";
 import ReferrerDetails, { ReferrerValues } from "./ReferrerDetails";
 import Additional, { AdditionalValues } from "./Additional";
-import Buttons from "./Buttons";
+import Confirmation from "./Confirmation";
 
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
@@ -61,21 +65,73 @@ const styles = theme => ({
     flexGrow: 1,
     width: "100%",
     backgroundColor: theme.palette.background.paper
+  },
+  card: {
+    marginBottom: 16,
+    padding: 16,
+    paddingBottom: 32
+  },
+  button: {},
+  buttons: {
+    display: "flex",
+    justifyContent: "flex-end",
+    padding: "1rem 1rem 0 0"
+  },
+  stepper: {
+    marginBottom: "1rem"
   }
 });
 
+const steps = ["Client", "Medical", "Important", "Referrer", "Additional"];
+
+function getStepContent(step) {
+  switch (step) {
+    case 0:
+      return <ClientDetails />;
+    case 1:
+      return <MedicalDetails />;
+    case 2:
+      return <Important />;
+    case 3:
+      return <ReferrerDetails />;
+    case 4:
+      return <Additional />;
+    default:
+      throw new Error("Unknown step");
+  }
+}
+
 class MentalHealth extends React.Component {
   state = {
-    value: 0
+    value: 0,
+    activeStep: 0
   };
 
   handleChange = (event, value) => {
     this.setState({ value });
   };
 
+  handleNext = () => {
+    this.setState(state => ({
+      activeStep: state.activeStep + 1
+    }));
+  };
+
+  handleBack = () => {
+    this.setState(state => ({
+      activeStep: state.activeStep - 1
+    }));
+  };
+
+  handleReset = () => {
+    this.setState({
+      activeStep: 0
+    });
+  };
+
   render() {
     const { classes } = this.props;
-    const { value } = this.state;
+    const { activeStep } = this.state;
 
     return (
       <Mutation mutation={CREATE_ELECTRONIC_SUBMISSION_MUTATION}>
@@ -84,7 +140,7 @@ class MentalHealth extends React.Component {
           if (error) return <p>{error.message}</p>;
 
           return (
-            <Page className={classes.root}>
+            <Page className={classes.root} showHeader={false}>
               <Formik
                 initialValues={{
                   ...ClientValues,
@@ -104,53 +160,47 @@ class MentalHealth extends React.Component {
                 }}
               >
                 <Form>
-                  <Tabs
-                    value={value}
-                    onChange={this.handleChange}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    variant="scrollable"
-                    scrollButtons="auto"
-                  >
-                    <Tab label="Client Details" />
-                    <Tab label="Medical Details" />
-                    <Tab label="Important" />
-                    <Tab label="Referrer Details" />
-                    <Tab label="Additional" />
-                  </Tabs>
-
-                  {value === 0 && (
-                    <TabContainer>
-                      <ClientDetails />
-                    </TabContainer>
-                  )}
-                  {value === 1 && (
-                    <TabContainer>
-                      <MedicalDetails />
-                    </TabContainer>
-                  )}
-                  {value === 2 && (
-                    <TabContainer>
-                      <Important />
-                    </TabContainer>
-                  )}
-                  {value === 3 && (
-                    <TabContainer>
-                      <ReferrerDetails />
-                    </TabContainer>
-                  )}
-                  {value === 4 && (
-                    <TabContainer>
-                      <Additional />
-                    </TabContainer>
-                  )}
-
-                  <div style={{ padding: "2rem" }}>
-                    <Buttons />
-                    <p style={{ padding: "2rem" }}>
-                      {JSON.stringify(this.state.values, null, 2)}
-                    </p>
-                  </div>
+                  <Card className={classes.card}>
+                    <Stepper
+                      activeStep={activeStep}
+                      className={classes.stepper}
+                    >
+                      {steps.map(label => (
+                        <Step key={label}>
+                          <StepLabel>{label}</StepLabel>
+                        </Step>
+                      ))}
+                    </Stepper>
+                    {activeStep === steps.length ? (
+                      <>
+                        <Confirmation />
+                      </>
+                    ) : (
+                      <>
+                        {getStepContent(activeStep)}
+                        <div className={classes.buttons}>
+                          {activeStep !== 0 && (
+                            <Button
+                              onClick={this.handleBack}
+                              className={classes.button}
+                            >
+                              Back
+                            </Button>
+                          )}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.handleNext}
+                            className={classes.button}
+                          >
+                            {activeStep === steps.length - 1
+                              ? "Send Referral"
+                              : "Next"}
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </Card>
                 </Form>
               </Formik>
             </Page>

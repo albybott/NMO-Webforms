@@ -7,11 +7,13 @@ import "../css/style.styl";
 
 class Page extends React.Component {
   render() {
-    const { title, children } = this.props;
+    const { title, children, showHeader = true } = this.props;
     return (
       <>
-        <Header />
-        <Grid style={{ marginTop: "94px" }}>
+        {showHeader && <Header />}
+        <Grid
+          style={showHeader ? { marginTop: "94px" } : { marginTop: "1rem" }}
+        >
           <Row>
             <Col xs={12}>
               {title ? (

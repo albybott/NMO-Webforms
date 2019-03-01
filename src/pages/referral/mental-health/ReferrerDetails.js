@@ -1,22 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
+import { Grid, CardHeader, CardContent } from "@material-ui/core";
 
 import { Field } from "formik";
 import { TextField } from "material-ui-formik-components";
 
 const styles = theme => ({
-    card: {
-      marginBottom: 16,
-      padding: 16,
-      paddingBottom: 32
-    }
+    root: {}
   }),
   ReferrerDetails = props => {
     return (
       <>
-        <Card className={props.classes.card}>
+        <>
           <CardHeader
             title="Referrer Details"
             titleTypographyProps={{ variant: "h5" }}
@@ -104,7 +100,7 @@ const styles = theme => ({
               </Grid>
             </Grid>
           </CardContent>
-        </Card>
+        </>
       </>
     );
   };

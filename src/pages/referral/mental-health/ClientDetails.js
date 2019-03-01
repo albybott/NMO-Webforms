@@ -1,20 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
+import { Grid, CardHeader, CardContent } from "@material-ui/core";
 import { Field } from "formik";
 import { TextField, Autocomplete } from "material-ui-formik-components";
 
 import iwi from "./iwi.json";
 
 const styles = theme => ({
-    card: {
-      padding: "16px 32px 32px 32px"
-    }
+    root: {}
   }),
   ClientDetails = props => {
     return (
-      <Card className={props.classes.card}>
+      <>
         <CardHeader
           title="Client Details"
           titleTypographyProps={{ variant: "h5" }}
@@ -190,7 +188,7 @@ const styles = theme => ({
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </>
     );
   };
 

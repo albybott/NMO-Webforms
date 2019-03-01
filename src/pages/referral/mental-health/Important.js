@@ -10,8 +10,13 @@ import {
   CardContent,
   FormControl,
   FormGroup,
-  FormControlLabel
+  FormControlLabel,
+  Typography
 } from "@material-ui/core";
+
+function SwitchLabel(props) {
+  return <Typography variant="subtitle1">{props.children}</Typography>;
+}
 
 const styles = theme => ({
     root: {}
@@ -32,7 +37,12 @@ const styles = theme => ({
                     control={
                       <Field
                         name="clientConsent"
-                        label="Has the person you are referring given consent to release information?"
+                        label={
+                          <SwitchLabel>
+                            Has the person you are referring given consent to
+                            release information?
+                          </SwitchLabel>
+                        }
                         component={Switch}
                       />
                     }
@@ -41,7 +51,11 @@ const styles = theme => ({
                     control={
                       <Field
                         name="clientRequestingService"
-                        label="Are they requesting the service?"
+                        label={
+                          <SwitchLabel>
+                            Are they requesting the service?
+                          </SwitchLabel>
+                        }
                         component={Switch}
                       />
                     }
@@ -50,7 +64,12 @@ const styles = theme => ({
                     control={
                       <Field
                         name="parentalConsent"
-                        label="If the person you are referring is under 16 years of age, have you gained parental consent?"
+                        label={
+                          <SwitchLabel>
+                            If the person you are referring is under 16 years of
+                            age, have you gained parental consent?
+                          </SwitchLabel>
+                        }
                         component={Switch}
                       />
                     }

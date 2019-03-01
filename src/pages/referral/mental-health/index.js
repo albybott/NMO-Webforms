@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Card, Typography, Button } from "@material-ui/core";
+import { Card, Typography, Button, Hidden } from "@material-ui/core";
 import { Formik, Form } from "formik";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
@@ -167,7 +167,9 @@ class MentalHealth extends React.Component {
                     >
                       {steps.map(label => (
                         <Step key={label}>
-                          <StepLabel>{label}</StepLabel>
+                          <StepLabel>
+                            <Hidden smDown>{label}</Hidden>
+                          </StepLabel>
                         </Step>
                       ))}
                     </Stepper>

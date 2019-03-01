@@ -7,7 +7,7 @@ import Hidden from "@material-ui/core/Hidden";
 const Footer = props => {
   const {
     title,
-    contact: { email, phone },
+    contact: { email, phone }
   } = props.data.site.siteMetadata;
   return (
     <>

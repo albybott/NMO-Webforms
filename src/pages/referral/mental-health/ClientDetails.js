@@ -5,9 +5,6 @@ import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
 import { Field } from "formik";
 import { TextField, Autocomplete } from "material-ui-formik-components";
 
-import { Query } from "react-apollo";
-import gql from "graphql-tag";
-
 import iwi from "./iwi.json";
 
 const styles = theme => ({
@@ -17,197 +14,171 @@ const styles = theme => ({
   }),
   ClientDetails = props => {
     return (
-      <Query
-        query={gql`
-          {
-            rates(currency: "USD") {
-              currency
-              rate
-            }
-          }
-        `}
-      >
-        {({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>;
-          if (error) return <p>Error :(</p>;
-
-          return (
-            <Card className={props.classes.card}>
-              <CardHeader
-                title="Client Details"
-                titleTypographyProps={{ variant: "h5" }}
+      <Card className={props.classes.card}>
+        <CardHeader
+          title="Client Details"
+          titleTypographyProps={{ variant: "h5" }}
+        />
+        <CardContent>
+          <Grid container spacing={16}>
+            <Grid item xs={12} sm={6} md={4}>
+              <Field
+                name="nmo_lastname"
+                label="Surname"
+                fullWidth
+                component={TextField}
               />
-              <CardContent>
-                {data.rates.map(({ currency, rate }) => (
-                  <div key={currency}>
-                    <p>
-                      {currency}: {rate}
-                    </p>
-                  </div>
-                ))}
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Field
+                name="nmo_firstname"
+                label="First Name"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
 
-                <Grid container spacing={16}>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Field
-                      name="nmo_lastname"
-                      label="Surname"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
-                    <Field
-                      name="nmo_firstname"
-                      label="First Name"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
+            <Grid item xs={12} sm={12} md={4}>
+              <Field
+                name="preferredName"
+                label="Preferred Name"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
 
-                  <Grid item xs={12} sm={12} md={4}>
-                    <Field
-                      name="preferredName"
-                      label="Preferred Name"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
+            <Grid item xs={6} sm={6} md={4}>
+              <Field
+                name="nmo_nhi"
+                label="NHI"
+                placeholder="ABC9999"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
 
-                  <Grid item xs={6} sm={6} md={4}>
-                    <Field
-                      name="nmo_nhi"
-                      label="NHI"
-                      placeholder="ABC9999"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
+            <Grid item xs={6} sm={6} md={4}>
+              <Field
+                name="nmo_birthdate"
+                label="Date Of Birth"
+                type="date"
+                InputLabelProps={{
+                  shrink: true
+                }}
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
 
-                  <Grid item xs={6} sm={6} md={4}>
-                    <Field
-                      name="nmo_birthdate"
-                      label="Date Of Birth"
-                      type="date"
-                      InputLabelProps={{
-                        shrink: true
-                      }}
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
+            <Grid item />
 
-                  <Grid item />
+            <Grid item xs={12} sm={8}>
+              <Field
+                name="address"
+                label="Address"
+                multiline
+                rows={4}
+                margin="dense"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
 
-                  <Grid item xs={12} sm={8}>
-                    <Field
-                      name="address"
-                      label="Address"
-                      multiline
-                      rows={4}
-                      margin="dense"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <Grid container item xs={12}>
-                      <Grid item xs={12}>
-                        <Field
-                          name="nmo_address1_city"
-                          label="City"
-                          margin="dense"
-                          fullWidth
-                          component={TextField}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          name="nmo_address1_postalcode"
-                          label="Postcode"
-                          margin="dense"
-                          fullWidth
-                          component={TextField}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Grid container item xs={12}>
-                      <Grid item xs={12}>
-                        <Field
-                          required
-                          name="ethnicity"
-                          label="Ethnicity"
-                          options={[
-                            { value: "", label: "" },
-                            { value: "Maori", label: "Maori" },
-                            {
-                              value: "Pacific Islander",
-                              label: "Pacific Islander"
-                            },
-                            { value: "NZ European", label: "NZ European" }
-                          ]}
-                          component={Autocomplete}
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          required
-                          name="iwi"
-                          label="Iwi"
-                          fullWidth
-                          options={iwi}
-                          component={Autocomplete}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-
-                  <Grid item xs={12} sm={12} md={6}>
-                    <Field
-                      name="homePhone"
-                      label="Home Phone"
-                      margin="dense"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6}>
-                    <Field
-                      name="nmo_mobilephone"
-                      label="Cell Phone"
-                      margin="dense"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Field
-                      name="mentalHealthStatus"
-                      label="Mental Health Act Status"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Field
-                      name="legalConsiderations"
-                      label="Legal considerations"
-                      fullWidth
-                      component={TextField}
-                    />
-                  </Grid>
+            <Grid item xs={12} sm={4}>
+              <Grid container item xs={12}>
+                <Grid item xs={12}>
+                  <Field
+                    name="nmo_address1_city"
+                    label="City"
+                    margin="dense"
+                    fullWidth
+                    component={TextField}
+                  />
                 </Grid>
-              </CardContent>
-            </Card>
-          );
-        }}
-      </Query>
+                <Grid item xs={12}>
+                  <Field
+                    name="nmo_address1_postalcode"
+                    label="Postcode"
+                    margin="dense"
+                    fullWidth
+                    component={TextField}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Grid container item xs={12}>
+                <Grid item xs={12}>
+                  <Field
+                    required
+                    name="ethnicity"
+                    label="Ethnicity"
+                    options={[
+                      { value: "", label: "" },
+                      { value: "Maori", label: "Maori" },
+                      {
+                        value: "Pacific Islander",
+                        label: "Pacific Islander"
+                      },
+                      { value: "NZ European", label: "NZ European" }
+                    ]}
+                    component={Autocomplete}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    required
+                    name="iwi"
+                    label="Iwi"
+                    fullWidth
+                    options={iwi}
+                    component={Autocomplete}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12} sm={12} md={6}>
+              <Field
+                name="homePhone"
+                label="Home Phone"
+                margin="dense"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6}>
+              <Field
+                name="nmo_mobilephone"
+                label="Cell Phone"
+                margin="dense"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Field
+                name="mentalHealthStatus"
+                label="Mental Health Act Status"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Field
+                name="legalConsiderations"
+                label="Legal considerations"
+                fullWidth
+                component={TextField}
+              />
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     );
   };
 

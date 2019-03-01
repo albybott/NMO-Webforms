@@ -6,6 +6,9 @@ import JssProvider from "react-jss/lib/JssProvider";
 import getPageContext from "./getPageContext";
 import Hidden from "@material-ui/core/Hidden";
 
+import client from "./client";
+import { ApolloProvider } from "react-apollo";
+
 function withRoot(Component) {
   class WithRoot extends React.Component {
     constructor(props) {
@@ -32,9 +35,11 @@ function withRoot(Component) {
           >
             {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
             <CssBaseline />
-            <Hidden implementation="css">
-              <Component {...this.props} />
-            </Hidden>
+            <ApolloProvider client={client}>
+              <Hidden implementation="css">
+                <Component {...this.props} />
+              </Hidden>
+            </ApolloProvider>
           </MuiThemeProvider>
         </JssProvider>
       );

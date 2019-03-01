@@ -1,0 +1,23 @@
+[
+  { "label": "African", "value": "53" },
+  { "label": "American Indian", "value": "98" },
+  { "label": "Chinese", "value": "42" },
+  { "label": "Cook Island Maori", "value": "32" },
+  { "label": "Don't know", "value": "94" },
+  { "label": "Fijian", "value": "36" },
+  { "label": "Indian", "value": "43" },
+  { "label": "Latin American / Hispanic", "value": "52" },
+  { "label": "Maori", "value": "21" },
+  { "label": "Middle Eastern", "value": "51" },
+  { "label": "Niuean", "value": "34" },
+  { "label": "Not stated", "value": "99" },
+  { "label": "NZ European", "value": "11" },
+  { "label": "Other Asian", "value": "44" },
+  { "label": "Other European", "value": "12" },
+  { "label": "Other Pacific Island", "value": "37" },
+  { "label": "Refused to answer", "value": "95" },
+  { "label": "Samoan", "value": "31" },
+  { "label": "Southeast Asian", "value": "41" },
+  { "label": "Tokelauan", "value": "35" },
+  { "label": "Tongan", "value": "33" }
+]

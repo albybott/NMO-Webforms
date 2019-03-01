@@ -6,6 +6,7 @@ import { Field } from "formik";
 import { TextField, Autocomplete } from "material-ui-formik-components";
 
 import iwi from "./iwi.json";
+import ethnicities from "./ethnicities.json";
 
 const styles = theme => ({
     root: {}
@@ -119,14 +120,7 @@ const styles = theme => ({
                     required
                     name="ethnicity"
                     label="Ethnicity"
-                    options={[
-                      { value: "Maori", label: "Maori" },
-                      {
-                        value: "Pacific Islander",
-                        label: "Pacific Islander"
-                      },
-                      { value: "NZ European", label: "NZ European" }
-                    ]}
+                    options={ethnicities}
                     component={Autocomplete}
                     fullWidth
                   />

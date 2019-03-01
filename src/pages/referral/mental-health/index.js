@@ -1,11 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Card, Typography, Button, Hidden } from "@material-ui/core";
+import { Card, Button, Hidden, CircularProgress } from "@material-ui/core";
 import { Formik, Form } from "formik";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
+import green from "@material-ui/core/colors/green";
 
 import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
@@ -48,18 +49,6 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
   }
 `;
 
-function TabContainer(props) {
-  return (
-    <Typography component="div" style={{ padding: "2rem 2rem 0 2rem" }}>
-      {props.children}
-    </Typography>
-  );
-}
-
-TabContainer.propTypes = {
-  children: PropTypes.node.isRequired
-};
-
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -79,6 +68,18 @@ const styles = theme => ({
   },
   stepper: {
     marginBottom: "1rem"
+  },
+  wrapper: {
+    margin: theme.spacing.unit,
+    position: "relative"
+  },
+  buttonProgress: {
+    color: green[500],
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -12,
+    marginLeft: -12
   }
 });
 
@@ -107,10 +108,6 @@ class MentalHealth extends React.Component {
     activeStep: 0
   };
 
-  handleChange = (event, value) => {
-    this.setState({ value });
-  };
-
   handleNext = () => {
     this.setState(state => ({
       activeStep: state.activeStep + 1
@@ -136,7 +133,6 @@ class MentalHealth extends React.Component {
     return (
       <Mutation mutation={CREATE_ELECTRONIC_SUBMISSION_MUTATION}>
         {(createElectronicSubmission, { loading, error }) => {
-          if (loading) return <p>Loading...</p>;
           if (error) return <p>{error.message}</p>;
 
           return (
@@ -153,6 +149,11 @@ class MentalHealth extends React.Component {
                   createElectronicSubmission({ variables: { ...values } })
                     .then(result => {
                       console.log(result);
+
+                      // go to the last confirmation step
+                      this.setState(state => ({
+                        activeStep: state.activeStep + 1
+                      }));
                     })
                     .catch(error => {
                       console.log(error);
@@ -189,16 +190,36 @@ class MentalHealth extends React.Component {
                               Back
                             </Button>
                           )}
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.handleNext}
-                            className={classes.button}
-                          >
-                            {activeStep === steps.length - 1
-                              ? "Send Referral"
-                              : "Next"}
-                          </Button>
+
+                          {activeStep < steps.length - 1 && (
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={this.handleNext}
+                              className={classes.button}
+                            >
+                              Next
+                            </Button>
+                          )}
+
+                          {activeStep === steps.length - 1 && (
+                            <div className={classes.wrapper}>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={loading}
+                                type="submit"
+                              >
+                                Send Referral
+                              </Button>
+                              {loading && (
+                                <CircularProgress
+                                  size={24}
+                                  className={classes.buttonProgress}
+                                />
+                              )}
+                            </div>
+                          )}
                         </div>
                       </>
                     )}

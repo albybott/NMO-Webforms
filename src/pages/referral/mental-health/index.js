@@ -7,6 +7,7 @@ import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import green from "@material-ui/core/colors/green";
+import stringify from "json-stringify-pretty-compact";
 
 import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
@@ -31,7 +32,8 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
     $nmo_address1_line2: String
     $nmo_address1_line3: String
     $nmo_address1_city: String
-    $nmo_address1_postalcode: String # $nmo_rawdata: String
+    $nmo_address1_postalcode: String
+    $nmo_rawdata: String
   ) {
     createElectronicSubmission(
       nmo_firstname: $nmo_firstname
@@ -44,7 +46,7 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
       nmo_address1_line3: $nmo_address1_line3
       nmo_address1_city: $nmo_address1_city
       nmo_address1_postalcode: $nmo_address1_postalcode
-      # nmo_rawdata: $nmo_rawdata
+      nmo_rawdata: $nmo_rawdata
     )
   }
 `;
@@ -126,6 +128,16 @@ class MentalHealth extends React.Component {
     });
   };
 
+  formatRawData = values => {
+    let formattedJSON = stringify(values, {
+      indent: 0,
+      margins: true,
+      arrayMargins: true
+    });
+
+    return formattedJSON.replace(/[{}"]|(nmo_)/g, "");
+  };
+
   render() {
     const { classes } = this.props;
     const { activeStep } = this.state;
@@ -146,7 +158,12 @@ class MentalHealth extends React.Component {
                   ...AdditionalValues
                 }}
                 onSubmit={values => {
-                  createElectronicSubmission({ variables: { ...values } })
+                  createElectronicSubmission({
+                    variables: {
+                      ...values,
+                      nmo_rawdata: this.formatRawData(values)
+                    }
+                  })
                     .then(result => {
                       console.log(result);
 

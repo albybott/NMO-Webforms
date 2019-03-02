@@ -27,6 +27,7 @@
     "gatsby-transformer-remark": "^2.2.5",
     "gh-pages": "^2.0.1",
     "graphql": "^14.1.1",
+    "json-stringify-pretty-compact": "^2.0.0",
     "jss": "^9.8.7",
     "material-ui-formik-components": "^0.2.0",
     "material-ui-pickers": "^2.2.1",

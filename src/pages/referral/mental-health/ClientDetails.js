@@ -8,10 +8,27 @@ import { TextField, Autocomplete } from "material-ui-formik-components";
 import iwi from "./iwi.json";
 import ethnicities from "./ethnicities.json";
 
-const styles = theme => ({
-    root: {}
-  }),
-  ClientDetails = props => {
+const styles = {
+  root: {}
+};
+
+class ClientDetails extends React.Component {
+  componentDidMount() {
+    let addyComplete = new window.AddyComplete(
+      document.getElementById("address")
+    );
+    addyComplete.options.excludePostBox = false;
+    addyComplete.fields = {
+      address1: document.getElementById("address")
+      // city: document.getElementById("nmo_address1_city"),
+      // postcode: document.getElementById("nmo_address1_postalcode")
+    };
+  }
+
+  render() {
+    const { values } = this.props;
+    console.log(values);
+
     return (
       <>
         <CardHeader
@@ -76,14 +93,16 @@ const styles = theme => ({
 
             <Grid item xs={12} sm={8}>
               <Field
+                id="address"
                 name="address"
                 label="Address"
-                multiline
-                rows={4}
+                // multiline
+                // rows={4}
                 margin="dense"
                 variant="outlined"
                 fullWidth
                 component={TextField}
+                autoComplete="off"
               />
             </Grid>
 
@@ -91,6 +110,7 @@ const styles = theme => ({
               <Grid container item xs={12}>
                 <Grid item xs={12}>
                   <Field
+                    id="nmo_address1_city"
                     name="nmo_address1_city"
                     label="City"
                     margin="dense"
@@ -101,6 +121,7 @@ const styles = theme => ({
                 </Grid>
                 <Grid item xs={12}>
                   <Field
+                    id="nmo_address1_postalcode"
                     name="nmo_address1_postalcode"
                     label="Postcode"
                     margin="dense"
@@ -184,7 +205,8 @@ const styles = theme => ({
         </CardContent>
       </>
     );
-  };
+  }
+}
 
 ClientDetails.propTypes = {
   classes: PropTypes.object.isRequired
@@ -196,9 +218,12 @@ const ClientValues = {
   preferredName: "JT Jackhammer",
   nmo_nhi: "ABC9999",
   nmo_birthdate: "1980-12-28",
-  address: "157 Fraser Street\nTauranga 3112",
-  nmo_address1_city: "Tauranga",
-  nmo_address1_postalcode: "3112",
+  // address: "157 Fraser Street\nTauranga 3112",
+  // nmo_address1_city: "Tauranga",
+  // nmo_address1_postalcode: "3112",
+  address: "",
+  nmo_address1_city: "",
+  nmo_address1_postalcode: "",
   homePhone: "07 5780396",
   nmo_mobilephone: "021 624587",
   ethnicity: [{ value: "Maori", label: "Maori" }],

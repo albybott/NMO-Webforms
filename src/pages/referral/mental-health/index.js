@@ -130,12 +130,12 @@ class MentalHealth extends React.Component {
 
   formatRawData = values => {
     let formattedJSON = stringify(values, {
-      indent: 0,
+      indent: 4,
       margins: true,
       arrayMargins: true
     });
 
-    return formattedJSON.replace(/[{}"]|(nmo_)/g, "");
+    return formattedJSON.replace(/["]|(nmo_)/g, "");
   };
 
   render() {
@@ -178,6 +178,7 @@ class MentalHealth extends React.Component {
                 }}
               >
                 <Form>
+                  {/* <TextField type="hidden" value="something" /> */}
                   <Card className={classes.card}>
                     <Stepper
                       activeStep={activeStep}

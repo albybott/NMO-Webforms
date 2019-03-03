@@ -41,6 +41,7 @@
     "react-jss": "^8.6.1",
     "react-select": "^2.4.1",
     "react-swipeable-views": "^0.13.1",
-    "react-swipeable-views-utils": "^0.13.1"
+    "react-swipeable-views-utils": "^0.13.1",
+    "require-from-url": "^3.1.2"
   }
 }

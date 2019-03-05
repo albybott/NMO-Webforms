@@ -27,6 +27,8 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
     $nmo_lastname: String
     $nmo_birthdate: String
     $nmo_nhi: String
+    $nmo_gendercode: String
+    $nmo_telephone1: String
     $nmo_mobilephone: String
     $nmo_address1_line1: String
     $nmo_address1_line2: String
@@ -40,6 +42,8 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
       nmo_lastname: $nmo_lastname
       nmo_birthdate: $nmo_birthdate
       nmo_nhi: $nmo_nhi
+      nmo_gendercode: $nmo_gendercode
+      nmo_telephone1: $nmo_telephone1
       nmo_mobilephone: $nmo_mobilephone
       nmo_address1_line1: $nmo_address1_line1
       nmo_address1_line2: $nmo_address1_line2

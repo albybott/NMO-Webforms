@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, CardHeader, CardContent } from "@material-ui/core";
 import { Field } from "formik";
-import { TextField, Autocomplete } from "material-ui-formik-components";
+import { TextField, Autocomplete, Select } from "material-ui-formik-components";
 
 import iwi from "./data/iwi.json";
 import ethnicities from "./data/ethnicities.json";
@@ -68,7 +68,7 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={6} sm={6} md={4}>
+            <Grid item xs={4}>
               <Field
                 name="nmo_nhi"
                 label="NHI"
@@ -79,7 +79,7 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={6} sm={6} md={4}>
+            <Grid item xs={4}>
               <Field
                 name="nmo_birthdate"
                 label="Date Of Birth"
@@ -90,6 +90,19 @@ class ClientDetails extends React.Component {
                 }}
                 fullWidth
                 component={TextField}
+              />
+            </Grid>
+
+            <Grid item xs={4}>
+              <Field
+                style={{ zIndex: 101 }}
+                id="nmo_gendercode"
+                name="nmo_gendercode"
+                options={[
+                  { value: "1", label: "Male" },
+                  { value: "2", label: "Female" }
+                ]}
+                component={Select}
               />
             </Grid>
 
@@ -173,7 +186,7 @@ class ClientDetails extends React.Component {
 
             <Grid item xs={12} sm={12} md={6}>
               <Field
-                name="homePhone"
+                name="nmo_telephone1"
                 label="Home Phone"
                 margin="dense"
                 variant="outlined"
@@ -228,11 +241,12 @@ const ClientValues = {
   preferredName: "JT Jackhammer",
   nmo_nhi: "ABC9999",
   nmo_birthdate: "1980-12-28",
+  nmo_gendercode: "1",
   nmo_address1_line1: "2300 Esmeralda Street",
   nmo_address1_line2: "Welcome Bay",
   nmo_address1_city: "Tauranga",
   nmo_address1_postalcode: "3112",
-  homePhone: "07 5780396",
+  nmo_telephone1: "07 5780396",
   nmo_mobilephone: "021 624587",
   ethnicity: [{ value: "Maori", label: "Maori" }],
   iwi: [

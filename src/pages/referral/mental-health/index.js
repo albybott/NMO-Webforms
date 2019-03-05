@@ -25,9 +25,10 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
   mutation CREATE_ELECTRONIC_SUBMISSION_MUTATION(
     $nmo_firstname: String
     $nmo_lastname: String
+    $nmo_perferredname: String
     $nmo_birthdate: String
     $nmo_nhi: String
-    $nmo_gendercode: String
+    $nmo_gendercode: Int
     $nmo_telephone1: String
     $nmo_mobilephone: String
     $nmo_address1_line1: String
@@ -40,6 +41,7 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
     createElectronicSubmission(
       nmo_firstname: $nmo_firstname
       nmo_lastname: $nmo_lastname
+      nmo_perferredname: $nmo_perferredname
       nmo_birthdate: $nmo_birthdate
       nmo_nhi: $nmo_nhi
       nmo_gendercode: $nmo_gendercode

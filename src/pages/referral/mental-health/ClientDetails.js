@@ -60,7 +60,7 @@ class ClientDetails extends React.Component {
 
             <Grid item xs={12} sm={12} md={4}>
               <Field
-                name="preferredName"
+                name="nmo_perferredname"
                 label="Preferred Name"
                 variant="outlined"
                 fullWidth
@@ -99,8 +99,8 @@ class ClientDetails extends React.Component {
                 id="nmo_gendercode"
                 name="nmo_gendercode"
                 options={[
-                  { value: "1", label: "Male" },
-                  { value: "2", label: "Female" }
+                  { value: 1, label: "Male" },
+                  { value: 2, label: "Female" }
                 ]}
                 component={Select}
               />
@@ -238,10 +238,10 @@ ClientDetails.propTypes = {
 const ClientValues = {
   nmo_lastname: "Tutemake",
   nmo_firstname: "John",
-  preferredName: "JT Jackhammer",
+  nmo_perferredname: "JT Jackhammer",
   nmo_nhi: "ABC9999",
   nmo_birthdate: "1980-12-28",
-  nmo_gendercode: "1",
+  nmo_gendercode: 1,
   nmo_address1_line1: "2300 Esmeralda Street",
   nmo_address1_line2: "Welcome Bay",
   nmo_address1_city: "Tauranga",

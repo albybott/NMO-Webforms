@@ -5,8 +5,8 @@ import { Grid, CardHeader, CardContent } from "@material-ui/core";
 import { Field } from "formik";
 import { TextField, Autocomplete } from "material-ui-formik-components";
 
-import iwi from "./iwi.json";
-import ethnicities from "./ethnicities.json";
+import iwi from "./data/iwi.json";
+import ethnicities from "./data/ethnicities.json";
 
 const styles = {
   root: {}
@@ -14,15 +14,17 @@ const styles = {
 
 class ClientDetails extends React.Component {
   componentDidMount() {
-    let addyComplete = new window.AddyComplete(
-      document.getElementById("address")
-    );
-    addyComplete.options.excludePostBox = false;
-    addyComplete.fields = {
-      address1: document.getElementById("address")
-      // city: document.getElementById("nmo_address1_city"),
-      // postcode: document.getElementById("nmo_address1_postalcode")
-    };
+    /* Initialise the Address lookup functionality add.co.nz */
+    // let addyComplete = new window.AddyComplete(
+    //   document.getElementById("address")
+    // );
+    // addyComplete.options.excludePostBox = false;
+    // addyComplete.fields = {
+    //   address1: document.getElementById("address"),
+    //   suburb: document.getElementById("suburb"),
+    //   city: document.getElementById("nmo_address1_city"),
+    //   postcode: document.getElementById("nmo_address1_postalcode")
+    // };
   }
 
   render() {
@@ -91,13 +93,23 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={12} sm={8}>
+            <Grid item xs={12} sm={6}>
               <Field
-                id="address"
-                name="address"
+                id="nmo_address1_line1"
+                name="nmo_address1_line1"
                 label="Address"
-                // multiline
-                // rows={4}
+                margin="dense"
+                variant="outlined"
+                fullWidth
+                component={TextField}
+                autoComplete="off"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Field
+                id="nmo_address1_line2"
+                name="nmo_address1_line2"
+                label="Suburb"
                 margin="dense"
                 variant="outlined"
                 fullWidth
@@ -106,31 +118,29 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={12} sm={4}>
-              <Grid container item xs={12}>
-                <Grid item xs={12}>
-                  <Field
-                    id="nmo_address1_city"
-                    name="nmo_address1_city"
-                    label="City"
-                    margin="dense"
-                    variant="outlined"
-                    fullWidth
-                    component={TextField}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Field
-                    id="nmo_address1_postalcode"
-                    name="nmo_address1_postalcode"
-                    label="Postcode"
-                    margin="dense"
-                    variant="outlined"
-                    fullWidth
-                    component={TextField}
-                  />
-                </Grid>
-              </Grid>
+            <Grid item xs={12} sm={6}>
+              <Field
+                id="nmo_address1_city"
+                name="nmo_address1_city"
+                label="City"
+                margin="dense"
+                variant="outlined"
+                fullWidth
+                component={TextField}
+                autoComplete="off"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Field
+                id="nmo_address1_postalcode"
+                name="nmo_address1_postalcode"
+                label="Postcode"
+                margin="dense"
+                variant="outlined"
+                fullWidth
+                component={TextField}
+                autoComplete="off"
+              />
             </Grid>
 
             <Grid item xs={12}>
@@ -218,12 +228,10 @@ const ClientValues = {
   preferredName: "JT Jackhammer",
   nmo_nhi: "ABC9999",
   nmo_birthdate: "1980-12-28",
-  // address: "157 Fraser Street\nTauranga 3112",
-  // nmo_address1_city: "Tauranga",
-  // nmo_address1_postalcode: "3112",
-  address: "",
-  nmo_address1_city: "",
-  nmo_address1_postalcode: "",
+  nmo_address1_line1: "2300 Esmeralda Street",
+  nmo_address1_line2: "Welcome Bay",
+  nmo_address1_city: "Tauranga",
+  nmo_address1_postalcode: "3112",
   homePhone: "07 5780396",
   nmo_mobilephone: "021 624587",
   ethnicity: [{ value: "Maori", label: "Maori" }],

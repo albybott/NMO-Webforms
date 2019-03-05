@@ -176,74 +176,89 @@ class MentalHealth extends React.Component {
                       console.log(error);
                     });
                 }}
-              >
-                <Form>
-                  {/* <TextField type="hidden" value="something" /> */}
-                  <Card className={classes.card}>
-                    <Stepper
-                      activeStep={activeStep}
-                      className={classes.stepper}
-                    >
-                      {steps.map(label => (
-                        <Step key={label}>
-                          <StepLabel>
-                            <Hidden smDown>{label}</Hidden>
-                          </StepLabel>
-                        </Step>
-                      ))}
-                    </Stepper>
-                    {activeStep === steps.length ? (
-                      <>
-                        <Confirmation />
-                      </>
-                    ) : (
-                      <>
-                        {getStepContent(activeStep)}
-                        <div className={classes.buttons}>
-                          {activeStep !== 0 && (
-                            <Button
-                              onClick={this.handleBack}
-                              className={classes.button}
-                            >
-                              Back
-                            </Button>
-                          )}
+                render={props => {
+                  const {
+                    // values,
+                    // touched,
+                    // errors,
+                    // dirty,
+                    // isSubmitting,
+                    // handleChange,
+                    // setFieldValue,
+                    // handleBlur,
+                    handleSubmit
+                    // handleReset
+                  } = props;
 
-                          {activeStep < steps.length - 1 && (
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              onClick={this.handleNext}
-                              className={classes.button}
-                            >
-                              Next
-                            </Button>
-                          )}
+                  return (
+                    <Form onSubmit={handleSubmit}>
+                      <Card className={classes.card}>
+                        <Stepper
+                          activeStep={activeStep}
+                          className={classes.stepper}
+                        >
+                          {steps.map(label => (
+                            <Step key={label}>
+                              <StepLabel>
+                                <Hidden smDown>{label}</Hidden>
+                              </StepLabel>
+                            </Step>
+                          ))}
+                        </Stepper>
+                        {activeStep === steps.length ? (
+                          <>
+                            <Confirmation />
+                          </>
+                        ) : (
+                          <>
+                            {getStepContent(activeStep)}
+                            <div className={classes.buttons}>
+                              {activeStep !== 0 && (
+                                <Button
+                                  onClick={this.handleBack}
+                                  className={classes.button}
+                                >
+                                  Back
+                                </Button>
+                              )}
 
-                          {activeStep === steps.length - 1 && (
-                            <div className={classes.wrapper}>
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                disabled={loading}
-                                type="submit"
-                              >
-                                Send Referral
-                              </Button>
-                              {loading && (
-                                <CircularProgress
-                                  size={24}
-                                  className={classes.buttonProgress}
-                                />
+                              {activeStep < steps.length - 1 && (
+                                <Button
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={this.handleNext}
+                                  className={classes.button}
+                                >
+                                  Next
+                                </Button>
+                              )}
+
+                              {activeStep === steps.length - 1 && (
+                                <div className={classes.wrapper}>
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={loading}
+                                    type="submit"
+                                  >
+                                    Send Referral
+                                  </Button>
+                                  {loading && (
+                                    <CircularProgress
+                                      size={24}
+                                      className={classes.buttonProgress}
+                                    />
+                                  )}
+                                </div>
                               )}
                             </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </Card>
-                </Form>
-              </Formik>
+                          </>
+                        )}
+                      </Card>
+                    </Form>
+                  );
+                }}
+              />
             </Page>
           );
         }}

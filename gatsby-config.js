@@ -1,10 +1,10 @@
 module.exports = {
   pathPrefix: "/gatsby-material-ui-business-starter",
   siteMetadata: {
-    title: "Gatsby Material UI Business Starter",
+    title: "Nga Mataapuna Oranga",
     contact: {
-      phone: "503-555-1111",
-      email: "hi@foxandgeese.com"
+      phone: "07 5794930",
+      email: "alby@nmo.org.nz"
     },
     menuLinks: [
       {

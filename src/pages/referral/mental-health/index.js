@@ -11,6 +11,7 @@ import stringify from "json-stringify-pretty-compact";
 
 import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
+import SEO from "../../../components/SEO";
 import ClientDetails, { ClientValues } from "./ClientDetails";
 import MedicalDetails, { MedicalValues } from "./MedicalDetails";
 import Important, { ImportantValues } from "./Important";
@@ -197,71 +198,79 @@ class MentalHealth extends React.Component {
                   } = props;
 
                   return (
-                    <Form onSubmit={handleSubmit}>
-                      <Card className={classes.card}>
-                        <Stepper
-                          activeStep={activeStep}
-                          className={classes.stepper}
-                        >
-                          {steps.map(label => (
-                            <Step key={label}>
-                              <StepLabel>
-                                <Hidden smDown>{label}</Hidden>
-                              </StepLabel>
-                            </Step>
-                          ))}
-                        </Stepper>
-                        {activeStep === steps.length ? (
-                          <>
-                            <Confirmation />
-                          </>
-                        ) : (
-                          <>
-                            {getStepContent(activeStep)}
-                            <div className={classes.buttons}>
-                              {activeStep !== 0 && (
-                                <Button
-                                  onClick={this.handleBack}
-                                  className={classes.button}
-                                >
-                                  Back
-                                </Button>
-                              )}
+                    <>
+                      <SEO title="Mental Health Referral">
+                        <meta
+                          name="description"
+                          content="Mental Health Referral Form"
+                        />
+                      </SEO>
+                      <Form onSubmit={handleSubmit}>
+                        <Card className={classes.card}>
+                          <Stepper
+                            activeStep={activeStep}
+                            className={classes.stepper}
+                          >
+                            {steps.map(label => (
+                              <Step key={label}>
+                                <StepLabel>
+                                  <Hidden smDown>{label}</Hidden>
+                                </StepLabel>
+                              </Step>
+                            ))}
+                          </Stepper>
+                          {activeStep === steps.length ? (
+                            <>
+                              <Confirmation />
+                            </>
+                          ) : (
+                            <>
+                              {getStepContent(activeStep)}
+                              <div className={classes.buttons}>
+                                {activeStep !== 0 && (
+                                  <Button
+                                    onClick={this.handleBack}
+                                    className={classes.button}
+                                  >
+                                    Back
+                                  </Button>
+                                )}
 
-                              {activeStep < steps.length - 1 && (
-                                <Button
-                                  variant="contained"
-                                  color="secondary"
-                                  onClick={this.handleNext}
-                                  className={classes.button}
-                                >
-                                  Next
-                                </Button>
-                              )}
-
-                              {activeStep === steps.length - 1 && (
-                                <div className={classes.wrapper}>
+                                {activeStep < steps.length - 1 && (
                                   <Button
                                     variant="contained"
-                                    color="primary"
-                                    disabled={loading}
-                                    type="submit"
+                                    color="secondary"
+                                    onClick={this.handleNext}
+                                    className={classes.button}
                                   >
-                                    Send Referral
+                                    Next
                                   </Button>
-                                  {loading && (
-                                    <CircularProgress
-                                      size={24}
-                                      className={classes.buttonProgress}
-                                    />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </>
-                        )}
-                      </Card>
-                    </Form>
+                                )}
+
+                                {activeStep === steps.length - 1 && (
+                                  <div className={classes.wrapper}>
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      disabled={loading}
+                                      type="submit"
+                                    >
+                                      Send Referral
+                                    </Button>
+                                    {loading && (
+                                      <CircularProgress
+                                        size={24}
+                                        className={classes.buttonProgress}
+                                      />
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </Card>
+                      </Form>
+                    </>
                   );
                 }}
               />

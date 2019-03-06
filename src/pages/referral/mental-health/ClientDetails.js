@@ -1,7 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import { Grid, CardHeader, CardContent } from "@material-ui/core";
+import {
+  Grid,
+  CardHeader,
+  CardContent,
+  OutlinedInput
+} from "@material-ui/core";
 import { Field } from "formik";
 import { TextField, Autocomplete, Select } from "material-ui-formik-components";
 
@@ -103,6 +108,9 @@ class ClientDetails extends React.Component {
                   { value: 2, label: "Female" }
                 ]}
                 component={Select}
+                input={
+                  <OutlinedInput name="nmo_gendercode" id="nmo_gendercode" />
+                }
               />
             </Grid>
 

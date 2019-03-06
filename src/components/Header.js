@@ -2,17 +2,23 @@ import React from "react";
 import { StaticQuery, graphql } from "gatsby";
 import Menu from "./Menu";
 import MenuMobile from "./MenuMobile";
-import Hidden from "@material-ui/core/Hidden";
+import { Hidden, Toolbar, AppBar, IconButton, Link } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
-import Toolbar from "@material-ui/core/Toolbar";
-import AppBar from "@material-ui/core/AppBar";
 import Typography from "@material-ui/core/Typography";
+import { Home } from "mdi-material-ui";
 
 const Header = props => {
   return (
     <AppBar id="appBar">
       <Toolbar>
-        <Grid container justify="flex-end" spacing={16}>
+        <Grid container justify="space-between" spacing={16}>
+          <Grid item>
+            <Link key={"home"} to={"/"}>
+              <IconButton style={{ color: "#fff" }}>
+                <Home />
+              </IconButton>
+            </Link>
+          </Grid>
           <Grid item>
             <Hidden smDown>
               <Typography

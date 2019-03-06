@@ -5,10 +5,10 @@ import Typography from "@material-ui/core/Typography";
 import Hidden from "@material-ui/core/Hidden";
 
 const Footer = props => {
-  const {
-    title,
-    contact: { email, phone }
-  } = props.data.site.siteMetadata;
+  // const {
+  //   title,
+  //   contact: { email, phone }
+  // } = props.data.site.siteMetadata;
   return (
     <>
       <Divider style={{ marginTop: "48px", marginBottom: "24px" }} />
@@ -18,17 +18,13 @@ const Footer = props => {
       >
         <span>
           <Typography variant="caption" component="span">
-            ©{new Date().getFullYear()} {title}{" "}
-            <Hidden only={["xs", "sm"]}>–</Hidden>
+            ©{new Date().getFullYear()}{" "}
+            <a href="https://nmo.org.nz">Nga Matapuna Oranga</a>{" "}
             <Hidden only={["xl", "lg", "md"]}>
               <br />
             </Hidden>{" "}
-            {email} – {phone}
             <br />
-            &middot;
-            <br />
-            Starter created by{" "}
-            <a href="https://foxandgeese.com">Fox and Geese</a>
+            Mauri Tau, Mauri Ora
           </Typography>
         </span>
       </footer>

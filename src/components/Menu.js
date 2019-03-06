@@ -2,18 +2,12 @@ import React from "react";
 import { StaticQuery, Link, graphql } from "gatsby";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
-import { GithubCircle, Home } from "mdi-material-ui";
+import { GithubCircle } from "mdi-material-ui";
 
 const Menu = props => {
   const { menuLinks } = props.data.site.siteMetadata;
   return (
     <>
-      <Link key={"home"} to={"/"}>
-        <IconButton style={{ color: "#fff" }}>
-          <Home />
-        </IconButton>
-      </Link>
-
       {menuLinks.map(link => (
         <Link key={link.name} to={link.link}>
           <Button style={{ color: "#fff" }}>{link.name}</Button>

@@ -33,9 +33,6 @@ class ClientDetails extends React.Component {
   }
 
   render() {
-    const { values } = this.props;
-    console.log(values);
-
     return (
       <>
         <CardHeader
@@ -109,7 +106,11 @@ class ClientDetails extends React.Component {
                 ]}
                 component={Select}
                 input={
-                  <OutlinedInput name="nmo_gendercode" id="nmo_gendercode" />
+                  <OutlinedInput
+                    name="nmo_gendercode"
+                    id="nmo_gendercode"
+                    labelWidth={0}
+                  />
                 }
               />
             </Grid>
@@ -244,10 +245,10 @@ ClientDetails.propTypes = {
 };
 
 const ClientValues = {
-  nmo_lastname: "Tutemake",
-  nmo_firstname: "John",
-  nmo_perferredname: "JT Jackhammer",
-  nmo_nhi: "ABC9999",
+  // nmo_lastname: "Tutemake",
+  // nmo_firstname: "John",
+  // nmo_perferredname: "JT Jackhammer",
+  // nmo_nhi: "ABC9999",
   nmo_birthdate: "1980-12-28",
   nmo_gendercode: 1,
   nmo_address1_line1: "2300 Esmeralda Street",
@@ -256,17 +257,17 @@ const ClientValues = {
   nmo_address1_postalcode: "3112",
   nmo_telephone1: "07 5780396",
   nmo_mobilephone: "021 624587",
-  ethnicity: [{ value: "Maori", label: "Maori" }],
-  iwi: [
-    {
-      label: "Ngāti Kurī",
-      value: "AF3"
-    },
-    {
-      label: "Ngāpuhi",
-      value: "AF4"
-    }
-  ],
+  // ethnicity: [{ value: "Maori", label: "Maori" }],
+  // iwi: [
+  //   {
+  //     label: "Ngāti Kurī",
+  //     value: "AF3"
+  //   },
+  //   {
+  //     label: "Ngāpuhi",
+  //     value: "AF4"
+  //   }
+  // ],
   mentalHealthStatus: "Good mental status",
   legalConsiderations: "Has a pending police conviction"
 };

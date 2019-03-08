@@ -21,7 +21,7 @@ const styles = theme => ({
             <Grid container spacing={16}>
               <Grid item xs={12} sm={12} md={6}>
                 <Field
-                  name="nameOfReferrer"
+                  name="nmo_contactname"
                   label="Name of referrer"
                   variant="outlined"
                   fullWidth
@@ -71,7 +71,7 @@ const styles = theme => ({
 
               <Grid item xs={12} sm={12} md={6}>
                 <Field
-                  name="referrerPhone"
+                  name="nmo_contactphone"
                   label="Phone"
                   variant="outlined"
                   fullWidth
@@ -91,7 +91,7 @@ const styles = theme => ({
 
               <Grid item xs={12} sm={12} md={6}>
                 <Field
-                  name="referrerEmail"
+                  name="nmo_contactemail"
                   label="Email"
                   variant="outlined"
                   fullWidth
@@ -110,14 +110,14 @@ ReferrerDetails.propTypes = {
 };
 
 const ReferrerValues = {
-  nameOfReferrer: "Dwayne Johnson",
+  nmo_contactname: "Dwayne Johnson",
   relationshipToPerson: "None",
   referrerOrganisation: "Te Manu Toroa",
   referrerOrganisationAddress: "21 Tebbs Lane",
   referrerRole: "Case Worker",
-  referrerPhone: "07 588798",
+  nmo_contactphone: "07 588798",
   referrerCellPhone: "021 578656",
-  referrerEmail: "d.johnson@temanutoroa.org.nz"
+  nmo_contactemail: "d.johnson@temanutoroa.org.nz"
 };
 
 export { ReferrerValues };

@@ -37,6 +37,11 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
     $nmo_address1_line3: String
     $nmo_address1_city: String
     $nmo_address1_postalcode: String
+    $nmo_ethnicitycode: String
+    $nmo_iwicode: String
+    $nmo_contactname: String
+    $nmo_contactphone: String
+    $nmo_contactemail: String
     $nmo_rawdata: String
   ) {
     createElectronicSubmission(
@@ -53,6 +58,11 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
       nmo_address1_line3: $nmo_address1_line3
       nmo_address1_city: $nmo_address1_city
       nmo_address1_postalcode: $nmo_address1_postalcode
+      nmo_ethnicitycode: $nmo_ethnicitycode
+      nmo_contactname: $nmo_contactname
+      nmo_contactphone: $nmo_contactphone
+      nmo_contactemail: $nmo_contactemail
+      nmo_iwicode: $nmo_iwicode
       nmo_rawdata: $nmo_rawdata
     )
   }
@@ -135,7 +145,7 @@ class MentalHealth extends React.Component {
     });
   };
 
-  formatRawData = values => {
+  getRawData = values => {
     let formattedJSON = stringify(values, {
       indent: 4,
       margins: true,
@@ -143,6 +153,66 @@ class MentalHealth extends React.Component {
     });
 
     return formattedJSON.replace(/["]|(nmo_)/g, "");
+  };
+
+  getFormattedData = values => {
+    return `MENTAL HEALTH ACT STATUS
+${values.mentalHealthStatus}
+
+LEGAL CONSIDERATIONS
+${values.legalConsiderations}
+
+GP DETAILS
+${values.nameOfGP}
+${values.gpContactNumber}
+
+MEDICAL ISSUES
+${values.medicalIssues}
+
+OTHER SERVICES INVOLVED 
+${values.otherServicesInvolved}
+
+NEXT OF KIN 1
+${values.nok1Fullname}
+${values.nok1RelationshipToClient}
+${values.nok1HomeAddress}
+${values.nok1HomePhone}
+${values.nok1CellPhone}
+
+NEXT OF KIN 2
+${values.nok2Fullname}
+${values.nok2RelationshipToClient}
+${values.nok2HomeAddress}
+${values.nok2HomePhone}
+${values.nok2CellPhone}
+
+IMPORTANT
+Client Consent: ${values.clientConsent ? "Yes" : "No"}
+Is Client Requesting Service: ${values.clientRequestingService ? "Yes" : "No"}
+Parental Consent Given: ${values.parentalConsent ? "Yes" : "No"}
+
+REFERRER DETAILS
+${values.nmo_contactname}
+Relationship: ${values.relationshipToPerson}
+
+REFERRER ORGANISATION
+${values.referrerOrganisation}
+${values.referrerOrganisationAddress}
+${values.referrerRole}
+${values.nmo_contactphone}
+${values.referrerCellPhone}
+${values.nmo_contactemail}
+
+REASON FOR REFERRAL / PRESENTING PROBLEM
+(Current situations requiring referral, events contributing to referral, area’s of concern and need etc)
+${values.reasonForReferral}
+
+RELEVANT HISTORY
+${values.relevantHistory}
+
+RISK ISSUES
+(E.g. Risk to self, others, property, previous attempts on life, domestic violence etc)
+${values.riskIssues}`;
   };
 
   render() {
@@ -168,7 +238,11 @@ class MentalHealth extends React.Component {
                   createElectronicSubmission({
                     variables: {
                       ...values,
-                      nmo_rawdata: this.formatRawData(values)
+                      nmo_ethnicitycode: values.ethnicity
+                        ? values.ethnicity[0].value
+                        : "",
+                      nmo_iwicode: values.ethnicity ? values.iwi[0].value : "",
+                      nmo_rawdata: this.getFormattedData(values)
                     }
                   })
                     .then(result => {

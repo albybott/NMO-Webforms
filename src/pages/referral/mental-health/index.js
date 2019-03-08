@@ -42,6 +42,7 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
     $nmo_contactname: String
     $nmo_contactphone: String
     $nmo_contactemail: String
+    $nmo_info: String
     $nmo_rawdata: String
   ) {
     createElectronicSubmission(
@@ -63,6 +64,7 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
       nmo_contactphone: $nmo_contactphone
       nmo_contactemail: $nmo_contactemail
       nmo_iwicode: $nmo_iwicode
+      nmo_info: $nmo_info
       nmo_rawdata: $nmo_rawdata
     )
   }
@@ -242,6 +244,7 @@ ${values.riskIssues}`;
                         ? values.ethnicity[0].value
                         : "",
                       nmo_iwicode: values.ethnicity ? values.iwi[0].value : "",
+                      nmo_info: this.getFormattedData(values),
                       nmo_rawdata: this.getFormattedData(values)
                     }
                   })

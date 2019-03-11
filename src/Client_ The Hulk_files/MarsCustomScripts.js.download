@@ -1,0 +1,396 @@
+// Function names for MARS Waiting Bubble and Prereq Guided Task should follow below naming conventions :-
+// Function name for Waiting Bubble should be of format => "Mars + Object/Scenarioname + Waiting"
+// Function name for Prereq Guided Task should be of format => "Mars + Object/Scenarioname + PrereqGT"
+
+
+//Custom Function for Scenario Quickcreate form
+function MarsQuickcreateWaitingWeb(objStepBubbleModel) {
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = null;
+	if (targetElement)
+		element = targetElement.element;
+
+	if (element) {
+		function customExecution(element) {
+		    if ($("#globalquickcreate_container_NavBarGloablQuickCreate").css("display") == "none") {
+		        var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+		        instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+		        element.off("click #mars");
+		    }
+		    else {
+		        var mytimer = setTimeout(function () { customExecution(element); }, 1000);
+		    }
+		}
+
+		element.on("click #mars", function () {
+			if (bubble.css("display") == "block") {
+				var mytimer = setTimeout(function () { customExecution(element); }, 1000);
+			}
+			else {
+				element.off("click #mars");
+			}
+		});
+
+		var cancelbutton = $("#globalquickcreate_actionsdiv_NavBarGloablQuickCreate").find('#globalquickcreate_cancel_button_NavBarGloablQuickCreate');
+		cancelbutton.on("click #mars", function () {
+			if (bubble.css("display") == "block") {
+				var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+				instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.CLOSE);
+				cancelbutton.off("click #mars");
+			}
+			else {
+				cancelbutton.off("click #mars");
+			}
+		});
+	}
+}
+
+
+
+// Custom Function for Scenario Enableusers
+function MarsEnableuserWaitingWeb(objStepBubbleModel) {
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var doc = $('#' + $('#crmContentPanel').attr("currentcontentid"));
+	var elementArray = doc.contents().find('body').find('iframe').contents().find('#crmGrid_divDataArea').find('input');
+	var imageArray = doc.contents().find('body').find('iframe').contents().find('#crmGrid_divDataArea').find('img');
+	if (elementArray != null && imageArray != null) {
+		var elementArraySize = elementArray.length;
+		for (var index = 0; index < elementArraySize; index++) {
+			var elem = $(elementArray[index]);
+			var img = $(imageArray[index]);
+			img.on("click #mars", { elem: elem, img: img }, function (e) {
+				if (bubble.css("display") == "block") {
+					e.data.img.off("click #mars");
+					var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+					instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+				}
+				else {
+					e.data.img.off("click #mars");
+				}
+			});
+		}
+	}
+}
+
+
+
+//Custom Function for Scenario Managed roles
+function MarsManageuserrolesWaitingWeb(objStepBubbleModel) {
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = null;
+	if (targetElement)
+		element = targetElement.element;
+
+	// Ok Button Handling
+	if (element) {
+		element.on("click #mars", function () {
+			if (bubble.css("display") == "block") {
+				var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+				instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+				element.off("click #mars");
+			}
+			else {
+				element.off("click #mars");
+			}
+		});
+	}
+}
+
+
+
+// MARS TestDrive Sales Representative CustomScripts for WaitingBubble Scenarios
+
+// Custom Function for Lead->Activities->AddPhoneCall->OkButton Scenario 
+function MarsActivitiesaddphonecallWaitingWeb(objStepBubbleModel) {
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = targetElement.element;
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var doc = $('#' + $('#crmContentPanel').attr("currentcontentid"));
+	var activitycontainer = doc.contents().find('body').find('#activitycontainer4210');
+
+	// check once display of activitycontainer is none, then show next bubble
+	function customExecution(element) {
+		if (activitycontainer && activitycontainer.css("display") == "none") {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			element.off("click #mars");
+		}
+	}
+
+	element.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var mytimer = setTimeout(function () { customExecution(element); }, 1000);
+		}
+		else
+			element.off("click #mars");
+	});
+}
+
+
+
+// Custom Function for Lead->Stakeholders->Role Scenario
+function MarsStakeholdersroleWaitingWeb(objStepBubbleModel) {
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = targetElement.element;
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var doc = $('#' + $('#crmContentPanel').attr("currentcontentid"));
+	var stakeholderscontainer = doc.contents().find('body').find('#Stakeholders_divDataArea');
+	var rolecontainer = stakeholderscontainer.find('.ms-crm-SubGrid-InlineEdit');
+
+
+	// check once display of Stakeholders_flyOut is none, then show next bubble
+	function customExecution(rolecontainer) {
+		var stakeholdersflyout = doc.contents().find('body').find('#edit_connection_form_Stakeholders_flyOut');
+		if (stakeholdersflyout && stakeholdersflyout.css("display") == "none") {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			rolecontainer.off("click #mars");
+		}
+		else {
+			var mytimer = setTimeout(function () { customExecution(rolecontainer); }, 1000);
+		}
+	}
+
+	rolecontainer.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var mytimer = setTimeout(function () { customExecution(rolecontainer); }, 1000);
+		}
+		else
+			rolecontainer.off("click #mars");
+	});
+}
+
+
+
+// Custom Function for Lead->EstimatedBudget Scenario
+function MarsEnterestimatedbudgetWaitingWeb(objStepBubbleModel) {
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = targetElement.element;
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var doc = $('#' + $('#crmContentPanel').attr("currentcontentid"));
+	var header_process_budgetamount = doc.contents().find('body').find('#header_process_budgetamount');
+	var warnspan = header_process_budgetamount.find("#header_process_budgetamount_warnSpan");
+
+	// check once display of warnspan is not block, then show next bubble
+	function customExecution() {
+		var budgetamount_value = header_process_budgetamount.find('.ms-crm-div-NotVisible').html();
+		if (warnspan.css("display") != "block" && budgetamount_value != " click to enter") {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			header_process_budgetamount.off("change #mars");
+		}
+	}
+
+	header_process_budgetamount.on("change #mars", function () {
+		if (bubble.css("display") == "block") {
+			var mytimer = setTimeout(function () { customExecution(); }, 1000);
+		}
+		else
+			header_process_budgetamount.off("change #mars");
+	});
+}
+
+
+
+// PrereqGT Custom Script
+function MarsOpportunitytoleadPrereqGTWeb(callback) {
+	var expectedstatus = 204;
+	var request = new XMLHttpRequest();
+	var jsonbody = '{"statecode":"0"}';
+	request.open('PATCH', Xrm.Page.context.getClientUrl() + '/api/data/v8.0/leads(4577EFB1-2D94-E511-80D5-00155D5A99F2)', false);
+	request.setRequestHeader("Accept", "application/json");
+	request.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+	request.send(jsonbody);
+	callback(request.status, expectedstatus)
+}
+
+
+
+// MARS TestDrive SalesManager CustomScripts for WaitingBubble Scenarios
+
+// PrereqGT Custom Script
+function MarsExcelonlinePrereqGTWeb(callback) {
+	var expectedstatus = 1;
+	var actualstatus = 0;
+	//set the cookie persistentExcelOnlineTourCookie 
+	document.cookie = "persistentExcelOnlineTourCookie=HideExcelOnlineTour";
+
+	// Utility function for getting any cookie value byname
+	function getCookie(cname) {
+		var name = cname + "=";
+		var ca = document.cookie.split(';');
+		for (var i = 0; i < ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0) == ' ') c = c.substring(1);
+			if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+		}
+		return "";
+	}
+
+	// check if cookie persistentExcelOnlineTourCookie is correctly set, then assign actualstatus same as expectedstatus
+	if (getCookie("persistentExcelOnlineTourCookie") == "HideExcelOnlineTour") {
+		actualstatus = expectedstatus;
+	}
+	callback(actualstatus, expectedstatus);
+}
+
+
+
+// Custom Function for Lead->Notes->DoneButton Scenario
+function MarsNotesdoneWaitingWeb(objStepBubbleModel) {
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+	var doc = $('#' + $('#crmContentPanel').attr("currentcontentid"));
+	var notesTextBoxDiv = doc.contents().find('body').find('.notesTextBoxDiv');
+	var done_button = notesTextBoxDiv.find('#postButton');
+
+	done_button.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			done_button.off("click #mars");
+		}
+		else
+			done_button.off("click #mars");
+	});
+}
+
+
+
+// Custom Function for ExcelOnline Scenario
+function MarsExcelonlineWaitingWeb(objStepBubbleModel) {
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = targetElement.element;
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+
+	function customExecution(element) {
+		var InlineDialog = $("#InlineDialog_Iframe");
+		if (InlineDialog.length > 0 && InlineDialog.is(':visible')) {
+			var doc = $("#InlineDialog_Iframe").contents().find('body');
+			var okbutton = doc.find("#dvFooter").find("#butBegin");
+			okbutton.click();
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			element.off("click #mars");
+		}
+		else
+			var mytimer = setTimeout(function () { customExecution(element); }, 1000);
+	}
+
+	element.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var mytimer = setTimeout(function () { customExecution(element); }, 1000);
+		}
+		else
+			element.off("click #mars");
+	});
+}
+
+
+// Custom Function for Lead Form SaveandClose
+function MarsLeadformWaitingWeb(objStepBubbleModel) {
+
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = targetElement.element;
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+
+	function customExecution(element, currentpage, counterwaiting1) {
+		var checkpage = Xrm.Internal.getPageNavigationInfo().Web;
+		if (currentpage != checkpage) {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			element.off("click #mars");
+		}
+		else if (counterwaiting1 >= 0) {
+			counterwaiting1 = counterwaiting1 - 1;
+			var mytimer = setTimeout(function () { customExecution(element, checkpage, counterwaiting1); }, 1000);
+		}
+	}
+
+	element.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var answerPanelLauncher = window["Microsoft"]["Mars"]["Client"]["Runtime"]["Controls"]["AnswerPanelLauncher"];
+			answerPanelLauncher.isScenarioTriggered = true;
+			var currentpage = Xrm.Internal.getPageNavigationInfo().Web;
+			var counterwaiting1 = 30;
+			var mytimer = setTimeout(function () { customExecution(element, currentpage, counterwaiting1); }, 1000);
+		}
+		else {
+			element.off("click #mars");
+		}
+	});
+
+	function savebuttoncustomExecution(element, savebutton, counterwaiting2) {
+		if (element && element.css("display") != "inline-block" && element.css("display") != "inline") {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			savebutton.off("click #mars");
+		}
+		else if (counterwaiting2 >= 0) {
+			counterwaiting2 = counterwaiting2 - 1;
+			var mytimer = setTimeout(function () { savebuttoncustomExecution(element, savebutton, counterwaiting2); }, 1000);
+		}
+	}
+
+	var savebutton = $($("#crmRibbonManager").find(".ms-crm-CommandBar-Menu").children()[0]);
+	savebutton.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var counterwaiting2 = 30;
+			var mytimer = setTimeout(function () { savebuttoncustomExecution(element, savebutton, counterwaiting2); }, 1000);
+		}
+		else {
+			savebutton.off("click #mars");
+		}
+	});
+
+}
+
+
+
+
+// Custom Function for Case Form SaveandClose
+function MarsCaseformWaitingWeb(objStepBubbleModel) {
+
+	var targetElement = objStepBubbleModel.getTargetElement();
+	var element = targetElement.element;
+	var jquerySelectorMap = objStepBubbleModel.getJquerySelectorMap();
+	var bubble = jquerySelectorMap["bubbleId"];
+
+	function customExecution(element, currentpage, counterwaiting1) {
+		var checkpage = Xrm.Internal.getPageNavigationInfo().Web;
+		if (currentpage != checkpage) {
+			var instance = window["Microsoft"].Mars.Client.Runtime.Controls.ScenarioManager.getInstance();
+			instance.notify(window["Microsoft"].Mars.Client.Runtime.Controls.BubbleUtilityConstants.NEXT);
+			element.off("click #mars");
+		}
+		else if (counterwaiting1 >= 0) {
+			counterwaiting1 = counterwaiting1 - 1;
+			var mytimer = setTimeout(function () { customExecution(element, checkpage, counterwaiting1); }, 1000);
+		}
+	}
+
+	element.on("click #mars", function () {
+		if (bubble.css("display") == "block") {
+			var answerPanelLauncher = window["Microsoft"]["Mars"]["Client"]["Runtime"]["Controls"]["AnswerPanelLauncher"];
+			answerPanelLauncher.isScenarioTriggered = true;
+			var currentpage = Xrm.Internal.getPageNavigationInfo().Web;
+			var counterwaiting1 = 30;
+			var mytimer = setTimeout(function () { customExecution(element, currentpage, counterwaiting1); }, 1000);
+		}
+		else {
+			element.off("click #mars");
+		}
+	});
+
+}
+

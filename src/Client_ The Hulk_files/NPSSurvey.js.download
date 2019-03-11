@@ -1,0 +1,1397 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var NPSUtility = (function () {
+        function NPSUtility() {
+        }
+        NPSUtility.isUCIClient = function () {
+            var Xrm = window.Xrm;
+            return (Xrm && Xrm.Internal.isUci && Xrm.Internal.isUci());
+        };
+        NPSUtility.getMaxZIndex = function () {
+            var zIndex = 100001;
+            var siblings = Array.prototype.slice.call(window.parent.document.getElementsByTagName('*')).concat(Array.prototype.slice.call(window.document.getElementsByTagName('*')));
+            for (var i = 0; i < siblings.length; i++) {
+                if (siblings[i].style && !isNaN(siblings[i].style.zIndex) && isFinite(siblings[i].style.zIndex)) {
+                    zIndex = Math.max(zIndex, siblings[i].style.zIndex);
+                }
+            }
+            return zIndex;
+        };
+        NPSUtility.isNullOrUndefined = function (obj) {
+            return obj === undefined || obj === null;
+        };
+        NPSUtility.isEmptyOrUndefined = function (str) {
+            return str === undefined || str === "";
+        };
+        NPSUtility.TryRetrieve = function (url, expiry) {
+            var deferred = $.Deferred();
+            if (expiry == null || expiry == undefined) {
+                expiry = 5 * 60;
+            }
+            var localStore = new _MicrosoftNPSSurvey.LocalStore();
+            var cacheKey = "NPS_" + url;
+            if (localStore.isDataAvailable(cacheKey) && localStore.isDataAvailable(cacheKey + ':ts')) {
+                var cachedValue = localStore.retrieveData(cacheKey);
+                var cacheTimeStamp = parseInt(localStore.retrieveData(cacheKey + ':ts'));
+                var age = (Date.now() - cacheTimeStamp) / 1000;
+                if (age < expiry) {
+                    deferred.resolve(cachedValue);
+                }
+                else {
+                    localStore.removeData(cacheKey);
+                    localStore.removeData(cacheKey + ':ts');
+                }
+            }
+            var promise = jQuery.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+            });
+            promise.done(function (response) {
+                var responseText = JSON.stringify(response);
+                localStore.storeData(cacheKey, responseText);
+                localStore.storeData(cacheKey + ':ts', "" + Date.now());
+                deferred.resolve(responseText);
+            });
+            return deferred.promise();
+        };
+        NPSUtility.getParameterFromUrl = function (paramName) {
+            var query = location.search.substr(1);
+            return this.getParameterFromString(query, paramName);
+        };
+        NPSUtility.getParameterFromString = function (str, paramName) {
+            var result = "";
+            if (this.isEmptyOrUndefined(str))
+                return result;
+            str.split("&").forEach(function (part) {
+                var item = part.split("=");
+                if (item[0].toLowerCase() === paramName.toLowerCase())
+                    result = decodeURIComponent(item[1]);
+            });
+            return result;
+        };
+        return NPSUtility;
+    }());
+    _MicrosoftNPSSurvey.NPSUtility = NPSUtility;
+    var PerfMarker = (function () {
+        function PerfMarker() {
+        }
+        PerfMarker.EnablePerfMarker = function () {
+            PerfMarker.isPerfEnabled = true;
+        };
+        PerfMarker.DisablePerfMarker = function () {
+            PerfMarker.isPerfEnabled = false;
+        };
+        PerfMarker.NPSCaptureModulePerfTime = function (key) {
+            if (PerfMarker.isPerfEnabled) {
+                var perfMetricsObject = {};
+                var localStore = new _MicrosoftNPSSurvey.LocalStore();
+                if (localStore.isDataAvailable("NPS_PERF_AUTOMATION")) {
+                    perfMetricsObject = localStore.retrieveData("NPS_PERF_AUTOMATION");
+                }
+                var val = new Date();
+                perfMetricsObject[key] = val.getTime().toString();
+                localStore.storeData("NPS_PERF_AUTOMATION", JSON.stringify(perfMetricsObject));
+            }
+        };
+        PerfMarker.isPerfEnabled = false;
+        return PerfMarker;
+    }());
+    _MicrosoftNPSSurvey.PerfMarker = PerfMarker;
+    var NpsConstants = (function () {
+        function NpsConstants() {
+        }
+        NpsConstants.resizeNpsDialog = "thankyouNpsDialog";
+        NpsConstants.closeNpsDialog = "closeNpsDialog";
+        NpsConstants.Lcid = {
+            "1025": "ar-SA",
+            "1026": "bg-BG",
+            "1027": "ca-ES",
+            "1029": "cs-CZ",
+            "1030": "da-DK",
+            "1031": "de-DE",
+            "1032": "el-GR",
+            "1033": "en-US",
+            "1034": "es-ES",
+            "1061": "et-EE",
+            "1069": "eu-ES",
+            "1035": "fi-FI",
+            "1036": "fr-FR",
+            "1110": "gl-ES",
+            "1037": "he-IL",
+            "1081": "hi-IN",
+            "1050": "hr-HR",
+            "1038": "hu-HU",
+            "1057": "id-ID",
+            "1040": "it-IT",
+            "1041": "ja-JP",
+            "1087": "kk-KZ",
+            "1042": "ko-KR",
+            "1063": "lt-LT",
+            "1062": "lv-LV",
+            "1086": "ms-MY",
+            "1044": "nb-NO",
+            "1043": "nl-NL",
+            "1045": "pl-PL",
+            "1046": "pt-BR",
+            "2070": "pt-PT",
+            "1048": "ro-RO",
+            "1049": "ru-RU",
+            "1051": "sk-SK",
+            "1060": "sl-SL",
+            "3098": "sr-Cyrl-CS",
+            "2074": "sr-Latn-RS",
+            "1053": "sv-SE",
+            "1054": "th-TH",
+            "1055": "tr-TR",
+            "1058": "uk-UA",
+            "1066": "vi-VN",
+            "2052": "zh-CN",
+            "3076": "zh-HK",
+            "1028": "zh-TW"
+        };
+        NpsConstants.domainToGeoMapping = {
+            'crm': 'NAM',
+            'crm9': 'NAM2',
+            'crm4': 'EMEA',
+            'crm5': 'APAC',
+            'crm6': 'OCEANIA',
+            'crm7': 'JPN',
+            'crm2': 'SAM',
+            'crm8': 'CAN',
+            'crm11': 'UK'
+        };
+        NpsConstants.EmptyGuid = "00000000-0000-0000-0000-000000000000";
+        NpsConstants.RemoveEntityCheckKey = "NPS_removeEntityCheck";
+        return NpsConstants;
+    }());
+    _MicrosoftNPSSurvey.NpsConstants = NpsConstants;
+    var DialogType;
+    (function (DialogType) {
+        DialogType[DialogType["Feedback"] = 1] = "Feedback";
+        DialogType[DialogType["Thankyou"] = 2] = "Thankyou";
+    })(DialogType = _MicrosoftNPSSurvey.DialogType || (_MicrosoftNPSSurvey.DialogType = {}));
+    var AppContext = (function () {
+        function AppContext() {
+        }
+        AppContext.prototype.getClientType = function () { return this.clientType; };
+        AppContext.prototype.getFormFactor = function () { return this.formFactor; };
+        AppContext.prototype.getVersion = function () { return this.version; };
+        AppContext.prototype.getUserLcid = function () { return this.userLcid; };
+        AppContext.prototype.getOrgId = function () { return this.orgId; };
+        AppContext.prototype.getUserId = function () { return this.userId; };
+        AppContext.prototype.getClientName = function () { return this.clientType; };
+        AppContext.prototype.getCurrentEntityName = function () { return this.entityName; };
+        AppContext.prototype.getOrgType = function () { return this.orgType; };
+        AppContext.prototype.getAPIDataVersion = function () {
+            if (NPSUtility.isEmptyOrUndefined(this.apiDataVersion)) {
+                var version = this.getVersion();
+                var versionParts = version.split('.');
+                this.apiDataVersion = "/api/data/V" + versionParts[0] + "." + versionParts[1] + "/";
+            }
+            return this.apiDataVersion;
+        };
+        AppContext.prototype.getTenantId = function () { return this.tenantId; };
+        AppContext.prototype.getAppModuleName = function () { return this.appModuleName; };
+        AppContext.prototype.getAppModuleUniqueName = function () { return this.appModuleUniqueName; };
+        AppContext.prototype.getAppModulePublisherName = function () { return this.appModulePublisherName; };
+        AppContext.prototype.getAppModuleVersion = function () { return this.appModuleVersion; };
+        AppContext.prototype.getGeoName = function () {
+            if (!this.geoName) {
+                var hostVal = window.location.host;
+                if (!hostVal)
+                    hostVal = window.parent.location.host;
+                if (this.CheckIfHostEndsWith(hostVal, "crm10.dynamics.com")) {
+                    this.geoName = 'INT';
+                }
+                else if (this.CheckIfHostEndsWith(hostVal, "dynamics.com")) {
+                    var index = hostVal.indexOf('crm');
+                    var str = hostVal.substring(index, hostVal.length);
+                    var geoDomain = str.split('.')[0];
+                    this.geoName = NpsConstants.domainToGeoMapping[geoDomain];
+                    if (NPSUtility.isEmptyOrUndefined(this.geoName))
+                        this.geoName = 'OTHERS';
+                }
+                else if (this.CheckIfHostEndsWith(hostVal, "dynamics-int.com")) {
+                    this.geoName = 'INT';
+                }
+                else if (this.CheckIfHostEndsWith(hostVal, "crmlivetie.com")) {
+                    this.geoName = 'TIE';
+                }
+                else {
+                    this.geoName = 'DEV';
+                }
+            }
+            return this.geoName;
+        };
+        AppContext.prototype.SetDefaultAppModuleInfo = function () {
+            this.appModuleName = "Dynamics 365 - Custom";
+            this.appModuleUniqueName = "Dynamics365Custom";
+            this.appModulePublisherName = "Microsoft";
+            this.appModuleVersion = "1.0";
+            this.appId = NpsConstants.EmptyGuid;
+        };
+        AppContext.prototype.CheckIfHostEndsWith = function (hostUrl, stringEnd) {
+            return (hostUrl.substring(hostUrl.length - stringEnd.length, hostUrl.length) === stringEnd);
+        };
+        return AppContext;
+    }());
+    _MicrosoftNPSSurvey.AppContext = AppContext;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var CrmAppContext = (function (_super) {
+        __extends(CrmAppContext, _super);
+        function CrmAppContext(xrm, xrmUI) {
+            var _this = _super.call(this) || this;
+            if (CrmAppContext._instance) {
+                console.log("Singleton instance already exists for CrmAppContext. Access it via CrmAppContext.getInstance()");
+            }
+            else {
+                CrmAppContext.crmXRM = xrm;
+                CrmAppContext.crmXRMUI = xrmUI;
+                _this.appId = _MicrosoftNPSSurvey.NPSUtility.getParameterFromUrl("appId");
+                _this.getAPIDataVersion();
+                _this.formFactor = CrmAppContext.crmXRM.Page.context.client.getFormFactor();
+                _this.userLcid = CrmAppContext.crmXRM.Page.context.getUserLcid();
+                _this.getClientType();
+                _this.getClientUrl();
+            }
+            return _this;
+        }
+        CrmAppContext.getInstance = function (xrm, xrmUI) {
+            if (CrmAppContext._instance == null) {
+                CrmAppContext._instance = new CrmAppContext(xrm, xrmUI);
+            }
+            var deferred = jQuery.Deferred();
+            var initializeOrgIdPromise = CrmAppContext.initializeOrgId();
+            var initializeUserIdPromise = CrmAppContext.initializeUserId();
+            var initializeTenantInfoPromise = CrmAppContext.initializeTenantInfo();
+            var initializeAppModulePromise = CrmAppContext.initializeAppModuleInfo();
+            var appContextInitPromise = jQuery.when(initializeOrgIdPromise, initializeUserIdPromise, initializeTenantInfoPromise, initializeAppModulePromise);
+            appContextInitPromise.done(function () {
+                deferred.resolve(CrmAppContext._instance);
+            });
+            appContextInitPromise.fail(function () {
+                deferred.reject(undefined);
+            });
+            return deferred.promise();
+        };
+        CrmAppContext.prototype.getOrgId = function () {
+            return this.orgId;
+        };
+        CrmAppContext.prototype.getClientUrl = function () {
+            if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(this.clientUrl)) {
+                this.clientUrl = CrmAppContext.crmXRM.Page.context.getClientUrl();
+            }
+            return this.clientUrl;
+        };
+        CrmAppContext.prototype.getVersion = function () {
+            if (_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(this.version)) {
+                this.version = CrmAppContext.crmXRM.Page.context.getVersion();
+            }
+            return this.version;
+        };
+        CrmAppContext.prototype.getUserId = function () {
+            return this.userId;
+        };
+        CrmAppContext.prototype.getClientType = function () {
+            if (!this.clientType) {
+                this.clientType = CrmAppContext.crmXRM.Page.context.client.getClient();
+            }
+            return this.clientType;
+        };
+        CrmAppContext.prototype.getClientName = function () {
+            return "Web";
+        };
+        CrmAppContext.prototype.getCurrentEntityName = function () {
+            this.entityName = "";
+            try {
+                var entityTypeCode = window.Mscrm.Shortcuts.getViewUrl().get_query().etc;
+                this.entityName = CrmAppContext.crmXRM.Internal.getEntityName(parseInt(entityTypeCode, 10));
+            }
+            catch (err) {
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, err);
+            }
+            return _MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(this.entityName) ? "" : this.entityName.toLowerCase();
+        };
+        CrmAppContext.initializeOrgId = function () {
+            var deferred = jQuery.Deferred();
+            var _that = CrmAppContext._instance;
+            var getOrgUrl = _that.getClientUrl();
+            var url = getOrgUrl + _that.apiDataVersion + "WhoAmI";
+            var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+            promise.done(function (response) {
+                var responseObj = jQuery.parseJSON(response);
+                _that.orgId = responseObj.OrganizationId;
+                deferred.resolve(_that.orgId);
+            });
+            promise.fail(function () {
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Error: Getting orgId failed...!");
+                deferred.resolve("");
+            });
+            return deferred.promise();
+        };
+        CrmAppContext.initializeUserId = function () {
+            var deferred = jQuery.Deferred();
+            var _that = CrmAppContext._instance;
+            var systemuserId = CrmAppContext.crmXRM.Page.context.getUserId().replace(/[{}]/g, "");
+            var getOrgUrl = _that.getClientUrl();
+            var url = getOrgUrl + _that.apiDataVersion + "systemusers()?$select=azureactivedirectoryobjectid&$filter=systemuserid%20eq%20" + systemuserId;
+            var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+            promise.done(function (response) {
+                var responseObj = jQuery.parseJSON(response);
+                if (responseObj.value && responseObj.value.length > 0) {
+                    _that.userId = responseObj.value[0]["azureactivedirectoryobjectid"];
+                    deferred.resolve(_that.userId);
+                }
+                else {
+                    _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Error: Getting userId failed...! ResponseObject not in proper format");
+                    deferred.reject("");
+                }
+            });
+            promise.fail(function (data, textStatus, errorThrown) {
+                _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance().ReportError("Error: Getting userID failed...!", data, textStatus, errorThrown);
+                deferred.reject("Fail");
+            });
+            return deferred.promise();
+        };
+        CrmAppContext.initializeTenantInfo = function () {
+            var deferred = jQuery.Deferred();
+            var _that = CrmAppContext._instance;
+            var getOrgUrl = _that.getClientUrl();
+            var url = getOrgUrl + _that.apiDataVersion + "RetrieveTenantInfo";
+            var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+            promise.done(function (response) {
+                var tenantProperties = JSON.parse(response);
+                if (tenantProperties.TenantInfo) {
+                    var tenantInfo = JSON.parse(tenantProperties.TenantInfo);
+                    if (tenantInfo.OrgType && tenantInfo.S2STenantId) {
+                        _that.orgType = parseInt(tenantInfo.OrgType);
+                        _that.tenantId = tenantInfo.S2STenantId;
+                        deferred.resolve("Success");
+                    }
+                    else {
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Error: Getting Tenant Info failed...!");
+                        deferred.resolve("");
+                    }
+                }
+            });
+            promise.fail(function (data, textStatus, errorThrown) {
+                _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance().ReportError("Error: Getting Tenant Info failed...!", data, textStatus, errorThrown);
+                deferred.resolve("Fail");
+            });
+            return deferred.promise();
+        };
+        CrmAppContext.initializeAppModuleInfo = function () {
+            var deferred = jQuery.Deferred();
+            var _that = CrmAppContext._instance;
+            if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(_that.appId)) {
+                _that.SetDefaultAppModuleInfo();
+                deferred.resolve("Fail");
+            }
+            else {
+                var getOrgUrl = _that.getClientUrl();
+                var url;
+                var version = _that.getVersion();
+                if (version.split('.')[0] === '8') {
+                    url = getOrgUrl + _that.apiDataVersion + "appmodule(" + _that.appId + ")";
+                }
+                else {
+                    url = getOrgUrl + _that.apiDataVersion + "appmodules(" + _that.appId + ")";
+                }
+                var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+                promise.done(function (response) {
+                    var appProperties = JSON.parse(response);
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(appProperties.name)) {
+                        _that.appModuleName = appProperties.name;
+                    }
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(appProperties.versionnumber)) {
+                        _that.appModuleVersion = appProperties.versionnumber.toString();
+                    }
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(appProperties.uniquename)) {
+                        _that.appModuleUniqueName = appProperties.uniquename;
+                    }
+                    deferred.resolve("Success");
+                });
+                promise.fail(function (data, textStatus, errorThrown) {
+                    _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance().ReportError("Error: Getting App Info failed...!", data, textStatus, errorThrown);
+                    deferred.resolve("Fail");
+                });
+            }
+            return deferred.promise();
+        };
+        CrmAppContext._instance = null;
+        return CrmAppContext;
+    }(_MicrosoftNPSSurvey.AppContext));
+    _MicrosoftNPSSurvey.CrmAppContext = CrmAppContext;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+;
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var UCIAppContext = (function (_super) {
+        __extends(UCIAppContext, _super);
+        function UCIAppContext(xrm) {
+            var _this = _super.call(this) || this;
+            if (UCIAppContext._instance) {
+                console.log("Singleton instance already exists for UCIAppContext. Access it via UCIAppContext.getInstance()");
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Singleton instance already exists for UCIAppContext. Access it via UCIAppContext.getInstance()");
+            }
+            else {
+                UCIAppContext.Xrm = xrm;
+                _this.formFactor = xrm.Utility.getGlobalContext().client.getFormFactor();
+                _this.getAPIDataVersion();
+                _this.userLcid = xrm.Utility.getGlobalContext().getUserLcid().toString();
+                _this.setOrgId();
+                _this.getClientType();
+                _this.getClientUrl();
+            }
+            return _this;
+        }
+        UCIAppContext.getInstance = function (Xrm) {
+            if (UCIAppContext._instance == null) {
+                UCIAppContext._instance = new UCIAppContext(Xrm);
+            }
+            var deferred = $.Deferred();
+            var initializeUserIdPromise = UCIAppContext.initializeUserId();
+            var initializeTenantInfoPromise = UCIAppContext.initializeTenantInfo();
+            var initializeAppModulePromise = UCIAppContext.initializeAppModuleInfo();
+            var appContextInitialize = $.when(initializeUserIdPromise, initializeTenantInfoPromise, initializeAppModulePromise);
+            appContextInitialize.done(function () {
+                deferred.resolve(UCIAppContext._instance);
+            });
+            appContextInitialize.fail(function () {
+                deferred.reject(UCIAppContext._instance);
+            });
+            return deferred.promise();
+        };
+        UCIAppContext.prototype.getXrmObject = function () {
+            return window["Xrm"].xrmInstance;
+        };
+        UCIAppContext.prototype.getClientType = function () {
+            if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(this.clientType)) {
+                this.clientType = UCIAppContext.Xrm.Utility.getGlobalContext().client.getClient();
+            }
+            return this.clientType;
+        };
+        UCIAppContext.prototype.getUserId = function () {
+            return this.userId;
+        };
+        UCIAppContext.prototype.getOrgId = function () {
+            if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(this.orgId)) {
+                return this.orgId;
+            }
+            else {
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Error: Getting orgId failed...!");
+            }
+        };
+        UCIAppContext.prototype.setOrgId = function () {
+            this.orgId = UCIAppContext.Xrm.Utility.getGlobalContext().organizationSettings.organizationId;
+        };
+        UCIAppContext.prototype.getClientName = function () {
+            return "UCI";
+        };
+        UCIAppContext.prototype.getCurrentEntityName = function () {
+            this.entityName = "";
+            try {
+                var url = window.Xrm.Page.getUrl();
+                url = url.split("?")[1];
+                this.entityName = _MicrosoftNPSSurvey.NPSUtility.getParameterFromString(url, "etn");
+            }
+            catch (err) {
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, err);
+            }
+            return _MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(this.entityName) ? "" : this.entityName.toLowerCase();
+        };
+        UCIAppContext.prototype.getVersion = function () {
+            if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(this.version)) {
+                this.version = UCIAppContext.Xrm.Utility.getGlobalContext().getVersion();
+            }
+            return this.version;
+        };
+        UCIAppContext.prototype.getClientUrl = function () {
+            if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(this.clientUrl)) {
+                this.clientUrl = UCIAppContext.Xrm.Page.context.getClientUrl();
+            }
+            return this.clientUrl;
+        };
+        UCIAppContext.initializeUserId = function () {
+            var deferred = jQuery.Deferred();
+            var _that = UCIAppContext._instance;
+            var systemuserId = UCIAppContext.Xrm.Utility.getGlobalContext().userSettings.userId.toString().replace(/[{}]/g, "");
+            var getOrgUrl = _that.getClientUrl();
+            var url = getOrgUrl + _that.apiDataVersion + "systemusers()?$select=azureactivedirectoryobjectid&$filter=systemuserid%20eq%20" + systemuserId;
+            var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+            promise.done(function (response) {
+                var responseObj = jQuery.parseJSON(response);
+                if (responseObj.value && responseObj.value.length > 0) {
+                    _that.userId = responseObj.value[0]["azureactivedirectoryobjectid"];
+                    deferred.resolve(_that.userId);
+                }
+                else {
+                    _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Error: Getting userId failed...! ResponseObject not in proper format");
+                    deferred.reject("");
+                }
+            });
+            promise.fail(function (data, textStatus, errorThrown) {
+                _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance().ReportError("Error: Getting userID failed...!", data, textStatus, errorThrown);
+                deferred.reject("");
+            });
+            return deferred.promise();
+        };
+        UCIAppContext.initializeTenantInfo = function () {
+            var deferred = jQuery.Deferred();
+            var _that = UCIAppContext._instance;
+            var getOrgUrl = _that.getClientUrl();
+            var url = getOrgUrl + _that.apiDataVersion + "RetrieveTenantInfo";
+            var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+            promise.done(function (response) {
+                var tenantProperties = JSON.parse(response);
+                if (tenantProperties.TenantInfo) {
+                    var tenantInfo = JSON.parse(tenantProperties.TenantInfo);
+                    if (tenantInfo.OrgType && tenantInfo.S2STenantId) {
+                        _that.orgType = parseInt(tenantInfo.OrgType);
+                        _that.tenantId = tenantInfo.S2STenantId;
+                        deferred.resolve("Success");
+                    }
+                    else {
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "Error: Getting Tenant Info failed...!");
+                    }
+                }
+            });
+            promise.fail(function (data, textStatus, errorThrown) {
+                _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance().ReportError("Error: Getting Tenant Info failed...!", data, textStatus, errorThrown);
+                deferred.resolve("Fail");
+            });
+            return deferred.promise();
+        };
+        UCIAppContext.initializeAppModuleInfo = function () {
+            var deferred = jQuery.Deferred();
+            var _that = UCIAppContext._instance;
+            var successCallback = function (appProperties) {
+                if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(appProperties.appId)) {
+                    _that.SetDefaultAppModuleInfo();
+                    deferred.resolve("Fail");
+                }
+                else {
+                    _that.appId = appProperties.appId;
+                    _that.appModuleName = appProperties.displayName;
+                    _that.appModuleUniqueName = appProperties.uniqueName;
+                    var getOrgUrl = _that.getClientUrl();
+                    var url = getOrgUrl + _that.apiDataVersion + "appmodules(" + _that.appId + ")";
+                    var promise = _MicrosoftNPSSurvey.NPSUtility.TryRetrieve(url, 3600);
+                    promise.done(function (response) {
+                        var appProperties = JSON.parse(response);
+                        if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(appProperties.versionnumber)) {
+                            _that.appModuleVersion = appProperties.versionnumber.toString();
+                        }
+                        deferred.resolve("Success");
+                    });
+                }
+            };
+            var failureCallback = function (err) {
+                _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance().ReportError("Error: Getting App Info failed...!", "", "", err);
+                deferred.resolve("Fail");
+            };
+            window.Xrm.Utility.getGlobalContext().getCurrentAppProperties().then(successCallback, failureCallback);
+            return deferred.promise();
+        };
+        UCIAppContext._instance = null;
+        return UCIAppContext;
+    }(_MicrosoftNPSSurvey.AppContext));
+    _MicrosoftNPSSurvey.UCIAppContext = UCIAppContext;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var AppContextFactory = (function () {
+        function AppContextFactory() {
+        }
+        AppContextFactory.createAppContext = function (onCreation) {
+            var callback = function () {
+                var productName = AppContextFactory.getProductName();
+                var appContextPromise = undefined;
+                switch (productName.toUpperCase()) {
+                    case 'CRM':
+                        appContextPromise = _MicrosoftNPSSurvey.CrmAppContext.getInstance(window.parent['Xrm'], window.parent['XrmUI']);
+                        break;
+                    case 'UCI':
+                        appContextPromise = _MicrosoftNPSSurvey.UCIAppContext.getInstance(window['Xrm']);
+                        break;
+                    default:
+                        onCreation(new _MicrosoftNPSSurvey.AppContext());
+                }
+                if (!_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(appContextPromise)) {
+                    appContextPromise.done(function (appContext) {
+                        onCreation(appContext);
+                    });
+                    appContextPromise.fail(function () {
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "App Context Initilization failed");
+                    });
+                }
+            };
+            AppContextFactory.checkXrmExists(callback, AppContextFactory.XrmInterval, AppContextFactory.XrmMaxTries, 0);
+        };
+        AppContextFactory.checkXrmExists = function (successCallback, interval, maxTries, count) {
+            var xrm = window.Xrm;
+            if (xrm === undefined || xrm === null) {
+                if (count < maxTries) {
+                    setTimeout(function () { return AppContextFactory.checkXrmExists(successCallback, interval, maxTries, count + 1); }, interval);
+                }
+                else {
+                    console.log("Failed to Load NPS : Xrm Object Not Available");
+                }
+            }
+            else {
+                successCallback();
+            }
+        };
+        AppContextFactory.getProductName = function () {
+            if (AppContextFactory.isUCIClient()) {
+                return 'UCI';
+            }
+            if (window.parent['Xrm']) {
+                return 'CRM';
+            }
+        };
+        AppContextFactory.isUCIClient = function () {
+            var Xrm = window.Xrm;
+            return (Xrm && Xrm.Internal.isUci && Xrm.Internal.isUci());
+        };
+        AppContextFactory.XrmMaxTries = 5;
+        AppContextFactory.XrmInterval = 1000;
+        return AppContextFactory;
+    }());
+    _MicrosoftNPSSurvey.AppContextFactory = AppContextFactory;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var LocalStore = (function () {
+        function LocalStore() {
+        }
+        LocalStore.prototype.storeData = function (key, value) {
+            if (!(_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(key) || _MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(value))) {
+                var storeVal = JSON.stringify(value);
+                localStorage.setItem(key, storeVal);
+            }
+        };
+        LocalStore.prototype.removeData = function (key) {
+            if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(key)) {
+                localStorage.removeItem(key);
+            }
+        };
+        LocalStore.prototype.retrieveData = function (key) {
+            try {
+                if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(key)) {
+                    var storeVal = localStorage.getItem(key);
+                    return JSON.parse(storeVal);
+                }
+            }
+            catch (e) {
+                console.log(e);
+            }
+            return {};
+        };
+        LocalStore.prototype.isDataAvailable = function (key) {
+            if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(key)) {
+                var val = localStorage.getItem(key);
+                return !(_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(val) || _MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(val));
+            }
+            return false;
+        };
+        return LocalStore;
+    }());
+    _MicrosoftNPSSurvey.LocalStore = LocalStore;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var PersistentTimeout = (function () {
+        function PersistentTimeout() {
+            this.activeTimerList = [];
+            this.globalTimerList = [];
+            this.timerStorageNameMapping = {};
+            if (_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(PersistentTimeout._instance)) {
+                this.store = new _MicrosoftNPSSurvey.LocalStore();
+                if (this.store.isDataAvailable('globalTimerList'))
+                    this.globalTimerList = this.store.retrieveData('globalTimerList');
+                this.setupEvents();
+            }
+        }
+        PersistentTimeout.prototype.getTimerStorageName = function (str) {
+            var timerName = this.timerStorageNameMapping[str];
+            if (_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(timerName))
+                timerName = str + PersistentTimeout.DELIMITER + Date.now().toString();
+            this.timerStorageNameMapping[str] = timerName;
+            return timerName;
+        };
+        PersistentTimeout.prototype.getOriginalTimerName = function (str) {
+            var index = str.indexOf(PersistentTimeout.DELIMITER);
+            return str.substr(0, index);
+        };
+        PersistentTimeout.getInstance = function () {
+            if (_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(PersistentTimeout._instance)) {
+                PersistentTimeout._instance = new PersistentTimeout();
+            }
+            return PersistentTimeout._instance;
+        };
+        PersistentTimeout.prototype.setPersistentTimeout = function (timeoutName, timeOutInterval, callback) {
+            if (callback === void 0) { callback = new Function(); }
+            var doesTimerExist = this.timerStorageNameMapping.hasOwnProperty(timeoutName);
+            if (doesTimerExist) {
+                var timerName = this.timerStorageNameMapping[timeoutName];
+                var metaData = this.store.retrieveData(timerName);
+                if (metaData && (metaData.isUnloaded === 0 || !this.timerExpired(metaData))) {
+                    _MicrosoftNPSSurvey.NPSSurvey.getInstance().sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.activeTimerExists);
+                    return metaData.timeOutId;
+                }
+                else
+                    this.clearPersistentTimeout(timeoutName);
+            }
+            return this.setPersistentTimeoutInner(timeoutName, timeOutInterval, callback);
+        };
+        PersistentTimeout.prototype.setPersistentTimeoutInner = function (timeoutName, timeOutInterval, callback) {
+            if (callback === void 0) { callback = new Function(); }
+            var _this = this;
+            var callBackFunction = function (timeOutName) {
+                try {
+                    if (_this.isOnlyActiveTimer(timeOutName)) {
+                        callback();
+                    }
+                    else {
+                        var _activeTimeList = JSON.stringify(_this.activeTimerList);
+                        var _globalTimerList = JSON.stringify(_this.globalTimerList);
+                        var _timerStorageMapping = JSON.stringify(_this.timerStorageNameMapping);
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, "More than one active timers for " + timeOutName + ", not showing the survey: activeTimerList:" + _activeTimeList + " globalTimerList:" + _globalTimerList + " timerStorageMapping:" + _timerStorageMapping);
+                    }
+                }
+                catch (err) {
+                    console.log(err);
+                    _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, err);
+                }
+                finally {
+                    _this.clearPersistentTimeout(timeOutName);
+                }
+            };
+            var time = Date.now();
+            this.clearExpiredTimers();
+            _MicrosoftNPSSurvey.NPSSurvey.getInstance().sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.setTimeout);
+            var timeoutId = setTimeout(function () { return callBackFunction(timeoutName); }, timeOutInterval);
+            var metaData = {
+                "setTime": time,
+                "timeOutId": timeoutId,
+                "timeOutInterval": timeOutInterval,
+                "isUnloaded": 0
+            };
+            var timerName = this.getTimerStorageName(timeoutName);
+            this.activeTimerList.push(timerName);
+            this.store.storeData(timerName, metaData);
+            this.globalTimerList.push(timerName);
+            this.store.storeData('globalTimerList', this.globalTimerList);
+            return timeoutId;
+        };
+        PersistentTimeout.prototype.clearPersistentTimeout = function (timeoutName) {
+            var doesTimerExist = this.timerStorageNameMapping.hasOwnProperty(timeoutName);
+            if (doesTimerExist) {
+                var timerName = this.getTimerStorageName(timeoutName);
+                var timerMetaData = this.store.retrieveData(timerName);
+                if (timerMetaData) {
+                    clearTimeout(timerMetaData.timeOutId);
+                }
+                this.clearGlobalTimerMetadata(timerName);
+                this.clearActiveTimerMetadata(timerName);
+            }
+        };
+        PersistentTimeout.prototype.clearTimeoutOnUnload = function () {
+            var _this = this;
+            this.activeTimerList.forEach(function (timerName) {
+                var metaData = _this.store.retrieveData(timerName);
+                metaData['isUnloaded'] = 1;
+                _this.store.storeData(timerName, metaData);
+            });
+        };
+        PersistentTimeout.prototype.setupEvents = function () {
+            var _this = this;
+            $(window).on('unload', function () {
+                _this.clearTimeoutOnUnload();
+            });
+            $(window).bind('storage', function (e) {
+                var event = e.originalEvent;
+                if (event.key === 'globalTimerList') {
+                    _this.globalTimerList = _this.store.retrieveData('globalTimerList');
+                }
+            });
+        };
+        PersistentTimeout.prototype.isOnlyActiveTimer = function (localTimerName) {
+            var _this = this;
+            var otherTimersWithSameName = this.globalTimerList.filter(function (globalTimerName) {
+                return globalTimerName.substr(0, localTimerName.length) === localTimerName;
+            });
+            var activeTimers = otherTimersWithSameName.filter(function (timerName) {
+                var timerMetaData = _this.store.retrieveData(timerName);
+                if (!timerMetaData)
+                    return false;
+                return !(_this.timerExpired(timerMetaData) || timerMetaData.isUnloaded === 1);
+            });
+            return activeTimers.length === 1 && this.timerStorageNameMapping[localTimerName] === activeTimers[0];
+        };
+        PersistentTimeout.prototype.clearGlobalTimerMetadata = function (timerName) {
+            this.store.removeData(timerName);
+            var index = this.globalTimerList.indexOf(timerName);
+            if (index != -1) {
+                this.globalTimerList.splice(index, 1);
+                this.store.storeData('globalTimerList', this.globalTimerList);
+            }
+        };
+        PersistentTimeout.prototype.clearActiveTimerMetadata = function (timerName) {
+            var index = this.activeTimerList.indexOf(timerName);
+            if (index != -1) {
+                this.activeTimerList.splice(index, 1);
+            }
+            var timeoutName = this.getOriginalTimerName(timerName);
+            delete this.timerStorageNameMapping[timeoutName];
+        };
+        PersistentTimeout.prototype.timerExpired = function (timerMetadata) {
+            return (timerMetadata && timerMetadata.setTime + timerMetadata.timeOutInterval + PersistentTimeout.BUFFER_INTERVAL < Date.now());
+        };
+        PersistentTimeout.prototype.clearExpiredTimers = function () {
+            var _this = this;
+            this.globalTimerList.forEach(function (globalTimerName) {
+                var timerMetaData = _this.store.retrieveData(globalTimerName);
+                if (!timerMetaData)
+                    _this.clearGlobalTimerMetadata(globalTimerName);
+                if (timerMetaData && (_this.timerExpired(timerMetaData) || timerMetaData.isUnloaded === 1)) {
+                    _this.clearGlobalTimerMetadata(globalTimerName);
+                }
+            });
+        };
+        PersistentTimeout.BUFFER_INTERVAL = 10000;
+        PersistentTimeout.DELIMITER = '?ver=';
+        return PersistentTimeout;
+    }());
+    _MicrosoftNPSSurvey.PersistentTimeout = PersistentTimeout;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var UserState;
+    (function (UserState) {
+        UserState[UserState["SurveyStarted"] = 0] = "SurveyStarted";
+        UserState[UserState["OnFirstPage"] = 1] = "OnFirstPage";
+        UserState[UserState["OnSecondPage"] = 2] = "OnSecondPage";
+        UserState[UserState["SurveyCompleted"] = 3] = "SurveyCompleted";
+    })(UserState = _MicrosoftNPSSurvey.UserState || (_MicrosoftNPSSurvey.UserState = {}));
+    var Response;
+    (function (Response) {
+        Response[Response["SuccessTrue"] = 0] = "SuccessTrue";
+        Response[Response["SuccessFalse"] = 1] = "SuccessFalse";
+        Response[Response["Fail"] = 2] = "Fail";
+    })(Response = _MicrosoftNPSSurvey.Response || (_MicrosoftNPSSurvey.Response = {}));
+    var CustomParameters = (function () {
+        function CustomParameters(aName, aUniqueName, aVersion, oType, oId, sTenant, cType, eName, cName, fFactor) {
+            this.appName = aName;
+            this.appUniqueName = aUniqueName;
+            this.appVersion = aVersion;
+            this.orgId = oId;
+            this.orgType = oType.toString();
+            this.subtenant = sTenant;
+            this.clientType = cType;
+            this.entityName = eName;
+            this.clientName = cName;
+            this.formFactor = fFactor;
+        }
+        return CustomParameters;
+    }());
+    _MicrosoftNPSSurvey.CustomParameters = CustomParameters;
+    var NPSSurvey = (function () {
+        function NPSSurvey(configUrl) {
+            if (NPSSurvey._instance) {
+                console.log("Singleton instance already exists for NPSSurvey. Access it via NPSSurvey.getInstance()");
+                return;
+            }
+            this._scripts = [{ 'src': 'applicationinsights.js', 'callback': this.initializeAppInsightsWithIKey, 'waitForCallback': true }];
+            var self = this;
+            var promise = self.readNPSConfig(configUrl);
+            promise.done(function () {
+                var loadScriptPromise = self.loadNPSScripts();
+                self.loadStyles();
+                loadScriptPromise.done(function () {
+                    var callback = function (appContext) {
+                        self._clientContext = appContext;
+                        self.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.init);
+                        self._userLcid = self._clientContext.getUserLcid();
+                        self._userId = self._clientContext.getUserId();
+                        self._orgType = self._clientContext.getOrgType();
+                        var langSupported = (self._rtlLanguages.indexOf(self._userLcid) >= 0) ? (typeof (self._rtlSupported) === "boolean" && self._rtlSupported) : true;
+                        var orgTypeSupported = false;
+                        if (_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(self._orgType) || (jQuery.inArray(self._orgType, self._supportedOrgTypes) >= 0)) {
+                            orgTypeSupported = true;
+                        }
+                        if (langSupported && orgTypeSupported) {
+                            self.startPersistentTimer('OnLoadEligiblityCheckInterval', self._onLoadEligiblityCheckInterval);
+                        }
+                        self.setRemoveEntityCheckFlag(false);
+                        _MicrosoftNPSSurvey.PersistentTimeout.getInstance().setPersistentTimeout('RemoveEntityCheck', self._removeEntityCheckInterval, function () {
+                            self.setRemoveEntityCheckFlag(true);
+                        });
+                    };
+                    _MicrosoftNPSSurvey.AppContextFactory.createAppContext(callback);
+                });
+                loadScriptPromise.fail(function (errors) {
+                    var errMsg = 'Error Loading NPS Scripts : ';
+                    errors.forEach(function (error) {
+                        errMsg += error;
+                    });
+                    console.log(errMsg);
+                    if (_MicrosoftNPSSurvey.Telemetry && _MicrosoftNPSSurvey.Telemetry.NPSLogger) {
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, errMsg);
+                    }
+                });
+            });
+            this.registerEventListener();
+        }
+        NPSSurvey.getInstance = function (configUrl) {
+            if (_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(NPSSurvey._instance)) {
+                if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(configUrl)) {
+                    NPSSurvey._instance = new NPSSurvey(configUrl);
+                }
+                else {
+                    console.error("NPSSurvey can not be intitialized without config URL");
+                }
+            }
+            return NPSSurvey._instance;
+        };
+        NPSSurvey.prototype.startPersistentTimer = function (timerName, timerInterval) {
+            var ptInstance = _MicrosoftNPSSurvey.PersistentTimeout.getInstance();
+            this.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.startTimer);
+            ptInstance.setPersistentTimeout(timerName, timerInterval, function () {
+                NPSSurvey.getInstance().startSurvey();
+            });
+        };
+        NPSSurvey.prototype.resetPersistentTimer = function (timerName, timerInterval) {
+            this.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.resetTimer);
+            _MicrosoftNPSSurvey.PersistentTimeout.getInstance().clearPersistentTimeout(timerName);
+            var self = this;
+            setTimeout(function () {
+                self.startPersistentTimer(timerName, timerInterval);
+            }, 0);
+        };
+        NPSSurvey.prototype.replacePlaceHolderText = function (text) {
+            var langCode = _MicrosoftNPSSurvey.NpsConstants.Lcid[this._userLcid];
+            var values = {
+                langcode: langCode,
+                puid: this.getUserId(),
+                productVersion: this._clientContext.getVersion(),
+                appName: this._clientContext.getAppModuleName(),
+                appUniqueName: this._clientContext.getAppModuleUniqueName(),
+                appVersion: this._clientContext.getAppModuleVersion(),
+                orgType: this.Context.getOrgType(),
+                orgId: this.Context.getOrgId(),
+                clientType: this.Context.getClientType()
+            };
+            text = text.replace(new RegExp("{{puid}}", "g"), values.puid);
+            text = text.replace(new RegExp("{{langcode}}", "g"), values.langcode);
+            text = text.replace(new RegExp("{{productVersion}}", "g"), values.productVersion);
+            var subTenant = this.getSubTenant();
+            var customParameters = new CustomParameters(values.appName, values.appUniqueName, values.appVersion, values.orgType, values.orgId, subTenant, values.clientType, this.Context.getCurrentEntityName(), this.Context.getClientName(), this.Context.getFormFactor().toString());
+            text = text.replace(new RegExp("{{custom}}", "g"), encodeURIComponent(JSON.stringify(customParameters)));
+            return text;
+        };
+        NPSSurvey.prototype.setRemoveEntityCheckFlag = function (flag) {
+            var storage = new _MicrosoftNPSSurvey.LocalStore();
+            storage.storeData(_MicrosoftNPSSurvey.NpsConstants.RemoveEntityCheckKey, flag);
+        };
+        NPSSurvey.prototype.receiveNPSMessage = function (event) {
+            if (_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(event) || _MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(event.origin))
+                return;
+            if ((event.origin).indexOf(NPSSurvey.getInstance().getNPSHostname()) < 0)
+                return;
+            var npsInstance = NPSSurvey.getInstance();
+            var msg = event.data;
+            if ((!_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(msg)) && (!_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(msg.msgType))) {
+                if (msg.msgType === _MicrosoftNPSSurvey.NpsConstants.closeNpsDialog) {
+                    _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_CLOSE_SURVEY_IFRAME_START');
+                    npsInstance.hideOverlay();
+                    npsInstance.destroyIFrame();
+                    _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_CLOSE_SURVEY_IFRAME_END');
+                    if (npsInstance._userState === UserState.OnFirstPage) {
+                        npsInstance.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.terminate);
+                    }
+                    npsInstance._userState = UserState.SurveyCompleted;
+                }
+                else if (msg.msgType === _MicrosoftNPSSurvey.NpsConstants.resizeNpsDialog) {
+                    npsInstance.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.complete);
+                    _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_RESIZE_THANK_YOU_START');
+                    npsInstance.resizeIFrame(_MicrosoftNPSSurvey.DialogType.Thankyou);
+                    npsInstance._userState = UserState.OnSecondPage;
+                    _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_RESIZE_THANK_YOU_END');
+                }
+                else {
+                }
+            }
+        };
+        NPSSurvey.prototype.registerEventListener = function () {
+            window.addEventListener("message", this.receiveNPSMessage);
+        };
+        Object.defineProperty(NPSSurvey.prototype, "Context", {
+            get: function () {
+                return this._clientContext;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        NPSSurvey.prototype.loadNPSScripts = function () {
+            var deferred = jQuery.Deferred();
+            var promises = new Array();
+            for (var scriptcounter = 0; scriptcounter < this._scripts.length; scriptcounter++) {
+                promises.push(this.loadScript(this._cdnUrl + this._scripts[scriptcounter].src, this._scripts[scriptcounter].callback, this._scripts[scriptcounter].waitForCallback));
+            }
+            var allPromises = jQuery.when.apply(null, promises);
+            allPromises.done(function () {
+                deferred.resolve([]);
+            });
+            allPromises.fail(function () {
+                var errors = new Array();
+                for (var index = 0; index < arguments.length; index++) {
+                    errors.push(arguments[index]);
+                }
+                deferred.reject(errors);
+            });
+            return deferred.promise();
+        };
+        NPSSurvey.prototype.loadScript = function (src, callback, waitForCallback) {
+            if (callback === void 0) { callback = undefined; }
+            if (waitForCallback === void 0) { waitForCallback = false; }
+            var deferred = jQuery.Deferred();
+            var errMsg = 'Error in loading ' + src + ' script';
+            var successMsg = src + ' loaded ';
+            if (!document.getElementById(src)) {
+                var self = NPSSurvey.getInstance();
+                var script = document.createElement('script');
+                script.onerror = function () {
+                    console.error(errMsg);
+                    deferred.reject(errMsg);
+                };
+                script.onload = function () {
+                    console.log(successMsg);
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(callback) && typeof callback === "function") {
+                        if (waitForCallback) {
+                            var promise = callback(self);
+                            promise.done(function () {
+                                deferred.resolve(successMsg);
+                            });
+                            promise.fail(function (errMsg) {
+                                deferred.reject(errMsg);
+                            });
+                        }
+                        else {
+                            callback(self);
+                            deferred.resolve(successMsg);
+                        }
+                    }
+                    else {
+                        deferred.resolve(successMsg);
+                    }
+                };
+                script.src = src;
+                script.id = src;
+                script.type = "text/javascript";
+                document.getElementsByTagName('head')[0].appendChild(script);
+            }
+            else {
+                console.log(successMsg);
+                deferred.resolve(successMsg);
+            }
+            return deferred.promise();
+        };
+        NPSSurvey.prototype.loadStyles = function () {
+            var styleSrc = this._cdnUrl + 'NPSSurvey.css';
+            this.loadStyle(styleSrc);
+        };
+        NPSSurvey.prototype.loadStyle = function (src) {
+            if (document.getElementById(src)) {
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Info, ' already loaded ');
+            }
+            else {
+                var style = document.createElement('link');
+                style.onerror = function () {
+                    _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, 'Error in loading style');
+                };
+                style.onload = function () {
+                    console.log(src + ' loaded ');
+                };
+                style.href = src;
+                style.rel = "stylesheet";
+                style.type = "text/css";
+                style.id = src;
+                document.getElementsByTagName('head')[0].appendChild(style);
+            }
+        };
+        NPSSurvey.prototype.initializeAppInsightsWithIKey = function (self) {
+            var config = {
+                instrumentationKey: self._instrumentationKey,
+                disableAjaxTracking: true
+            };
+            var appInsights = window.appInsights || window.initializeAppInsights(config);
+            window.appInsights = appInsights;
+            return self.loadScript(self._cdnUrl + 'NPSTelemetry.js', self.postTelemetryLoad);
+        };
+        NPSSurvey.prototype.postTelemetryLoad = function () {
+            _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.isEnabled = _MicrosoftNPSSurvey.NPSBootstrap.isTelemetryEnabled;
+        };
+        NPSSurvey.prototype.getNPSHostname = function () {
+            var domainName = this._npsSurveyUrl.split(/[/?#]/)[2];
+            return domainName;
+        };
+        NPSSurvey.prototype.getUserLcid = function () {
+            if (!this._userLcid) {
+                if (this._clientContext) {
+                    this._userLcid = this.Context.getUserLcid();
+                }
+            }
+            return this._userLcid;
+        };
+        NPSSurvey.prototype.getUserId = function () {
+            if (!this._userId) {
+                if (this._clientContext) {
+                    this._userId = this.Context.getUserId();
+                }
+            }
+            return this._userId;
+        };
+        NPSSurvey.prototype.UserIdValid = function () {
+            var GuidPattern = new RegExp('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+            return !_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(this.getUserId()) &&
+                !_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(this.getUserId()) &&
+                GuidPattern.test(this.getUserId());
+        };
+        NPSSurvey.prototype.checkIfEligible = function () {
+            _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_CHECK_ELIGIBILITY_START');
+            var deferred = jQuery.Deferred();
+            if (this.UserIdValid()) {
+                this.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.eligibilitycheck);
+                var url = this.replacePlaceHolderText(this._npsEligibilityUrl);
+                var promise = jQuery.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'json',
+                });
+                var self = this;
+                promise.done(function (data) {
+                    if (typeof (data.display) === "boolean" && data.display) {
+                        self._eligible = data.display;
+                        self._userState = UserState.SurveyStarted;
+                        _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_CHECK_ELIGIBILITY_END');
+                        self.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.eligible);
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Info, 'Eligible for survey as it returns ' + data.display);
+                        deferred.resolve(Response.SuccessTrue);
+                    }
+                    else {
+                        _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_CHECK_ELIGIBILITY_END');
+                        self.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.ineligible);
+                        _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Info, 'Not Eligible for survey as it returns ' + data.display);
+                        deferred.reject(Response.SuccessFalse);
+                    }
+                });
+                promise.fail(function (data, textStatus, errorThrown) {
+                    _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_CHECK_ELIGIBILITY_END');
+                    var errorMsg = 'checkForEligibility call failed';
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(data) && !_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(data.responseText)) {
+                        errorMsg += ' Response Text : ' + data.responseText;
+                    }
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(textStatus)) {
+                        errorMsg += ' Text Status : ' + textStatus;
+                    }
+                    if (!_MicrosoftNPSSurvey.NPSUtility.isEmptyOrUndefined(errorThrown)) {
+                        errorMsg += ' Error Thrown : ' + errorThrown;
+                    }
+                    _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, errorMsg);
+                    deferred.reject(Response.Fail);
+                });
+            }
+            else {
+                _MicrosoftNPSSurvey.Telemetry.NPSLogger.getChainOfLoggers().message(_MicrosoftNPSSurvey.Telemetry.LogLevel.Error, 'Not checking eligibility. User ID : ' + this.getUserId());
+                deferred.reject(Response.Fail);
+            }
+            return deferred.promise();
+        };
+        NPSSurvey.prototype.readNPSConfig = function (configUrl) {
+            var deferred = jQuery.Deferred();
+            var promise = jQuery.ajax({
+                url: configUrl,
+                type: 'GET',
+                dataType: 'json',
+            });
+            var self = this;
+            promise.done(function (data) {
+                self._npsEligibilityUrl = data.NPSCheckEligiblityUrl;
+                self._npsSurveyUrl = data.NPSRenderUrl;
+                self._cdnUrl = data.CDNUrl;
+                self._rtlSupported = data.RTLSupported;
+                self._rtlLanguages = data.RTLLangCode;
+                self._supportedOrgTypes = data.SupportedOrgTypes;
+                self._instrumentationKey = data.instrumentationKey;
+                self._onLoadEligiblityCheckInterval = parseInt(data.OnLoadEligiblityCheckInterval);
+                self._periodicEligiblityCheckInterval = parseInt(data.PeriodicEligiblityCheckInterval);
+                self._retryOnErrorEligiblityCheckInterval = parseInt(data.RetryOnErrorEligiblityCheckInterval);
+                self._removeEntityCheckInterval = parseInt(data.RemoveEntityCheckInterval);
+                self._appModuleSubTenantMapping = data.AppModuleSubTenantMapping;
+                self._subTenantEntityFilter = data.SubTenantEntityFilter;
+                deferred.resolve(data);
+            });
+            promise.fail(function (data) {
+                console.error("Reading Config file " + _MicrosoftNPSSurvey.NPSBootstrap.configURL + " failed");
+                deferred.reject(data);
+            });
+            return deferred.promise();
+        };
+        NPSSurvey.prototype.insertSurveyIFrame = function () {
+            var zIndex = _MicrosoftNPSSurvey.NPSUtility.getMaxZIndex() + 1;
+            var surveyOverlayDiv = jQuery('<div>', {
+                id: 'nps-survey-overlay'
+            });
+            surveyOverlayDiv.css('z-index', zIndex);
+            var surveyContainerDiv = jQuery('<div>', {
+                id: 'nps-survey-container'
+            });
+            var surveyIFrame = jQuery('<iframe>', {
+                id: 'nps-feedback-iframe',
+                class: 'nps-survey-dialog',
+                'role': 'dialog'
+            });
+            var dummySpan = jQuery('<span>', {
+                id: "nps-dummy-span"
+            });
+            dummySpan.attr('tabindex', 0);
+            surveyContainerDiv.append(surveyIFrame);
+            surveyContainerDiv.append(dummySpan);
+            surveyOverlayDiv.append(surveyContainerDiv);
+            jQuery("body").append(surveyOverlayDiv);
+        };
+        NPSSurvey.prototype.startSurvey = function () {
+            var self = this;
+            var showSurveyOnPage = self.showSurveyOnPage();
+            if (showSurveyOnPage) {
+                var eligible = this.checkIfEligible();
+                eligible.done(function () {
+                    _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_SHOW_SURVEY_IFRAME_START');
+                    self.insertSurveyIFrame();
+                    self.loadSurvey();
+                });
+                eligible.fail(function (data) {
+                    if (data === Response.Fail) {
+                        self.resetPersistentTimer('OnLoadEligiblityCheckInterval', self._retryOnErrorEligiblityCheckInterval);
+                    }
+                    else {
+                        self.resetPersistentTimer('PeriodicEligiblityCheckInterval', self._periodicEligiblityCheckInterval);
+                    }
+                });
+            }
+            else {
+                NPSSurvey.getInstance().sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.entityNotWhitelisted);
+                self.resetPersistentTimer('OnLoadEligiblityCheckInterval', self._onLoadEligiblityCheckInterval);
+            }
+        };
+        NPSSurvey.prototype.showOverlay = function () {
+            this.sendEventInfo(_MicrosoftNPSSurvey.Telemetry.ActivityName.show);
+            this.resizeIFrame(_MicrosoftNPSSurvey.DialogType.Feedback);
+            jQuery("#nps-survey-overlay").show();
+            var surveyOverlayDiv = jQuery('#nps-survey-overlay');
+            var surveyIFrame = jQuery('#nps-feedback-iframe');
+            surveyOverlayDiv.off('keydown').on('keydown', function (event) {
+                if (event.keyCode === 9) {
+                    if (document.activeElement.id === 'nps-dummy-span') {
+                        surveyIFrame.focus();
+                    }
+                }
+            });
+        };
+        NPSSurvey.prototype.loadSurvey = function () {
+            var surveyiframe = jQuery('#nps-feedback-iframe');
+            var url = this.replacePlaceHolderText(this._npsSurveyUrl);
+            surveyiframe.attr('src', url);
+            var self = this;
+            surveyiframe.on('load', function () {
+                if (self._userState === UserState.SurveyStarted)
+                    self.showOverlay();
+                self._userState = UserState.OnFirstPage;
+                surveyiframe.focus();
+                _MicrosoftNPSSurvey.PerfMarker.NPSCaptureModulePerfTime('NPS_SHOW_SURVEY_IFRAME_END');
+            });
+        };
+        NPSSurvey.prototype.hideOverlay = function () {
+            jQuery("#nps-survey-overlay").hide();
+        };
+        NPSSurvey.prototype.destroyIFrame = function () {
+            jQuery('#nps-survey-overlay').remove();
+        };
+        NPSSurvey.prototype.resizeIFrame = function (dialogType) {
+            switch (dialogType) {
+                case _MicrosoftNPSSurvey.DialogType.Feedback:
+                    if (jQuery('#nps-feedback-iframe').hasClass('nps-thankyou'))
+                        jQuery('#nps-feedback-iframe').removeClass('nps-thankyou');
+                    jQuery('#nps-feedback-iframe').addClass('nps-feedback');
+                    break;
+                case _MicrosoftNPSSurvey.DialogType.Thankyou:
+                    if (jQuery('#nps-feedback-iframe').hasClass('nps-feedback'))
+                        jQuery('#nps-feedback-iframe').removeClass('nps-feedback');
+                    jQuery('#nps-feedback-iframe').addClass('nps-thankyou');
+                    break;
+                default:
+            }
+            var dialogHeight = jQuery('#nps-feedback-iframe').height();
+            var marginTop = ((window.parent.innerHeight - dialogHeight) / 2).toString() + 'px';
+            jQuery('#nps-feedback-iframe').css('margin-top', marginTop);
+        };
+        NPSSurvey.prototype.sendEventInfo = function (eventName) {
+            var eventInfo = new _MicrosoftNPSSurvey.Telemetry.NPSTelemetryEvent(eventName);
+            eventInfo.SetUserActivityInfo(this.getUserId(), this.Context.getOrgId(), this.Context.getVersion(), this.Context.getClientType(), this.getUserLcid(), this.Context.getFormFactor(), this.Context.getGeoName(), this.Context.getOrgType(), this.Context.getTenantId(), this.Context.getAppModuleName(), this.Context.getAppModulePublisherName(), this.Context.getAppModuleUniqueName(), this.Context.getAppModuleVersion(), this.getSubTenant());
+            var reporter = _MicrosoftNPSSurvey.Telemetry.TelemetryReporter.Instance();
+            reporter.ReportEvent(eventInfo);
+        };
+        NPSSurvey.prototype.getSubTenant = function () {
+            var appUniqueName = this.Context.getAppModuleUniqueName().toLowerCase();
+            var subTenant = _MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(this._appModuleSubTenantMapping[appUniqueName]) ? "Custom" : this._appModuleSubTenantMapping[appUniqueName];
+            if (this.Context.getClientType() === "UnifiedServiceDesk") {
+                subTenant = "unifiedservicedesk";
+            }
+            return subTenant;
+        };
+        NPSSurvey.prototype.showSurveyOnPage = function () {
+            var storage = new _MicrosoftNPSSurvey.LocalStore();
+            var skipEntityCheck = storage.retrieveData(_MicrosoftNPSSurvey.NpsConstants.RemoveEntityCheckKey);
+            var subTenant = this.getSubTenant();
+            var entityList = this._subTenantEntityFilter[subTenant.toLowerCase()];
+            var currentEntity = this.Context.getCurrentEntityName();
+            return skipEntityCheck ? true : !_MicrosoftNPSSurvey.NPSUtility.isNullOrUndefined(entityList) &&
+                (jQuery.inArray(currentEntity, entityList) >= 0
+                    || jQuery.inArray("*", entityList) >= 0);
+        };
+        NPSSurvey._instance = null;
+        return NPSSurvey;
+    }());
+    _MicrosoftNPSSurvey.NPSSurvey = NPSSurvey;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+(function () {
+    if (window.npsSurvey === undefined) {
+        window.npsSurvey = _MicrosoftNPSSurvey.NPSSurvey.getInstance(_MicrosoftNPSSurvey.NPSBootstrap.configURL);
+    }
+})();

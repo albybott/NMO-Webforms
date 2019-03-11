@@ -1,0 +1,37 @@
+﻿#nps-survey-overlay {
+	position: fixed; /* Sit on top of the page content */
+	display: none;  /*Hidden by default */
+	width: 100%;  /* Full width (cover the whole page) */
+	height: 100%; /* Full height (cover the whole page) */
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(08,08,08,0.5); /* Black background with opacity */
+    z-index:2;
+	cursor: pointer; /* Add a pointer on hover */
+}
+
+#nps-survey-container{
+	text-align:center;
+	height:100%;
+    overflow:auto;
+}
+
+.nps-feedback {
+	height:507px;
+	width:550px;
+}
+
+.nps-thankyou {
+	height:263px;
+	width:550px;
+}
+
+.nps-survey-dialog {
+    border: 1px solid #d6d6d6;
+    box-shadow: 0 0 1em #000;
+    max-height: 95%;
+    max-width: 95%;
+}
+

@@ -1,0 +1,2094 @@
+/** @license Copyright (c) Microsoft Corporation. All rights reserved. */
+var MscrmControls;
+(function (MscrmControls) {
+    var ControlMock;
+    (function (ControlMock) {
+        'use strict';
+        var ActionCardCommands = (function () {
+            function ActionCardCommands() {
+            }
+            ActionCardCommands.prototype.init = function (context, notifyOutputChanged, state, container) {
+            };
+            ActionCardCommands.prototype.updateView = function (context) {
+            };
+            ActionCardCommands.prototype.getOutputs = function () {
+                return null;
+            };
+            ActionCardCommands.prototype.destroy = function () {
+            };
+            return ActionCardCommands;
+        }());
+        ControlMock.ActionCardCommands = ActionCardCommands;
+    })(ControlMock = MscrmControls.ControlMock || (MscrmControls.ControlMock = {}));
+})(MscrmControls || (MscrmControls = {}));
+var Mscrm;
+(function (Mscrm) {
+    var ActionCardCommandBarActions = (function () {
+        function ActionCardCommandBarActions() {
+            this.functhis = Mscrm.ActionCardCommandBarActions;
+        }
+        ActionCardCommandBarActions.getEntitySetNameMap = function () {
+            if (Mscrm.ActionCardCommandBarActions.isNullOrUndefined(Mscrm.ActionCardCommandBarActions.EntitySetMap) || Mscrm.ActionCardCommandBarActions.isNullOrUndefined(Mscrm.ActionCardCommandBarActions.EntityTypeCodeMap)) {
+                var url = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/EntityDefinitions?$select=LogicalName,EntitySetName,ObjectTypeCode';
+                Mscrm.ActionCardCommandBarActions.EntitySetMap = {};
+                Mscrm.ActionCardCommandBarActions.EntityTypeCodeMap = {};
+                var that = this;
+                Mscrm.ActionCardCommandBarActions.getJSON(url, function (resp) {
+                    var i = 0;
+                    var respJson = JSON.parse(resp);
+                    for (i = 0; i < respJson.value.length; i++) {
+                        Mscrm.ActionCardCommandBarActions.EntitySetMap[respJson.value[i].LogicalName] = respJson.value[i].EntitySetName;
+                        Mscrm.ActionCardCommandBarActions.EntityTypeCodeMap[respJson.value[i].ObjectTypeCode] = respJson.value[i].LogicalName;
+                    }
+                });
+                return [Mscrm.ActionCardCommandBarActions.EntitySetMap, Mscrm.ActionCardCommandBarActions.EntityTypeCodeMap];
+            }
+            return [Mscrm.ActionCardCommandBarActions.EntitySetMap, Mscrm.ActionCardCommandBarActions.EntityTypeCodeMap];
+        };
+        ActionCardCommandBarActions.getJSON = function (url, callback, headers) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, false);
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(headers)) {
+                for (var i in headers) {
+                    xhr.setRequestHeader(headers[i][0], headers[i][1]);
+                }
+            }
+            xhr.onload = function () {
+                var status = xhr.status;
+                if (status == 200 || status == 204) {
+                    callback(xhr.response);
+                }
+                else {
+                    callback(status);
+                }
+            };
+            xhr.send();
+        };
+        ;
+        ActionCardCommandBarActions.generateDialogParams = function (entityName, entityId, actionCardId, cardType, messageId) {
+            var dialogParams = {};
+            dialogParams["entityId"] = entityId;
+            dialogParams["entityName"] = entityName;
+            dialogParams["actionCardId"] = actionCardId;
+            dialogParams["cardType"] = cardType.toString();
+            dialogParams["message_id"] = messageId;
+            dialogParams["id_entityId"] = entityId;
+            dialogParams["id_actionCardId"] = actionCardId;
+            dialogParams["id_cardType"] = cardType.toString();
+            dialogParams["id_message_id"] = messageId;
+            return dialogParams;
+        };
+        ActionCardCommandBarActions.open = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "Open");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.open(gridControl, records);
+                return;
+            }
+            var regardingObjectId;
+            regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            if (!Mscrm.ActionCardCommandBarActions.isNull(regardingObjectId)) {
+                var regardingObject = regardingObjectId.split(":");
+                var options = { entityName: regardingObject[0], entityId: regardingObject[1] };
+                Xrm.Navigation.openForm(options);
+            }
+        };
+        ActionCardCommandBarActions.openRecipientView = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenRecipientView");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.openRecipientView(gridControl, records);
+                return;
+            }
+            var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', records[0].Id);
+            var dataInput = JSON.parse(data);
+            var recipientInfo = null;
+            if (dataInput.RecipientInfo)
+                recipientInfo = dataInput.RecipientInfo;
+            var recipientId = "";
+            var entityName = "";
+            var entityTypeCode = 0;
+            if (recipientInfo == null) {
+                recipientId = dataInput.Id;
+                entityTypeCode = dataInput.TypeCode;
+                entityName = dataInput.EntityName;
+            }
+            else {
+                recipientId = recipientInfo.Id;
+                entityTypeCode = recipientInfo.TypeCode;
+                entityName = recipientInfo.EntityName;
+            }
+            var dialogOptions = { openInNewWindow: true };
+            var options = { entityName: entityName, entityId: recipientId, openInNewWindow: true };
+            Xrm.Navigation.openForm(options);
+        };
+        ActionCardCommandBarActions.openEmailView = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenEmailView");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.openEmailView(gridControl, records);
+                return;
+            }
+            var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', records[0].Id);
+            if (Mscrm.ActionCardCommandBarActions.isNullOrUndefined(data)) {
+                Mscrm.ActionCardCommandBarActions.open(gridControl, records);
+                return;
+            }
+            var dataInput = JSON.parse(data);
+            var emailInfo = null;
+            if (dataInput.EntityInfo)
+                emailInfo = dataInput.EntityInfo;
+            var emailRefId = "";
+            var entityTypeCode = 0;
+            if (emailInfo == null) {
+                Mscrm.ActionCardCommandBarActions.open(gridControl, records);
+                return;
+            }
+            else {
+                emailRefId = emailInfo.Id;
+                entityTypeCode = emailInfo.TypeCode;
+            }
+            var entityName = emailInfo.EntityName;
+            var options = { entityName: entityName, entityId: emailRefId };
+            Xrm.Navigation.openForm(options);
+        };
+        ActionCardCommandBarActions.openOpportunity = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenOpportunity");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.openOpportunity(gridControl, records);
+                return;
+            }
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var mailWebLink = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "mailweblink");
+            var typeCode = 3;
+            var requestRegardingOpp = new RelationshipAssitantSdkContracts.GetRegardingOpportunityIdRequest(messageId);
+            var deferred1 = Xrm.WebApi.online.execute(requestRegardingOpp);
+            deferred1.then(function (res) {
+                res.json().then(function (odataResponse) {
+                    var opportunityId = odataResponse.OpportunityId;
+                    if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(opportunityId)) {
+                        var dialogOptions = { openInNewWindow: true };
+                        Xrm.Utility.openEntityForm("opportunity", opportunityId, null, dialogOptions);
+                    }
+                }, function (err) {
+                    Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                });
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.ShowErrorDetails = function (err) {
+            var errOptions;
+            if (err.innerror && !this.isNullOrEmptyString(err.innerror.message)) {
+                errOptions = { text: err.innerror.message };
+            }
+            else if (err.message && !this.isNullOrEmptyString(err.message)) {
+                errOptions = { text: err.message };
+            }
+            Xrm.Navigation.openAlertDialog(errOptions);
+            Xrm.Reporting.reportFailure("ActionCards.CommandFailure", errOptions, "", { name: "ErrorCode", value: err.errorCode }, { name: "ErrorMessage", value: errOptions });
+        };
+        ActionCardCommandBarActions.openRecipient = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenRecipientCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.openRecipient(gridControl, records);
+                return;
+            }
+            var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', records[0].Id);
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id);
+            var iCardType = Number(cardType);
+            var dialogOptions;
+            if (iCardType == Mscrm.ActionCardCommandBarActions.CompetitorMentioned) {
+                var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(regardingObjectId)) {
+                    var regardingObject = regardingObjectId.split(":");
+                    if (regardingObject.length == 2) {
+                        var entity = regardingObject[0];
+                        var entityId = regardingObject[1];
+                        var options = { entityName: entity, entityId: entityId };
+                        Xrm.Navigation.openForm(options);
+                        return;
+                    }
+                }
+            }
+            dialogOptions.openInNewWindow = true;
+            var dataValue = JSON.parse(data);
+            var id = dataValue.Id;
+            var typeCode = dataValue.TypeCode;
+            var entityName;
+            var options = { entityName: entityName, entityId: id };
+            Xrm.Navigation.openForm(options);
+        };
+        ActionCardCommandBarActions.isNull = function (value) {
+            return typeof value === 'undefined' || value == null;
+        };
+        ActionCardCommandBarActions.isNullOrEmptyString = function (value) {
+            return typeof (value) === 'undefined' || value == null || value.length == 0;
+        };
+        ActionCardCommandBarActions.isNullOrUndefined = function (value) {
+            return null == value || typeof (value) == 'undefined';
+        };
+        ActionCardCommandBarActions.getCellValue = function (gridControl, columnName, recordId) {
+            var data = [];
+            try {
+                data = window.top.Mscrm.ActionCardsRecords;
+            }
+            catch (e) {
+                var rawData = localStorage.getItem('actionCardRecords');
+                data = JSON.parse(rawData);
+            }
+            if (Mscrm.ActionCardCommandBarActions.isNullOrUndefined(data)) {
+                return "";
+            }
+            recordId = recordId.toString().replace(/[{}]/g, "");
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].getValue != undefined && data[i].getValue != null) {
+                    if (data[i].getValue('actioncardid').guid.toLowerCase() == recordId.toLowerCase()) {
+                        if (columnName == 'regardingobjectid') {
+                            var regObj = data[i].getValue('regardingobjectid');
+                            if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(regObj)) {
+                                return regObj.etn + ":" + regObj.id.guid;
+                            }
+                            else {
+                                return Mscrm.ActionCardCommandBarActions.EmptyString;
+                            }
+                        }
+                        else if (columnName == 'actioncardid') {
+                            return data[i].getValue('actioncardid').guid.toString();
+                        }
+                        else if (columnName == 'description') {
+                            return data[i].description;
+                        }
+                        else if (columnName == 'onlinemeetingurl') {
+                            return data[i].data["onlinemeetingurl"];
+                        }
+                        if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(data[i].getValue(columnName))) {
+                            return data[i].getValue(columnName).toString();
+                        }
+                    }
+                }
+                else {
+                    if (data[i].actioncardid && data[i].actioncardid.toLowerCase() == recordId.toLowerCase()) {
+                        if (columnName == 'regardingobjectid') {
+                            var regObj = data[i].regardingobjectid;
+                            if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(regObj)) {
+                                return regObj.etn + ":" + regObj.id.guid;
+                            }
+                            else {
+                                return Mscrm.ActionCardCommandBarActions.EmptyString;
+                            }
+                        }
+                        else if (columnName == 'actioncardid') {
+                            return data[i].actioncardid.toString();
+                        }
+                        else if (columnName == 'description') {
+                            return data[i].description ? data[i].description : "";
+                        }
+                        else if (columnName == 'data') {
+                            return data[i].data ? JSON.stringify(data[i].data) : "";
+                        }
+                        else if (columnName == 'messageid') {
+                            return data[i].messageid ? data[i].messageid.toString() : "";
+                        }
+                        else if (columnName == 'cardtype') {
+                            return data[i].cardtype ? data[i].cardtype.toString() : "";
+                        }
+                    }
+                }
+            }
+            return "";
+        };
+        ActionCardCommandBarActions.closeCard = function (gridControl, records) {
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.closeCard(gridControl, records);
+                return;
+            }
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id);
+            Mscrm.ActionCardCommandBarActions.dismissAction(gridControl, messageId, actionCardId, cardType);
+        };
+        ActionCardCommandBarActions.getValueFromDataJsonObject = function (gridControl, entityRefId, attributeName) {
+            var jsonString = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', entityRefId);
+            var parameters;
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(jsonString) && !Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(jsonString)) {
+                parameters = JSON.parse(jsonString);
+            }
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(parameters) && !Mscrm.ActionCardCommandBarActions.isNull(parameters[attributeName])) {
+                return parameters[attributeName].toString();
+            }
+            return Mscrm.ActionCardCommandBarActions.EmptyString;
+        };
+        ActionCardCommandBarActions.dismissAction = function (gridControl, messageId, actionCardId, cardType) {
+            Mscrm.ActionCardCommandBarActions.updateDismissAction(messageId, Mscrm.ActionCardCommandBarActions.getRecordIdBasedOnFormType()).then(function () {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.updateDismissAction = function (messageId, recordId) {
+            var requestSetActionCard = new RelationshipAssitantSdkContracts.UpdateDelveActionStatusRequest(messageId, 1, recordId);
+            var deferred1 = Xrm.WebApi.online.execute(requestSetActionCard);
+            deferred1.then(function (res) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.getRecordIdBasedOnFormType = function () {
+            return Mscrm.ActionCardCommandBarActions.isNull(Mscrm.ActionCardCommandBarActions.XrmClientFormData) ? "" : Mscrm.ActionCardCommandBarActions.XrmClientFormData.entity.getId();
+        };
+        ActionCardCommandBarActions.openEmailWebClient = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenEmailWebClient");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.openEmailWebClient(gridControl, records);
+                return;
+            }
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var mailWebLink = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "mailweblink");
+            window.open(mailWebLink);
+        };
+        ActionCardCommandBarActions.IsSoftDeleteFromUi = function (cardType) {
+            switch (cardType) {
+                case 10:
+                    return true;
+                default:
+                    return false;
+            }
+        };
+        ActionCardCommandBarActions.snooze = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "SnoozeCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.snooze(gridControl, records);
+            }
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient || (Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.outlook && Mscrm.ActionCardCommandBarActions.XrmClientContext.getClientState() == Mscrm.ActionCardCommandBarActions.XrmClientStateConstants.online)) {
+                Mscrm.ActionCardCommandBarActions.dismissCardFromUI(records[0].Id);
+                return;
+            }
+            var cardType = Number(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "cardtype", records[0].Id));
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var request;
+            if (Mscrm.ActionCardCommandBarActions.IsSoftDeleteFromUi(cardType))
+                return;
+            else if (Mscrm.ActionCardCommandBarActions.isExchangeCard(cardType)) {
+                var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+                request = new RelationshipAssitantSdkContracts.SnoozeExchangeActionCardsRequest(messageId, cardType);
+            }
+            else {
+                request = new RelationshipAssitantSdkContracts.SnoozeActionCardRequest(actionCardId);
+            }
+            var deferred1 = Xrm.WebApi.online.execute(request);
+            deferred1.then(function (res) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.isExchangeCard = function (cardType) {
+            switch (cardType) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 10:
+                case 22:
+                case 23:
+                case 34:
+                case 35:
+                case 36:
+                case 37:
+                case 108:
+                case 109:
+                case 120:
+                    return true;
+                default:
+                    return false;
+            }
+        };
+        ActionCardCommandBarActions.dismissCardFromRAContainer = function (Id) {
+            var divBase = window.parent.document.getElementById(Id);
+            var currentCard = divBase;
+            var nextCard = currentCard.nextElementSibling;
+            if (divBase.nextElementSibling) {
+                var lastCard = Array.from(divBase.nextElementSibling.querySelectorAll("div")).filter(function (e) { return e.id.indexOf("cardIcon") > -1; });
+                if (!lastCard) {
+                    var nextCardHorizontal = nextCard.style.display != "inline-block";
+                    if (nextCardHorizontal) {
+                        nextCard = nextCard.nextElementSibling;
+                    }
+                }
+                currentCard.style.display = "none";
+            }
+            else
+                currentCard.style.display = "none";
+        };
+        ActionCardCommandBarActions.removeDismissedCard = function (recordId, nextRecordId) {
+            $("#" + recordId).remove();
+            $("#" + nextRecordId).css('margin-left', '0%');
+        };
+        ActionCardCommandBarActions.dismissCardFromUI = function (Id) {
+            var divBase = $("[Id='" + Id + "']");
+            var divWidth = $("[Id='" + Id + "']").width();
+            var currentCard = divBase.parent("div");
+            var nextCard = currentCard.next("div");
+            var lastCard = nextCard.find("img.CloseCard").length == 0;
+            if (!lastCard) {
+                var nextCardHorizontal = nextCard.css("display") != "inline-block";
+                if (nextCardHorizontal) {
+                    nextCard = nextCard.next("div");
+                }
+                currentCard.hide(500);
+                var animatedProperties;
+                nextCard.animate(animatedProperties, 500);
+            }
+            else {
+                currentCard.hide(500);
+            }
+            window.setTimeout(function () {
+                Mscrm.ActionCardCommandBarActions.removeDismissedCard(currentCard[0].id, !Mscrm.ActionCardCommandBarActions.isNull(nextCard[0]) ? nextCard[0].id : "");
+            }, 500);
+        };
+        ActionCardCommandBarActions.addAsCompetitorUsingCard = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "AddAsCompetitorCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.addAsCompetitorUsingCard(gridControl, records);
+                return;
+            }
+            var regardingObject = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var competitorId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "CompetitorId");
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id);
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            if (Mscrm.ActionCardCommandBarActions.isNull(regardingObject) || Mscrm.ActionCardCommandBarActions.isNull(competitorId) || regardingObject.indexOf(":") == -1) {
+                return;
+            }
+            var regardingObjectValues = regardingObject.split(":");
+            var regardingObjectName = regardingObjectValues[0];
+            var opportunityId = regardingObjectValues[1];
+            var Competitor = "competitor";
+            var relationshipRoleOrdinal = 1;
+            var relationshipName = "opportunitycompetitors_association";
+            var child = {};
+            var parent = {};
+            var that = this;
+            child.entityName = Competitor;
+            child.Id = competitorId;
+            parent.entityName = regardingObjectName;
+            parent.Id = opportunityId;
+            var callback = function (response) {
+                var requestSetActionCard = new RelationshipAssitantSdkContracts.SetActionCardStateRequest(actionCardId, 2, messageId);
+                var deferred1 = Xrm.WebApi.online.execute(requestSetActionCard);
+                deferred1.then(function (res) {
+                }, function (err) {
+                    Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                });
+            };
+            var callbackErr = function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            };
+            Mscrm.ActionCardCommandBarActions.associateManyToManyRelation(relationshipRoleOrdinal, parent, child, relationshipName, callback, callbackErr);
+        };
+        ActionCardCommandBarActions.updatePhoneCallData = function () {
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.updatePhoneCallData();
+                return;
+            }
+            sessionStorage.setItem("isCompletePhoneCallData", "true");
+            var description = "";
+            var entityID = Xrm.Page.data.attributes.getByName("id_entityId").getValue();
+            var actionCardID = Xrm.Page.data.attributes.getByName("id_actionCardId").getValue();
+            var cardTypeVal = Xrm.Page.data.attributes.getByName("id_cardType").getValue();
+            description = Xrm.Page.data.attributes.getByName("description_id").getValue();
+            var entityName = "phonecall";
+            var columns = ["description"];
+            var descriptionResourceString = Mscrm.ActionCardCommandBarActions.EmptyString;
+            Xrm.WebApi.online.retrieveRecord(entityName, entityID, "?$select=" + columns).then(function (oppResponse) {
+                var attributeValue = Mscrm.ActionCardCommandBarActions.EmptyString;
+                if (oppResponse.description) {
+                    if (Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(oppResponse.description)) {
+                        attributeValue = description;
+                    }
+                    else {
+                        attributeValue = oppResponse.description + "\n\n" + descriptionResourceString + "\n\n" + description;
+                    }
+                }
+                else {
+                    attributeValue = description;
+                }
+                Xrm.WebApi.online.updateRecord(entityName, entityID, { "description": attributeValue }).then(function (resp) {
+                    var selectedStatus = 2;
+                    var selectedState = 1;
+                    Xrm.WebApi.online.updateRecord(entityName, entityID, { "statecode": selectedState.toString(), "statuscode": selectedStatus.toString() }).then(function (resp) {
+                        Xrm.Page.ui.close();
+                    }, function (err) {
+                        if (Mscrm.ActionCardCommandBarActions.isMobileCompanionApp())
+                            Xrm.Page.ui.close();
+                    });
+                }, function (err) {
+                    if (Mscrm.ActionCardCommandBarActions.isMobileCompanionApp())
+                        Xrm.Page.ui.close();
+                });
+            }, function (err) {
+                if (Mscrm.ActionCardCommandBarActions.isMobileCompanionApp())
+                    Xrm.Page.ui.close();
+            });
+        };
+        ActionCardCommandBarActions.closeDialog = function () {
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.InternalUtilities.DialogUtility.closeDialog();
+                return;
+            }
+            Xrm.Page.ui.close();
+        };
+        ActionCardCommandBarActions.associateManyToManyRelation = function (relationShipRoleOrdinal, parent, child, relationshipName, callback, callbackerr) {
+            if (relationShipRoleOrdinal == 2) {
+                var temp = parent;
+                parent = child;
+                child = temp;
+            }
+            var jsonData = '{"@odata.id":"' + Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/competitors(' + child.Id + ')"}';
+            var url = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/opportunities(' + parent.Id + ')/opportunitycompetitors_association/$ref';
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-type', 'application/json');
+            xhr.onload = function () {
+                var status = xhr.status;
+                if (status == 200 || status == 204) {
+                    callback(xhr.response);
+                }
+                else {
+                    callbackerr(status);
+                }
+            };
+            xhr.send(jsonData);
+        };
+        ActionCardCommandBarActions.cancelPhoneCall = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "ClosePhoneCallCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.cancelPhoneCall(gridControl, records);
+                return;
+            }
+            var cancelStatusCode = 3;
+            var cancelStateCode = 2;
+            var columns = ["statuscode", "statecode", "subject"];
+            Mscrm.ActionCardCommandBarActions.updateRecordForStateChange(gridControl, records, cancelStatusCode, cancelStateCode, columns);
+        };
+        ActionCardCommandBarActions.updateRecordForStateChange = function (gridControl, records, selectedStatus, selectedState, columns) {
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var entityName = "";
+            var entityId = "";
+            var entityTypeCode = 0;
+            var regardingObject = regardingObjectId.split(":");
+            entityName = regardingObject[0];
+            entityId = regardingObject[1];
+            Xrm.WebApi.online.retrieveRecord(entityName, entityId, "?$select=" + columns).then(function (response) {
+                var record = response;
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(record.statecode)) {
+                    var statusCode = record.statecode.toString();
+                    if (statusCode == "1" || statusCode == "2") {
+                        Xrm.WebApi.online.updateRecord(entityName, entityId.toString(), { "statecode": selectedState.toString(), "statuscode": selectedStatus.toString() }).then(function (response) {
+                        }, function (err) {
+                            Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                        });
+                    }
+                    else {
+                        ActionCardCommandBarActions.closeActivity(gridControl, records);
+                    }
+                }
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.closeActivity = function (gridControl, records) {
+            var regardingEntity = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var regardingObject = regardingEntity.split(":");
+            var entityName = regardingObject[0];
+            var entityId = regardingObject[1];
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "closeActivity");
+            var options = { height: null, width: null, position: 1 };
+            if (Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.web
+                || Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.outlook
+                || Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.unifiedServiceDesk) {
+                options.height = 250;
+                options.width = 600;
+            }
+            var dialogParams = {};
+            dialogParams["action_name"] = "deactivate";
+            dialogParams["last_button_clicked"] = "";
+            dialogParams["state_id"] = -1;
+            dialogParams["status_id"] = -1;
+            var dialogRecords = [{
+                    TypeName: entityName,
+                    Id: entityId
+                }];
+            dialogParams["entity_records"] = dialogRecords;
+            Xrm.Navigation.openDialog("SetStateDialog", options, dialogParams)
+                .then(function (response) {
+                if (response && response.parameters) {
+                    var state = response.parameters["state_id"], status = response.parameters["status_id"];
+                    if ((state == "1" || state == "2") && response.parameters["last_button_clicked"] == "ok_id") {
+                        if (sessionStorage.getItem("selectedCard")) {
+                            var selectedCard = sessionStorage.getItem("selectedCard");
+                            Mscrm.ActionCardCommandBarActions.dismissCardFromRAContainer(selectedCard);
+                            sessionStorage.removeItem("selectedCard");
+                            var card = window.parent.document.getElementById(selectedCard);
+                            if (!card.nextElementSibling && !card.previousElementSibling) {
+                                window.parent.location.reload(true);
+                            }
+                        }
+                        Xrm.WebApi.online.updateRecord(entityName, entityId.toString(), { "statecode": state, "statuscode": status }).then(function (response) {
+                        }, function (err) {
+                            Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                        });
+                    }
+                    else {
+                        if (sessionStorage.getItem("buttonPressedId")) {
+                            var buttonPressedId = sessionStorage.getItem("buttonPressedId");
+                            window.parent.document.getElementById(buttonPressedId).focus();
+                            sessionStorage.removeItem("buttonPressedId");
+                        }
+                    }
+                }
+            });
+        };
+        ActionCardCommandBarActions.completeTask = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CompleteTaskCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.completeTask(gridControl, records);
+                return;
+            }
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id);
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var entityName = "";
+            var entityId = "";
+            var entityTypeCode = 0;
+            var completeStatusCode = 5;
+            var completeStateCode = 1;
+            var regardingObject = regardingObjectId.split(":");
+            entityName = regardingObject[0];
+            entityId = regardingObject[1];
+            Xrm.WebApi.online.updateRecord(entityName, entityId.toString(), { "statecode": completeStateCode.toString(), "statuscode": completeStatusCode.toString() }).then(function (response) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.cancelTask = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CloseTaskCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.cancelTask(gridControl, records);
+                return;
+            }
+            var columns = ["statuscode", "statecode", "subject"];
+            var cancelStatusCode = 6;
+            var cancelStateCode = 2;
+            Mscrm.ActionCardCommandBarActions.updateRecordForStateChange(gridControl, records, cancelStatusCode, cancelStateCode, columns);
+        };
+        ActionCardCommandBarActions.completePhoneCall = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CompletePhoneCallCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.completePhoneCall(gridControl, records);
+                return;
+            }
+            var regardingEntity = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var cardType = Number(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id));
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var entityName = "";
+            var entityId = "";
+            var regardingObject = regardingEntity.split(":");
+            entityName = regardingObject[0];
+            entityId = regardingObject[1];
+            var options = { height: null, width: null, position: 1 };
+            if (Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.web || Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.outlook || Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.unifiedServiceDesk) {
+                options.height = 250;
+                options.width = 600;
+            }
+            Xrm.Navigation.openDialog(Mscrm.ActionCardCommandBarActions.CompletePhoneCallDialogName, options, Mscrm.ActionCardCommandBarActions.generateDialogParams(entityName.toString(), entityId.toString(), actionCardId.toString(), cardType, messageId.toString())).then(function (response) {
+                var isCompletePhoneCallData = "";
+                if (sessionStorage.getItem("isCompletePhoneCallData")) {
+                    isCompletePhoneCallData = sessionStorage.getItem("isCompletePhoneCallData");
+                }
+                if (sessionStorage.getItem("buttonActionCommandId")) {
+                    var selectedCard = "";
+                    if (sessionStorage.getItem("selectedCard")) {
+                        selectedCard = sessionStorage.getItem("selectedCard");
+                        sessionStorage.removeItem("selectedCard");
+                    }
+                    var buttonActionCommandId = sessionStorage.getItem("buttonActionCommandId");
+                    if (buttonActionCommandId.indexOf("CompletePhoneCallCommand") > -1 && isCompletePhoneCallData == "true") {
+                        Mscrm.ActionCardCommandBarActions.dismissCardFromRAContainer(selectedCard);
+                        sessionStorage.removeItem("isCompletePhoneCallData");
+                        sessionStorage.removeItem("CompletePhoneCallCommand");
+                        var card = window.parent.document.getElementById(selectedCard);
+                        if (!card.nextElementSibling && !card.previousElementSibling) {
+                            window.parent.location.reload(true);
+                        }
+                    }
+                    else if (sessionStorage.getItem("buttonPressedId")) {
+                        var buttonPressedId = sessionStorage.getItem("buttonPressedId");
+                        window.parent.document.getElementById(buttonPressedId).focus();
+                        sessionStorage.removeItem("buttonPressedId");
+                    }
+                }
+            });
+        };
+        ActionCardCommandBarActions.isSkypeUrlPresent = function (gridControl, records) {
+            if (records == null || records.length == 0) {
+                return false;
+            }
+            var selectedRecordId = records[0].Id;
+            var cardtype = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "cardtype", selectedRecordId);
+            ;
+            if (cardtype == "21" || cardtype == "100" || cardtype == "108") {
+                var recordOnlineMeetingUrl = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "onlinemeetingurl", selectedRecordId);
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(recordOnlineMeetingUrl)) {
+                    if (recordOnlineMeetingUrl.indexOf("https://join.microsoft.com/meet") > -1) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            else {
+                var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', selectedRecordId);
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(data)) {
+                    var dataValue = JSON.parse(data);
+                    var cardRelatedInfo = dataValue.cardRelatedInfo;
+                    if (cardRelatedInfo != null) {
+                        var phone = cardRelatedInfo.Phone;
+                        if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(phone)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                else
+                    return false;
+            }
+            return false;
+        };
+        ActionCardCommandBarActions.isActionCardButtonVisible = function (gridControl, records, buttonCardTypes) {
+            if (records == null || records.length == 0) {
+                return false;
+            }
+            var selectedRecordId = records[0].Id;
+            var cardtype = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "cardtype", selectedRecordId);
+            var buttonCardTypesList = buttonCardTypes.split(',');
+            var buttonCardType;
+            for (buttonCardType in buttonCardTypesList) {
+                if (buttonCardTypesList[buttonCardType] == cardtype) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        ActionCardCommandBarActions.isRegardingObjectPresent = function (gridControl, records) {
+            if (records == null || records.length == 0) {
+                return false;
+            }
+            var selectedRecordId = records[0].Id;
+            var regardingobjectid = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "regardingobjectid", selectedRecordId);
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(regardingobjectid)) {
+                if (!Mscrm.ActionCardCommandBarActions.isNull(Xrm.Page.data) && !Mscrm.ActionCardCommandBarActions.toShowOpenRegardingButton(regardingobjectid)) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        };
+        ActionCardCommandBarActions.toShowOpenRegardingButton = function (regardingobjectid) {
+            var regardingObject = regardingobjectid.split(":");
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(Xrm.Page.data.entity) && Xrm.Page.data.entity.getEntityName() == regardingObject[0] && Mscrm.ActionCardCommandBarActions.XrmClientFormData.entity.getId() == regardingObject[1]) {
+                return false;
+            }
+            return true;
+        };
+        ActionCardCommandBarActions.makeCall = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CallCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.makeCall(gridControl, records);
+                return;
+            }
+            var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', records[0].Id);
+            var dataValue;
+            dataValue = JSON.parse(data);
+            var phoneNo = dataValue.Phone, id = dataValue.Id, typeCode = dataValue.TypeCode;
+            if (phoneNo != "") {
+                var useSkypeProtocol = this.getSkypeProtocol();
+                var countryCode = this.getCountryCode();
+                var protocol = (!Mscrm.ActionCardCommandBarActions.isNull(useSkypeProtocol) && useSkypeProtocol == "false") ? "tel" : "skype";
+                Mscrm.Shortcuts.openPhoneWindow(phoneNo, countryCode, protocol);
+            }
+            else {
+                var dialogOptions;
+                dialogOptions.openInNewWindow = true;
+                var entityName;
+                var Xrm;
+                var entityName = Xrm.Internal.GetEntityName(typeCode);
+                Xrm.Utility.openEntityForm(entityName, id, null, dialogOptions);
+            }
+        };
+        ActionCardCommandBarActions.getSkypeProtocol = function () {
+            return "true";
+        };
+        ActionCardCommandBarActions.getCountryCode = function () {
+            return "+1";
+        };
+        ActionCardCommandBarActions.findContact = function (emailId) {
+            var CrmEncodeDecode;
+            var fetchXml = "<fetch version='1.0' mapping='logical'><entity name='contact' ><attribute name='contactid' /><order attribute='fullname' descending= 'false' /><filter type='and' ><condition attribute='emailaddress1' operator= 'eq' value= '" + emailId + "' /></filter></entity></fetch>";
+            return Xrm.WebApi.online.retrieveMultipleRecords("contact", "?fetchXml=" + fetchXml);
+        };
+        ActionCardCommandBarActions.createContact = function (emailid) {
+            var data = {};
+            data["lastname"] = emailid;
+            data["emailaddress1"] = emailid;
+            return Xrm.WebApi.online.createRecord("contact", data);
+        };
+        ActionCardCommandBarActions.createStakeHolder = function (contactDetailEntities, gridControl, regardingObject) {
+            var regardingObjectValues = regardingObject.split(":");
+            var regardingObjectName = regardingObjectValues[0];
+            var opportunityId = regardingObjectValues[1];
+            var contactId = contactDetailEntities.entities[0].contactid;
+            var sContactId = contactId.toString();
+            var Guid;
+            if ("00000000-0000-0000-0000-000000000000" == contactId || Mscrm.ActionCardCommandBarActions.isNull(sContactId)) {
+                return;
+            }
+            var stakeholderConnectionRoleId = "518D7AAA-3B4C-4041-AD33-A6FD40DF6C81";
+            var contact = "contact";
+            this.createConnection(regardingObjectName, opportunityId, contact, sContactId, stakeholderConnectionRoleId);
+        };
+        ActionCardCommandBarActions.createNewMeetingCard = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CreateNewMeetingCardCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.createNewMeetingCard(gridControl, records);
+                return;
+            }
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var cardType = Number(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id));
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', records[0].Id);
+            var dataValue = JSON.parse(data);
+            var emailTitle = dataValue.title;
+            var relatedMailIds = dataValue.relatedmailids;
+            Mscrm.ActionCardCommandBarActions.createMeetingActionHandler(gridControl, records, messageId, relatedMailIds, emailTitle, regardingObjectId, 0, true).then(function (res) {
+            }, function (error) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(error);
+            });
+        };
+        ActionCardCommandBarActions.createMeetingActionHandler = function (gridControl, records, messageId, relatedMailIds, subject, regardingobjectId, regardingObjectTypeCode, isMocaClient) {
+            var newMeetingHandler = new Mscrm.NewMeetingHandlerUclient;
+            var activity = newMeetingHandler.createRecordForAppointment(messageId, relatedMailIds, subject, regardingobjectId, regardingObjectTypeCode, isMocaClient);
+            var entityName = activity.entityName;
+            delete activity.entityName;
+            return Xrm.WebApi.online.createRecord(entityName, activity).then(function (response) {
+                Mscrm.ActionCardCommandBarActions.dismiss(gridControl, records);
+                var id = response.id;
+                Xrm.Utility.openEntityForm("appointment", id);
+            }, function (errorResponse) {
+                newMeetingHandler.handleAppointmentCreationError(true);
+            });
+        };
+        ActionCardCommandBarActions.createConnection = function (sourceEntityName, sourceEntityId, targetEntityName, targetEntityId, connectionRoleId) {
+            var DummyConnectionRoleIdIfRecord2RoleIdDoesNotExistThenDefaultToOneThatExists = "26591187-1160-4D25-8723-2D9C92617D3A";
+            var fields;
+            var fieldTypes;
+            var connectionKey;
+            var connection;
+            var data;
+            ;
+            var record1id = { id: sourceEntityId, logicalName: sourceEntityName };
+            var record2id = { id: targetEntityId, logicalName: targetEntityName };
+            var record1roleid = { id: DummyConnectionRoleIdIfRecord2RoleIdDoesNotExistThenDefaultToOneThatExists, logicalName: "role" };
+            var record2roleid = { id: connectionRoleId, logicalName: "role" };
+            var entitySetMap = Mscrm.ActionCardCommandBarActions.getEntitySetNameMap();
+            var jsonData = '{"record1id_' + sourceEntityName + '@odata.bind":"' + Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/' + entitySetMap[0][sourceEntityName] + '(' + sourceEntityId + ')", "record2id_' + targetEntityName + '@odata.bind":"' + Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/' + entitySetMap[0][targetEntityName] + '(' + targetEntityId + ')", "record1roleid@odata.bind":"' + Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/roles(' + DummyConnectionRoleIdIfRecord2RoleIdDoesNotExistThenDefaultToOneThatExists + ')", "record2roleid@odata.bind":"' + Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/roles(' + connectionRoleId + ')"}';
+            var url = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/connections';
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-type', 'application/json');
+            xhr.onload = function () {
+                var status = xhr.status;
+                if (status == 200) {
+                    console.log(xhr.response);
+                }
+                else {
+                    console.log(status);
+                }
+            };
+            xhr.send(jsonData);
+        };
+        ActionCardCommandBarActions.createActionUserSettingsEntry = function (guid, cardType, isEnabled, entityName) {
+            var fields;
+            var fieldTypes;
+            var data = {};
+            var cardTypeId = {};
+            cardTypeId.id = guid;
+            cardTypeId.logicalName = "cardtype";
+            data["cardtypeid@odata.bind"] = 'cardtype(' + cardTypeId.id + ')';
+            data["isenabled"] = isEnabled;
+            data["cardtype"] = cardType.toString();
+            if (cardType == Mscrm.ActionCardCommandBarActions.StakeHolder || cardType == Mscrm.ActionCardCommandBarActions.CompetitorMentioned) {
+                data["boolcardoption"] = true;
+                data["isenabled"] = true;
+            }
+            return Xrm.WebApi.online.createRecord(entityName, data);
+        };
+        ActionCardCommandBarActions.setActionCardState = function (actionCardId, actionState, messageId) {
+            var requestSetActionCard = new RelationshipAssitantSdkContracts.SetActionCardStateRequest(actionCardId, actionState, messageId);
+            var deferred1 = Xrm.WebApi.online.execute(requestSetActionCard);
+            deferred1.then(function (res) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.isExchangeEnhancedCard = function (cardType) {
+            switch (cardType) {
+                case 36:
+                case 37:
+                case 108:
+                case 109:
+                    return true;
+                default:
+                    return false;
+            }
+        };
+        ActionCardCommandBarActions.dismiss = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "DismissCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.dismiss(gridControl, records);
+            }
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient || (Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.outlook && Mscrm.ActionCardCommandBarActions.XrmClientContext.getClientState() == Mscrm.ActionCardCommandBarActions.XrmClientStateConstants.online)) {
+                Mscrm.ActionCardCommandBarActions.dismissCardFromUI(records[0].Id);
+                return;
+            }
+            var missedEmailCardType = 10;
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var cardType = Number(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id));
+            if (Mscrm.ActionCardCommandBarActions.isNull(messageId)) {
+                messageId = Mscrm.ActionCardCommandBarActions.EmptyString;
+            }
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var requestSetActionCard;
+            if (cardType == missedEmailCardType) {
+                requestSetActionCard = new RelationshipAssitantSdkContracts.DismissMissedEmailRequest(messageId);
+            }
+            else if (Mscrm.ActionCardCommandBarActions.isExchangeEnhancedCard(cardType)) {
+                requestSetActionCard = new RelationshipAssitantSdkContracts.DismissExchangeEnhancedActionCardsRequest(messageId, cardType);
+            }
+            else {
+                requestSetActionCard = new RelationshipAssitantSdkContracts.SetActionCardStateRequest(actionCardId, 1, messageId);
+            }
+            var deferred1 = Xrm.WebApi.online.execute(requestSetActionCard);
+            deferred1.then(function (res) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.addAsStakeHolder = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "AddAsStakeHolderCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.addAsStakeHolder(gridControl, records);
+                return;
+            }
+            var regardingObject = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var emailId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "EmailAddress");
+            var actionCardId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'actioncardid', records[0].Id);
+            var cardType = Number(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id));
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            if (Mscrm.ActionCardCommandBarActions.isNull(regardingObject) || Mscrm.ActionCardCommandBarActions.isNull(emailId) || regardingObject.indexOf(":") == -1) {
+                return;
+            }
+            var that = this;
+            Mscrm.ActionCardCommandBarActions.findContact(emailId).then(function (retrieveMultipleResponse) {
+                var contactDetailEntities = retrieveMultipleResponse;
+                if (contactDetailEntities.entities.length == 0) {
+                    Mscrm.ActionCardCommandBarActions.createContact(emailId).then(function (retrieveResponse) {
+                        Mscrm.ActionCardCommandBarActions.findContact(emailId).then(function (retrieveContactResponse) {
+                            var contactDetail = retrieveContactResponse;
+                            if (contactDetail.entities.length != 0) {
+                                Mscrm.ActionCardCommandBarActions.createStakeHolder(contactDetail, gridControl, regardingObject);
+                                Mscrm.ActionCardCommandBarActions.setActionCardState(actionCardId, 2, messageId);
+                            }
+                        }, function (err) {
+                            Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                        });
+                    }, function (err) {
+                        var extraParams;
+                        var names = Mscrm.ActionCardCommandBarActions.RetriveContactNameFromEmail(emailId);
+                        extraParams["emailaddress1"] = emailId;
+                        extraParams["lastname"] = names[1];
+                        extraParams["fullname"] = names[0];
+                        var options = { entityName: "contact", entityId: null };
+                        Xrm.Navigation.openForm(options, extraParams);
+                        return;
+                    });
+                }
+                else {
+                    Mscrm.ActionCardCommandBarActions.createStakeHolder(contactDetailEntities, gridControl, regardingObject);
+                    Mscrm.ActionCardCommandBarActions.setActionCardState(actionCardId, 2, messageId);
+                }
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.RetriveContactNameFromEmail = function (emailid) {
+            var retriveName = emailid.split("@");
+            var contactName = "";
+            var lastName = "";
+            var firstName = "";
+            if (retriveName.length > 1)
+                contactName = retriveName[0];
+            else
+                contactName = emailid;
+            var cntactName = contactName.split(".");
+            if (cntactName.length > 1) {
+                firstName = cntactName[0];
+                lastName = cntactName[1];
+            }
+            else
+                lastName = contactName;
+            return [firstName, lastName];
+        };
+        ActionCardCommandBarActions.takeNotes = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "TakeNotesCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.takeNotes(gridControl, records);
+                return;
+            }
+            var regardingEntity = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var entityName = "";
+            var entityId = "";
+            var regardingObject = regardingEntity.split(":");
+            entityName = regardingObject[0];
+            entityId = regardingObject[1];
+            var v0 = entityName;
+            var v1 = entityId;
+            var v2 = {};
+            v2.Name = v0;
+            v2.Id = v1;
+            var v3 = [];
+            v3.push(v2);
+            if (Mscrm.ActionCardCommandBarActions.isMobileCompanionApp()) {
+                try {
+                    var optionsContext = { entityType: entityName, name: entityName, id: entityId };
+                    var optionsTaskFlow = { primaryEntityContext: optionsContext };
+                    Xrm.Navigation.openTaskFlow("after_meeting", optionsTaskFlow, null);
+                    return;
+                }
+                catch (ex) {
+                }
+            }
+            var options = { entityName: regardingObject[0], entityId: regardingObject[1] };
+            Xrm.Navigation.openForm(options);
+        };
+        ActionCardCommandBarActions.isMobileCompanionApp = function () {
+            return Mscrm.ActionCardCommandBarActions.XrmClientContext.getClient() == Mscrm.ActionCardCommandBarActions.XrmClientConstants.mobile;
+        };
+        ActionCardCommandBarActions.updateUserActionCardPreferences = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "DoThisAutomaticallyCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.updateUserActionCardPreferences(gridControl, records);
+                return;
+            }
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id);
+            var iCardType = Number(cardType);
+            if (iCardType == Mscrm.ActionCardCommandBarActions.CompetitorMentioned) {
+                Mscrm.ActionCardCommandBarActions.updateActionCardUserSettings(gridControl, records).then(function (response) {
+                    Mscrm.ActionCardCommandBarActions.addAsCompetitorUsingCard(gridControl, records);
+                }, function (err) {
+                    Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                });
+            }
+            else if (iCardType == Mscrm.ActionCardCommandBarActions.StakeHolder) {
+                Mscrm.ActionCardCommandBarActions.updateActionCardUserSettings(gridControl, records).then(function (response) {
+                    Mscrm.ActionCardCommandBarActions.addAsStakeHolder(gridControl, records);
+                }, function (err) {
+                    Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                });
+            }
+        };
+        ActionCardCommandBarActions.findDefaultCard = function (cardType, entityName, currentuser) {
+            var fetchXml = "<fetch version='1.0' mapping='logical'><entity name='" + entityName + "' ><attribute name='isenabled' /><attribute name='actioncardusersettingsid' /><filter type='and' ><condition attribute='cardtype' operator= 'eq' value= '" + cardType.toString() + "' /><condition attribute='ownerid' operator= 'eq' value= '" + currentuser.toString() + "' /></filter></entity></fetch>";
+            return Xrm.WebApi.online.retrieveMultipleRecords(entityName, "?fetchXml=" + fetchXml);
+        };
+        ActionCardCommandBarActions.updateActionCardUserSettings = function (gridControl, records) {
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.updateActionCardUserSettings(gridControl, records);
+                return;
+            }
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id);
+            var iCardType = Number(cardType);
+            var cardTypeId = "";
+            if (iCardType == Mscrm.ActionCardCommandBarActions.CompetitorMentioned) {
+                cardTypeId = "99091b4d-ec9a-4113-bfe9-96c4e44a3559";
+            }
+            else if (iCardType == Mscrm.ActionCardCommandBarActions.StakeHolder) {
+                cardTypeId = "d6232578-c302-4035-894f-868d03ee465b";
+            }
+            var entityName = "actioncardusersettings";
+            var guid = cardTypeId;
+            var currentuser = Xrm.Utility.getGlobalContext().userSettings.userId;
+            return Mscrm.ActionCardCommandBarActions.findDefaultCard(iCardType, entityName, currentuser).then(function (response) {
+                if (response.entities.length > 0) {
+                    var attributeTypes;
+                    var attributeValues;
+                    var entityrecord = response.entities[0];
+                    var attributeNames;
+                    var attributeName = "boolcardoption";
+                    attributeNames = [attributeName];
+                    var entityReference;
+                    var data = {};
+                    attributeNames = [attributeName];
+                    data[attributeName] = true;
+                    Xrm.WebApi.online.updateRecord(entityName, entityrecord.actioncardusersettingsid, data).then(function (updateResposne) {
+                    }, function (updateError) {
+                        Mscrm.ActionCardCommandBarActions.ShowErrorDetails(updateError);
+                    });
+                }
+                else {
+                    Mscrm.ActionCardCommandBarActions.createActionUserSettingsEntry(guid, iCardType, false, entityName).then(function (updateResposne) {
+                    }, function (updateError) {
+                        Mscrm.ActionCardCommandBarActions.ShowErrorDetails(updateError);
+                    });
+                }
+            }, function (errorResponse) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(errorResponse);
+            });
+        };
+        ActionCardCommandBarActions.cancelOtherActivity = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CancelOtherActivityCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.cancelOtherActivity(gridControl, records);
+                return;
+            }
+            var cancelStatusCode = 0;
+            var cancelStateCode = 0;
+            var entityName = "";
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            if (!Mscrm.ActionCardCommandBarActions.isNull(regardingObjectId)) {
+                var regardingObject = regardingObjectId.split(":");
+                entityName = regardingObject[0];
+            }
+            var columns = ["statuscode", "statecode", "subject"];
+            switch (entityName) {
+                case "appointment":
+                    cancelStatusCode = 4;
+                    cancelStateCode = 2;
+                    break;
+                case "letter":
+                    cancelStatusCode = 5;
+                    cancelStateCode = 2;
+                    break;
+                case "fax":
+                    cancelStatusCode = 5;
+                    cancelStateCode = 2;
+                    break;
+                case "serviceappointment":
+                    cancelStatusCode = 9;
+                    cancelStateCode = 2;
+                    break;
+                default:
+                    cancelStatusCode = 3;
+                    cancelStateCode = 2;
+                    break;
+            }
+            Mscrm.ActionCardCommandBarActions.updateRecordForStateChange(gridControl, records, cancelStatusCode, cancelStateCode, columns);
+        };
+        ActionCardCommandBarActions.completeOtherActivity = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CompleteOtherActivityCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.completeOtherActivity(gridControl, records);
+                return;
+            }
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var entityName = "";
+            var entityId = "";
+            var entityTypeCode = 0;
+            var completeStatusCode = 0;
+            var completeStateCode = 0;
+            if (!Mscrm.ActionCardCommandBarActions.isNull(regardingObjectId)) {
+                var regardingObject = regardingObjectId.split(":");
+                entityName = regardingObject[0];
+                entityId = regardingObject[1];
+            }
+            switch (entityName) {
+                case "appointment":
+                    completeStatusCode = 3;
+                    completeStateCode = 1;
+                    break;
+                case "letter":
+                    completeStatusCode = 4;
+                    completeStateCode = 1;
+                    break;
+                case "fax":
+                    completeStatusCode = 2;
+                    completeStateCode = 1;
+                    break;
+                case "serviceappointment":
+                    completeStatusCode = 8;
+                    completeStateCode = 1;
+                    break;
+                default:
+                    completeStatusCode = 2;
+                    completeStateCode = 1;
+                    break;
+            }
+            Xrm.WebApi.online.updateRecord(entityName, entityId.toString(), { "statecode": completeStateCode.toString(), "statuscode": completeStatusCode.toString() }).then(function (res) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.populateCreateCaseEntity = function (gridControl, records, parameters, contactData, customerData) {
+            if (contactData != null) {
+                parameters["primarycontactid"] = contactData.Id.ToString();
+                parameters["primarycontactidname"] = contactData.Name;
+            }
+            if (customerData != null) {
+                parameters["customerid"] = customerData.Id.ToString();
+                parameters["customeridname"] = customerData.Name;
+                parameters["customeridtype"] = customerData.TypeName;
+            }
+            Mscrm.ActionCardCommandBarActions.dismiss(gridControl, records);
+            var options = { entityName: "incident", entityId: null };
+            Xrm.Navigation.openForm(options, parameters);
+        };
+        ActionCardCommandBarActions.validCreateCaseAction = function (emailRegardingobject) {
+            return emailRegardingobject == "opportunity" || emailRegardingobject == "account"
+                || emailRegardingobject == "contact";
+        };
+        ActionCardCommandBarActions.findCase = function (emailTitle) {
+            var fetchXml = "<fetch version='1.0' mapping='logical'><entity name='incident' ><attribute name='incidentid' /><filter type='and' ><condition attribute='title' operator= 'eq' value= '" + emailTitle + "' /></filter>< /entity>< /fetch>";
+            return Xrm.WebApi.online.retrieveMultipleRecords("incident", "?fetchxml=" + fetchXml);
+        };
+        ActionCardCommandBarActions.createCase = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CreateCaseCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.createCase(gridControl, records);
+                return;
+            }
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'regardingobjectid', records[0].Id);
+            var dataString = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'data', records[0].Id);
+            var dataValue = JSON.parse(dataString);
+            var emailTitle = dataValue.title;
+            var parameters = {};
+            if (emailTitle != null) {
+                emailTitle = emailTitle.replace("Re:", "").trim();
+                emailTitle = emailTitle.replace("Fwd:", "").trim();
+                parameters["title"] = emailTitle;
+                if (Mscrm.ActionCardCommandBarActions.isNull(regardingObjectId)) {
+                    Mscrm.ActionCardCommandBarActions.populateCreateCaseEntity(gridControl, records, parameters, null, null);
+                    return;
+                }
+                var regardingObject = regardingObjectId.split(":");
+                if (!Mscrm.ActionCardCommandBarActions.validCreateCaseAction(regardingObject[0])) {
+                    Mscrm.ActionCardCommandBarActions.populateCreateCaseEntity(gridControl, records, parameters, null, null);
+                    return;
+                }
+                Mscrm.ActionCardCommandBarActions.findCase(emailTitle).then(function (retrieveMultipleResponse) {
+                    var contactDetailEntities = retrieveMultipleResponse.EntityCollection;
+                    if (contactDetailEntities.Count > 0) {
+                        var entityrecords = contactDetailEntities.Entities;
+                        var incidentId = contactDetailEntities.Entities[0].GetValue("incidentid");
+                        var options = { entityName: "incident", entityId: incidentId };
+                        Xrm.Navigation.openForm(options);
+                    }
+                    else {
+                        var emailRegardingobject;
+                        emailRegardingobject.Id = regardingObject[1];
+                        emailRegardingobject.TypeName = regardingObject[0];
+                        var primaryContactRecord;
+                        var primaryAccountRecord;
+                        if (emailRegardingobject.TypeName == "opportunity") {
+                            var oppcolumns = "parentcontactid, parentaccountid";
+                            Xrm.WebApi.online.retrieveRecord(emailRegardingobject.TypeName, emailRegardingobject.Id.ToString(), "?$select=" + oppcolumns).then(function (oppResponse) {
+                                var oppResponseData = oppResponse;
+                                var opprecord = oppResponseData.Entity;
+                                if (opprecord.HasField("parentcontactid")) {
+                                    primaryContactRecord = opprecord.GetValue("parentcontactid");
+                                }
+                                if (opprecord.HasField("parentaccountid")) {
+                                    primaryAccountRecord = opprecord.GetValue("parentaccountid");
+                                }
+                                Mscrm.ActionCardCommandBarActions.populateCreateCaseEntity(gridControl, records, parameters, primaryContactRecord, primaryAccountRecord);
+                            }, function (err) {
+                                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                            });
+                        }
+                        else if (emailRegardingobject.TypeName == "account") {
+                            var acctcolumns = ["primarycontactid"];
+                            Xrm.WebApi.online.retrieveRecord(emailRegardingobject.TypeName, emailRegardingobject.Id.ToString(), "?$select=" + acctcolumns).then(function (acctResponse) {
+                                var acctResponseEntity = acctResponse;
+                                var acctrecord = acctResponseEntity.Entity;
+                                if (acctrecord.HasField("primarycontactid")) {
+                                    primaryContactRecord = acctrecord.GetValue("primarycontactid");
+                                }
+                                Mscrm.ActionCardCommandBarActions.populateCreateCaseEntity(gridControl, records, parameters, primaryContactRecord, emailRegardingobject);
+                            }, function (error) {
+                                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(error);
+                            });
+                        }
+                        else if (emailRegardingobject.TypeName == "contact") {
+                            Mscrm.ActionCardCommandBarActions.populateCreateCaseEntity(gridControl, records, parameters, emailRegardingobject, emailRegardingobject);
+                        }
+                    }
+                }, function (error) {
+                    Mscrm.ActionCardCommandBarActions.ShowErrorDetails(error);
+                });
+            }
+        };
+        ActionCardCommandBarActions.prototype.phoneCallCommand = function (targetViewModel) {
+            var NativeBridge;
+            var UserAgent;
+            var DeviceConfiguration;
+            if (targetViewModel != null && targetViewModel.ModelContext != null) {
+                var cardType = targetViewModel.ModelContext.GetValue("cardtype");
+                var dataString = targetViewModel.ModelContext.GetValue("data");
+                var data = JSON.parse(dataString);
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(data)) {
+                    var cardRelatedInfo = data.cardRelatedInfo;
+                    var phone = cardRelatedInfo.Phone;
+                    var protocol = "tel";
+                    var phoneUriBuilder;
+                    var uri = phoneUriBuilder.BuildUri(phone, Mscrm.ActionCardCommandBarActions.getCountryCode(), protocol);
+                    if (NativeBridge.Instance.Document.IsAvailable && (UserAgent.GetInstance().IsIOS || UserAgent.GetInstance().IsAndroid)) {
+                        NativeBridge.Instance.Network.CanOpenUrl(uri, this.OnCanOpenUrlMethodReturn, this.OnCanOpenUrlMethodException);
+                    }
+                    else {
+                        if (DeviceConfiguration.IsInteractionCentricDashboard) {
+                            window.open(uri);
+                        }
+                        else {
+                            window.location.href = uri;
+                        }
+                    }
+                }
+            }
+        };
+        ActionCardCommandBarActions.prototype.OnCanOpenUrlMethodReturn = function () {
+        };
+        ActionCardCommandBarActions.prototype.OnCanOpenUrlMethodException = function () {
+        };
+        ActionCardCommandBarActions.skypeMeetingCommand = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "SkypeMeetingCommand");
+            var NativeBridge;
+            var UserAgent;
+            var DeviceConfiguration;
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "cardtype", records[0].Id);
+            if (cardType == "100" || cardType == "21" || cardType == "108") {
+                var recordOnlineMeetingUrl = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "onlinemeetingurl", records[0].Id);
+                ;
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(recordOnlineMeetingUrl)) {
+                    if (recordOnlineMeetingUrl.indexOf("https://join.microsoft.com/meet") > -1) {
+                        var regex = /\http(s)?:\/\/(join.microsoft.com\/meet)(\/(\w)*)*/g;
+                        var match = recordOnlineMeetingUrl.match(regex);
+                        var url = match[0];
+                        Xrm.Navigation.openUrl(url);
+                    }
+                }
+            }
+        };
+        ActionCardCommandBarActions.emailAttendees = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "EmailAttendeesCommand");
+            var cardType = Number(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, 'cardtype', records[0].Id));
+            if (Mscrm.ActionCardCommandBarActions.isMeetingExchangeCard(cardType)) {
+                var data = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "data", records[0].Id);
+                var attendeesEmail = Mscrm.ActionCardCommandBarActions.EmptyString;
+                var optionalEmail = Mscrm.ActionCardCommandBarActions.EmptyString;
+                var databject = JSON.parse(data);
+                var cardRelatedInfo = databject.cardRelatedInfo;
+                var attendees = cardRelatedInfo.attendees;
+                if (attendees != null) {
+                    for (var i = 0; i < attendees.length; i++) {
+                        var attendee = attendees[i];
+                        var contextPrimaryInfo = attendee.contextPrimaryInfo;
+                        var email = contextPrimaryInfo.description;
+                        var optional = contextPrimaryInfo.optional;
+                        if (!optional) {
+                            attendeesEmail += email + ";";
+                        }
+                        else {
+                            optionalEmail += email + ";";
+                        }
+                    }
+                }
+                if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(attendeesEmail)) {
+                    var toRecipient = "mailto:" + attendeesEmail;
+                    if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(optionalEmail)) {
+                        toRecipient += "?cc=" + optionalEmail;
+                    }
+                    Xrm.Navigation.openUrl(toRecipient);
+                }
+                return;
+            }
+            var regardingobject = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "regardingobjectid", records[0].Id);
+            var regardingObjectData = regardingobject.split(":");
+            var jsonData = "logicalName: " + regardingObjectData[0] + ", entityId: " + regardingObjectData[1] + "";
+            var json = "{ logicalName: 'meetingData', entityId: '" + regardingObjectData[1] + "'}";
+            var deferreds;
+            var request = new RelationshipAssitantSdkContracts.RetrieveCardDataRequest("CAC83683-0E44-4FDE-8951-A3FFDC702861", json);
+            var deferred1 = Xrm.WebApi.online.execute(request);
+            deferred1.then(function (res) {
+                res.json().then(function (data) {
+                    data = JSON.parse(data.Data);
+                    var attendeesEmail = Mscrm.ActionCardCommandBarActions.EmptyString;
+                    var optionalEmail = Mscrm.ActionCardCommandBarActions.EmptyString;
+                    if (!Mscrm.ActionCardCommandBarActions.isNullOrUndefined(data)) {
+                        var cardRelatedInfo = data.cardRelatedInfo;
+                        var attendees = cardRelatedInfo.attendees;
+                        if (attendees != null) {
+                            for (var i = 0; i < attendees.length; i++) {
+                                var attendee = attendees[i];
+                                var contextPrimaryInfo = attendee.contextPrimaryInfo;
+                                var email = contextPrimaryInfo.description;
+                                var optional = contextPrimaryInfo.optional;
+                                if (!optional) {
+                                    attendeesEmail += email + ";";
+                                }
+                                else {
+                                    optionalEmail += email + ";";
+                                }
+                            }
+                        }
+                    }
+                    if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(attendeesEmail)) {
+                        var toRecipient = "mailto:" + attendeesEmail;
+                        if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(optionalEmail)) {
+                            toRecipient += "?cc=" + optionalEmail;
+                        }
+                        Xrm.Navigation.openUrl(toRecipient);
+                    }
+                });
+            });
+        };
+        ActionCardCommandBarActions.isMeetingExchangeCard = function (cardType) {
+            switch (cardType) {
+                case 37:
+                case 108:
+                case 36:
+                    return true;
+                default:
+                    return false;
+            }
+        };
+        ActionCardCommandBarActions.sendEmailCommandConstructor = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "SendEmailCommand");
+            var columns = null;
+            var recordId = records[0].Id;
+            var regardingObjectId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "regardingobjectid", recordId);
+            var regardingObject = regardingObjectId.split(":");
+            var entityName = regardingObject[0];
+            var entityId = regardingObject[1];
+            var toRecipient = "mailto:";
+            if (entityName == null) {
+                return;
+            }
+            if (entityName == "lead") {
+                columns = ["emailaddress1", "ownerid"];
+            }
+            else if (entityName == "account") {
+                columns = ["primarycontactid", "ownerid"];
+            }
+            else if (entityName == "contact") {
+                columns = ["emailaddress1", "ownerid"];
+            }
+            else if (entityName == "opportunity" || entityName == "incident") {
+                columns = ["customerid", "ownerid"];
+            }
+            else {
+                return;
+            }
+            var columnSet = columns;
+            var data = {};
+            data["logicalname"] = entityName;
+            data["id"] = entityId;
+            var DataSource;
+            var RetrieveActionOptions;
+            var DefaultContext;
+            var _String;
+            var headers = [['Prefer', 'odata.include-annotations="*"']];
+            var entitySetNameMap = Mscrm.ActionCardCommandBarActions.getEntitySetNameMap();
+            var entityNameSetName = entitySetNameMap[0][entityName];
+            var activityParty = {};
+            var url = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/' + entityNameSetName + '(' + entityId + ')';
+            Mscrm.ActionCardCommandBarActions.getJSON(url, function (response) {
+                response = JSON.parse(response);
+                var primaryContactRecordId = null;
+                var primaryContactRecordLogicalName = null;
+                if (response["_primarycontactid_value"] != null) {
+                    primaryContactRecordId = response["_primarycontactid_value"];
+                    primaryContactRecordLogicalName = response["_primarycontactid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+                }
+                else if (response["_parentcustomerid_value"]) {
+                    primaryContactRecordId = response["_parentcustomerid_value"];
+                    primaryContactRecordLogicalName = response["_parentcustomerid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+                }
+                else if (response["_parentaccountid_value"]) {
+                    primaryContactRecordId = response["_parentaccountid_value"];
+                    primaryContactRecordLogicalName = response["_parentaccountid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+                }
+                else if (response["_customerid_value"]) {
+                    primaryContactRecordId = response["_customerid_value"];
+                    primaryContactRecordLogicalName = response["_customerid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+                }
+                if (response.emailaddress1) {
+                    toRecipient = toRecipient + response.emailaddress1;
+                    Xrm.Navigation.openUrl(toRecipient);
+                    return;
+                }
+                else {
+                    if (primaryContactRecordId == null) {
+                        Xrm.Navigation.openUrl(toRecipient);
+                        return;
+                    }
+                    var cuscolumns = ["emailaddress1"];
+                    var cuscolumnSet = cuscolumns;
+                    Xrm.WebApi.online.retrieveRecord(primaryContactRecordLogicalName, primaryContactRecordId).then(function (entityRecord) {
+                        if (entityRecord != null) {
+                            if (entityRecord.emailaddress1) {
+                                if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(entityRecord.emailaddress1)) {
+                                    toRecipient = toRecipient + entityRecord.emailaddress1;
+                                }
+                            }
+                        }
+                        Xrm.Navigation.openUrl(toRecipient);
+                        return;
+                    }, function (status) {
+                    });
+                }
+            }, headers);
+        };
+        ActionCardCommandBarActions.prototype.sendEmailCommand = function (toRecipient) {
+            var NativeBridge;
+            var UserAgent;
+            if (NativeBridge.Instance.Document.IsAvailable) {
+                NativeBridge.Instance.Document.OpenExternalUrl(toRecipient);
+                Xrm.Navigation.openUrl(toRecipient);
+            }
+            else {
+                window.location.href = toRecipient;
+            }
+        };
+        ActionCardCommandBarActions.prototype.createEmailReplyDraft = function (data) {
+            var NativeBridge;
+            var UserAgent;
+            var ClientApiUtility;
+            var requestSetActionCard = new RelationshipAssitantSdkContracts.CreateEmailReplyDraftRequest(data.messageId, data.GetEmailBody());
+            var deferred1 = Xrm.WebApi.online.execute(requestSetActionCard);
+            deferred1.then(function (response) {
+                if (response != null) {
+                    var createEmailReplyDraftResponse = response;
+                    var mailWebLink = createEmailReplyDraftResponse.MailWebLink;
+                    if (!this.IsNullOrEmptyString(mailWebLink)) {
+                        if (NativeBridge.Instance.Document.IsAvailable) {
+                            NativeBridge.Instance.Document.OpenExternalUrl(mailWebLink);
+                        }
+                        else {
+                            window.open(mailWebLink);
+                        }
+                    }
+                    data.recordId = this.isNull(this.XrmClientFormData) ? this.EmptyString : this.recordId;
+                    var requestSetActionCard = new RelationshipAssitantSdkContracts.UpdateDelveActionStatusRequest(this.messageId, 1, this.recordId);
+                    var deferred1 = Xrm.WebApi.online.execute(requestSetActionCard);
+                    deferred1.then(function (res) {
+                        res.json().then(function (completeResponse) {
+                            this.targetViewModel.NamingContainer.Refresh();
+                            this.targetViewModel = null;
+                        }, ClientApiUtility.ActionFailedCallback);
+                    });
+                }
+            }, ClientApiUtility.ActionFailedCallback);
+        };
+        ActionCardCommandBarActions.prototype.openEmailCommandConstructor = function (descriptor) {
+            if (descriptor.InitializationParameters.ContainsKey("TargetViewModel")) {
+                var targetViewModel = descriptor.InitializationParameters["TargetViewModel"];
+                if (targetViewModel != null && targetViewModel.ModelContext != null) {
+                    var messageId = targetViewModel.ModelContext.GetValue("messageid");
+                    var recordId = targetViewModel.ModelContext.Id;
+                    if (targetViewModel.ModelContext.GetValue("data") != null) {
+                        var emailData = JSON.parse(targetViewModel.ModelContext.GetValue("data"));
+                        var mailWebLink = emailData["mailweblink"];
+                        var messageId = emailData["messageid"];
+                    }
+                    var cardType = targetViewModel.ModelContext.GetValue("cardtype");
+                    var entityRecord = targetViewModel.ModelContext.GetValue("recordid");
+                }
+            }
+        };
+        ActionCardCommandBarActions.openEmailCommand = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenEmailCommand");
+            var messageId = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "messageid", records[0].Id);
+            var recordId = records[0].Id;
+            if (Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "data", records[0].Id) != null) {
+                var emailData = JSON.parse(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "data", records[0].Id));
+                var mailWebLink = emailData["mailweblink"];
+                var messageId = emailData["messageid"];
+            }
+            var cardType = Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "cardtype", records[0].Id);
+            var entityRecord = records[0].Id;
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(mailWebLink)) {
+                Xrm.Navigation.openUrl(mailWebLink);
+            }
+        };
+        ActionCardCommandBarActions.createContactCommand = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "createContactCommand");
+            if (Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "data", records[0].Id) != null) {
+                var contactData = JSON.parse(Mscrm.ActionCardCommandBarActions.getCellValue(gridControl, "data", records[0].Id));
+                if (contactData != null) {
+                    var contactEntity = ActionCardCommandBarActions.createContactEntity(contactData);
+                    Xrm.Navigation.openForm({ entityName: "contact", useQuickCreateForm: true, openInNewWindow: true }, contactEntity).then(function (response) {
+                        Mscrm.ActionCardCommandBarActions.dismiss(gridControl, records);
+                    });
+                }
+            }
+        };
+        ActionCardCommandBarActions.createContactEntity = function (contactData) {
+            var contact = {};
+            contact["firstname"] = contactData["givenName"];
+            contact["lastname"] = contactData["familyName"];
+            contact["jobtitle"] = contactData["jobtitle"];
+            contact["emailaddress1"] = contactData["email/list"] != null && contactData["email/list"].length && contactData["email/list"].length > 0 ? contactData["email/list"][0] : "";
+            contact["telephone1"] = contactData["telephone/list"] != null && contactData["telephone/list"].length && contactData["telephone/list"].length > 0 ? contactData["telephone/list"][0] : "";
+            contact["address1_line1"] = contactData["address"]["streetAddress"];
+            return contact;
+        };
+        ActionCardCommandBarActions.gotItAction = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "GotItActionCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.gotItAction(gridControl, records);
+                return;
+            }
+            var cardType = 28;
+            var cardTypeId = "0734fea3-46b9-4e9c-9001-53e957ec2dd4";
+            var entityName = "actioncardusersettings";
+            var guid = cardTypeId;
+            var currentuser = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.userSettings.userId;
+            var that = this;
+            Mscrm.ActionCardCommandBarActions.findDefaultCard(cardType, entityName, currentuser).then(function (response) {
+                var entityDetails = response;
+                if (entityDetails.length > 0) {
+                    var entityrecord = entityDetails[0];
+                    Xrm.WebApi.online.updateRecord(entityName, entityrecord.actioncardusersettingsid, { "isenabled": false }).then(function (response) {
+                    }, function (err) {
+                        Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+                    });
+                }
+                else {
+                    Mscrm.ActionCardCommandBarActions.createActionUserSettingsEntry(guid, cardType, false, entityName);
+                }
+                var that = this;
+            }, function (errorResponse) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(errorResponse);
+            });
+        };
+        ActionCardCommandBarActions.openAppointmentView = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "OpenAppointmentView");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.openAppointmentView(gridControl, records);
+                return;
+            }
+            var mailWebLink = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "mailweblink");
+            Xrm.Navigation.openUrl(mailWebLink);
+        };
+        ActionCardCommandBarActions.completeExchangeTask = function (gridControl, records) {
+            ActionCardCommandBarActions.recordActionTelemetry(gridControl, records, "CompleteExchangeTaskCommand");
+            if (Mscrm.ActionCardCommandBarActions.IsWebClient) {
+                Mscrm.CommandBarActions.completeExchangeTask(gridControl, records);
+                return;
+            }
+            var messageId = Mscrm.ActionCardCommandBarActions.getValueFromDataJsonObject(gridControl, records[0].Id, "messageid");
+            var completeExchangeTask = new RelationshipAssitantSdkContracts.CompleteExchangeTask(messageId);
+            var deferred1 = Xrm.WebApi.online.execute(completeExchangeTask);
+            deferred1.then(function (res) {
+            }, function (err) {
+                Mscrm.ActionCardCommandBarActions.ShowErrorDetails(err);
+            });
+        };
+        ActionCardCommandBarActions.recordActionTelemetry = function (gridControl, records, actionType) {
+            var cardType;
+            var isWebClient = Mscrm.ActionCardCommandBarActions.IsWebClient;
+            if (isWebClient) {
+                cardType = gridControl.getCellValue('cardtype', records[0].Id);
+                try {
+                    var args = {};
+                    args["actionType"] = actionType;
+                    args["cardType"] = cardType;
+                    args["isWebClient"] = isWebClient;
+                    Mscrm.MetricsReporting.instance().addMetric("relationshipcardactiontaken", args);
+                }
+                catch (e) {
+                }
+            }
+        };
+        ActionCardCommandBarActions.CompletePhoneCallDialogName = "CompletePhoneCall";
+        ActionCardCommandBarActions._key = "USE_SKYPE_PROTOCOL";
+        ActionCardCommandBarActions._countryCode = "PHONE_NUMBER_DEFAULT_COUNTRY_CODE";
+        ActionCardCommandBarActions.StakeHolder = 4;
+        ActionCardCommandBarActions.CompetitorMentioned = 5;
+        ActionCardCommandBarActions.EmptyString = "";
+        ActionCardCommandBarActions.XrmGlobalContext = Xrm.Utility.getGlobalContext();
+        ActionCardCommandBarActions.XrmClientContext = Xrm.Utility.getGlobalContext().client;
+        ActionCardCommandBarActions.XrmClientConstants = Xrm.Constants.ClientNames;
+        ActionCardCommandBarActions.XrmClientStateConstants = Xrm.Constants.ClientStates;
+        ActionCardCommandBarActions.IsWebClient = !(Xrm.Internal.isUci());
+        ActionCardCommandBarActions.XrmClientFormData = Xrm.Page.data;
+        ActionCardCommandBarActions.XrmVersion = Xrm.Utility.getGlobalContext().getVersion().split('.').slice(0, 2).join('.');
+        return ActionCardCommandBarActions;
+    }());
+    Mscrm.ActionCardCommandBarActions = ActionCardCommandBarActions;
+})(Mscrm || (Mscrm = {}));
+(function (Mscrm) {
+    var NewMeetingHandlerUclient = (function () {
+        function NewMeetingHandlerUclient() {
+            this.XrmGlobalContext = Xrm.Utility.getGlobalContext();
+            this.CrmEncodeDecode = window.parent.CrmEncodeDecode;
+        }
+        NewMeetingHandlerUclient.prototype.createRecordForAppointment = function (messageId, relatedMailIds, subject, regardingObjectId, regardingObjectTypeCode, isMocaClient) {
+            var activity = this.getEntityObjectForAppointment(relatedMailIds, subject, regardingObjectId, regardingObjectTypeCode, isMocaClient);
+            var isAllDayEvent = false;
+            activity["isalldayevent"] = isAllDayEvent;
+            return activity;
+        };
+        NewMeetingHandlerUclient.prototype.getDateTimeNow = function () {
+            var now = new Date();
+            now.setMinutes(now.getMinutes() + now.getTimezoneOffset() + (this.XrmGlobalContext).getTimeZoneOffsetMinutes());
+            return now;
+        };
+        NewMeetingHandlerUclient.prototype.unResolvedEntity = function (emailAddress) {
+            var record = {};
+            record["addressused"] = emailAddress;
+            return record;
+        };
+        NewMeetingHandlerUclient.prototype.getEntityObjectForAppointment = function (relatedMailIds, subject, regardingobjectId, regardingObjectTypeCode, isMocaClient) {
+            var entity = {};
+            var CrmEncodeDecode = this.CrmEncodeDecode;
+            var optionalAttendee = "optional";
+            var requiredAttendee = "required";
+            var sender = "sender";
+            var entityReference;
+            var fieldValues;
+            var fieldTypes;
+            entity["subject"] = CrmEncodeDecode.CrmHtmlDecode(subject);
+            var defaultMeetingStartTime = this.getDateTimeNow();
+            var defaultMeetingEndTime = this.getDateTimeNow();
+            defaultMeetingEndTime.setHours(defaultMeetingEndTime.getHours() + 1);
+            entity["scheduledstart"] = defaultMeetingStartTime;
+            entity["scheduledend"] = defaultMeetingEndTime;
+            var deserialisedJsonCollection = JSON.parse(CrmEncodeDecode.CrmHtmlDecode(relatedMailIds));
+            var optionalAttendeeRecords = {};
+            var requiredAttendeeRecords = {};
+            var activityParties = [];
+            for (var k = 0; k < deserialisedJsonCollection.RelatedRecipientList.length; k++) {
+                var entityRecord = {};
+                var activityParty = {};
+                if (!deserialisedJsonCollection.RelatedRecipientList[k].Resolved) {
+                    activityParty["addressused"] = deserialisedJsonCollection.RelatedRecipientList[k].EmailAddress;
+                }
+                else {
+                    var objectTypeCode = deserialisedJsonCollection.RelatedRecipientList[k].ObjectType;
+                    var entitySetNameMap = Mscrm.ActionCardCommandBarActions.getEntitySetNameMap();
+                    var entityName = entitySetNameMap[1][objectTypeCode];
+                    var activityParty = {};
+                    activityParty["partyid_" + entityName + "@odata.bind"] = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/' + entitySetNameMap[0][entityName] + '(' + deserialisedJsonCollection.RelatedRecipientList[k].ObjectId + ')';
+                }
+                if (deserialisedJsonCollection.RelatedRecipientList[k].AttendeeType == optionalAttendee) {
+                    activityParty["participationtypemask"] = 6;
+                }
+                if (deserialisedJsonCollection.RelatedRecipientList[k].AttendeeType == sender) {
+                    activityParty["participationtypemask"] = 7;
+                }
+                if (deserialisedJsonCollection.RelatedRecipientList[k].AttendeeType == requiredAttendee && deserialisedJsonCollection.RelatedRecipientList[k].AttendeeType != sender) {
+                    activityParty["participationtypemask"] = 5;
+                }
+                activityParties.push(activityParty);
+            }
+            entity["appointment_activity_parties"] = activityParties;
+            var cmdBarActions;
+            if (!Mscrm.ActionCardCommandBarActions.isNullOrEmptyString(CrmEncodeDecode.CrmHtmlDecode(regardingobjectId))) {
+                var entityName = "";
+                if (isMocaClient) {
+                    var entityNameAndObjectId = CrmEncodeDecode.CrmHtmlDecode(regardingobjectId).Split(':');
+                    entityName = entityNameAndObjectId[0];
+                    regardingobjectId = entityNameAndObjectId[1];
+                }
+                var entitySetNameMap = Mscrm.ActionCardCommandBarActions.getEntitySetNameMap();
+                var entitySetName = entitySetNameMap[0][entityName];
+                entity["regardingobjectid_" + entityName + "_appointment@odata.bind"] = Mscrm.ActionCardCommandBarActions.XrmGlobalContext.getClientUrl() + '/api/data/v' + Mscrm.ActionCardCommandBarActions.XrmVersion + '/' + entitySetName + '(' + regardingobjectId + ')"}';
+            }
+            entity.entityName = "appointment";
+            return entity;
+        };
+        NewMeetingHandlerUclient.prototype.createEntityRecordForPartyItem = function (entityTypeCode, entityId) {
+            var record;
+            var entityReference;
+            var fieldValues;
+            var fieldTypes;
+            record.ChangedFieldNames.Add("partyid");
+            var record1id = { id: entityId, logicalName: "activityparty" };
+            record["activityparty"];
+            return record;
+        };
+        NewMeetingHandlerUclient.prototype.handleAppointmentCreationError = function (isMocaClient) {
+            if (isMocaClient) {
+                Xrm.Utility.openEntityForm("appointment", null);
+            }
+        };
+        return NewMeetingHandlerUclient;
+    }());
+    Mscrm.NewMeetingHandlerUclient = NewMeetingHandlerUclient;
+})(Mscrm || (Mscrm = {}));
+var RelationshipAssitantSdkContracts;
+(function (RelationshipAssitantSdkContracts) {
+    var Guid = (function () {
+        function Guid(userId) {
+            this.guid = userId;
+        }
+        return Guid;
+    }());
+    RelationshipAssitantSdkContracts.Guid = Guid;
+    var GetRegardingOpportunityIdRequest = (function () {
+        function GetRegardingOpportunityIdRequest(messageId) {
+            this.MessageId = messageId;
+        }
+        GetRegardingOpportunityIdRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "GetRegardingOpportunityId",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return GetRegardingOpportunityIdRequest;
+    }());
+    RelationshipAssitantSdkContracts.GetRegardingOpportunityIdRequest = GetRegardingOpportunityIdRequest;
+    var CompleteExchangeTask = (function () {
+        function CompleteExchangeTask(taskId) {
+            this.ExchangeTaskId = taskId;
+        }
+        CompleteExchangeTask.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "ExchangeTaskId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "CompleteExchangeTask",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return CompleteExchangeTask;
+    }());
+    RelationshipAssitantSdkContracts.CompleteExchangeTask = CompleteExchangeTask;
+    var RetrieveCardDataRequest = (function () {
+        function RetrieveCardDataRequest(cardTypeId, additionalParameter) {
+            this.CardTypeId = new Guid(cardTypeId);
+            this.AdditionalParameter = additionalParameter;
+        }
+        RetrieveCardDataRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "CardTypeId": {
+                        "typeName": "Edm.Guid",
+                        "structuralProperty": 1
+                    },
+                    "AdditionalParameter": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "RetrieveCardData",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return RetrieveCardDataRequest;
+    }());
+    RelationshipAssitantSdkContracts.RetrieveCardDataRequest = RetrieveCardDataRequest;
+    var SnoozeActionCardRequest = (function () {
+        function SnoozeActionCardRequest(actionCardId) {
+            this.ActionCardId = new Guid(actionCardId);
+        }
+        SnoozeActionCardRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "ActionCardId": {
+                        "typeName": "Edm.Guid",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "SnoozeActionCard",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return SnoozeActionCardRequest;
+    }());
+    RelationshipAssitantSdkContracts.SnoozeActionCardRequest = SnoozeActionCardRequest;
+    var SetActionCardStateRequest = (function () {
+        function SetActionCardStateRequest(actionCardId, actionState, messageId) {
+            this.ActionCardId = new Guid(actionCardId);
+            this.ActionState = actionState;
+            this.MessageId = messageId;
+        }
+        SetActionCardStateRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "ActionCardId": {
+                        "typeName": "Edm.Guid",
+                        "structuralProperty": 1
+                    },
+                    "ActionState": {
+                        "typeName": "Edm.Int32",
+                        "structuralProperty": 1
+                    },
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "SetActionCardState",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return SetActionCardStateRequest;
+    }());
+    RelationshipAssitantSdkContracts.SetActionCardStateRequest = SetActionCardStateRequest;
+    var DismissExchangeEnhancedActionCardsRequest = (function () {
+        function DismissExchangeEnhancedActionCardsRequest(messageId, cardType) {
+            this.MessageId = messageId;
+            this.CardType = cardType;
+        }
+        DismissExchangeEnhancedActionCardsRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    },
+                    "CardType": {
+                        "typeName": "Edm.Int32",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "DismissExchangeEnhancedActionCards",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return DismissExchangeEnhancedActionCardsRequest;
+    }());
+    RelationshipAssitantSdkContracts.DismissExchangeEnhancedActionCardsRequest = DismissExchangeEnhancedActionCardsRequest;
+    var DismissMissedEmailRequest = (function () {
+        function DismissMissedEmailRequest(messageId) {
+            this.MessageId = messageId;
+        }
+        DismissMissedEmailRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "DismissMissedEmail",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return DismissMissedEmailRequest;
+    }());
+    RelationshipAssitantSdkContracts.DismissMissedEmailRequest = DismissMissedEmailRequest;
+    var SnoozeExchangeActionCardsRequest = (function () {
+        function SnoozeExchangeActionCardsRequest(messageId, cardType) {
+            this.MessageId = messageId;
+            this.CardType = cardType;
+        }
+        SnoozeExchangeActionCardsRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    },
+                    "CardType": {
+                        "typeName": "Edm.Int32",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "SnoozeExchangeActionCards",
+                operationType: 0
+            };
+            return metadata;
+        };
+        return SnoozeExchangeActionCardsRequest;
+    }());
+    RelationshipAssitantSdkContracts.SnoozeExchangeActionCardsRequest = SnoozeExchangeActionCardsRequest;
+    var CreateEmailReplyDraftRequest = (function () {
+        function CreateEmailReplyDraftRequest(messageId, replyText) {
+            this.MessageId = messageId;
+            this.ReplyText = replyText;
+        }
+        CreateEmailReplyDraftRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    },
+                    "ReplyText": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "CreateEmailReplyDraft"
+            };
+            return metadata;
+        };
+        return CreateEmailReplyDraftRequest;
+    }());
+    RelationshipAssitantSdkContracts.CreateEmailReplyDraftRequest = CreateEmailReplyDraftRequest;
+    var UpdateDelveActionStatusRequest = (function () {
+        function UpdateDelveActionStatusRequest(messageId, actionState, recordId) {
+            this.MessageId = messageId;
+            this.ActionState = actionState;
+            this.RecordId = recordId;
+        }
+        UpdateDelveActionStatusRequest.prototype.getMetadata = function () {
+            var metadata = {
+                boundParameter: null,
+                parameterTypes: {
+                    "MessageId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    },
+                    "ActionState": {
+                        "typeName": "Edm.Int32",
+                        "structuralProperty": 1
+                    },
+                    "RecordId": {
+                        "typeName": "Edm.String",
+                        "structuralProperty": 1
+                    }
+                },
+                operationName: "UpdateDelveActionStatus"
+            };
+            return metadata;
+        };
+        return UpdateDelveActionStatusRequest;
+    }());
+    RelationshipAssitantSdkContracts.UpdateDelveActionStatusRequest = UpdateDelveActionStatusRequest;
+})(RelationshipAssitantSdkContracts || (RelationshipAssitantSdkContracts = {}));

@@ -1,0 +1,26 @@
+﻿var NMO = NMO || {};
+
+NMO.validateNHINumberField = function () {
+    var nhi = Xrm.Page.getAttribute("nmo_nhi").getValue()
+    var test;
+
+    nhi != null && nhi != undefined &&
+        (nhi = nhi.toUpperCase(), test = NMO.isNzNhi(nhi), test
+        ? Xrm.Page.getAttribute("nmo_nhi").setValue(nhi)
+        : alert("A valid NHI number must consist of 3 alpha + 4 numeric characters (XXXNNNN or XXX NNNN). The first 3 characters must NOT contain I(i) or O(o). [If the format is correct, then the code entered is not a valid code based on Ministry of Health guidelines]"))
+};
+
+NMO.isNzNhi = function (n) {
+    var u = !1, r, f, e, t;
+
+	if (/^[A-HJ-NP-Z]{3}[0-9]{4}$/.test(n)) {
+		for (r = 0, f = "ABCDEFGHJKLMNPQRSTUVWXYZ".split(""), i = 0; i < 3; i++) e = f.indexOf(n[i]) + 1, r += e * (7 - i);
+		for (i = 3; i < 6; i++) r += n[i] * (7 - i);
+		t = r % 11;
+		t != 0 && (t = 11 - t);
+		t == 10 && (t = 0);
+		n[6] == t && (u = !0)
+    }
+
+	return u
+};

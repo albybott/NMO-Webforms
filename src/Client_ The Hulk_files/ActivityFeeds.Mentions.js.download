@@ -1,0 +1,1199 @@
+Type.registerNamespace('ActivityFeeds.Mentions.Interfaces');
+
+ActivityFeeds.Mentions.Interfaces.IMruMenu = function() {}
+ActivityFeeds.Mentions.Interfaces.IMruMenu.registerInterface('ActivityFeeds.Mentions.Interfaces.IMruMenu');
+
+
+ActivityFeeds.Mentions.Interfaces.IMentionsMap = function() {}
+ActivityFeeds.Mentions.Interfaces.IMentionsMap.registerInterface('ActivityFeeds.Mentions.Interfaces.IMentionsMap');
+
+
+ActivityFeeds.Mentions.Interfaces.IMentionsDataSource = function() {}
+ActivityFeeds.Mentions.Interfaces.IMentionsDataSource.registerInterface('ActivityFeeds.Mentions.Interfaces.IMentionsDataSource');
+
+
+ActivityFeeds.Mentions.Interfaces.IMentions = function() {}
+ActivityFeeds.Mentions.Interfaces.IMentions.registerInterface('ActivityFeeds.Mentions.Interfaces.IMentions');
+
+
+ActivityFeeds.Mentions.Interfaces.IRecentlyViewedItem = function() {}
+ActivityFeeds.Mentions.Interfaces.IRecentlyViewedItem.registerInterface('ActivityFeeds.Mentions.Interfaces.IRecentlyViewedItem');
+
+
+Type.registerNamespace('ActivityFeeds.Mentions.Models');
+
+ActivityFeeds.Mentions.Models.MruMenuViewModel = function ActivityFeeds_Mentions_Models_MruMenuViewModel(postTextBox, postButton, overflowScrollContainer, textMaxLength) {
+    this.$$d_$W_0 = Function.createDelegate(this, this.$W_0);
+    this.$$d_$f_0 = Function.createDelegate(this, this.$f_0);
+    this.$$d_$n_0 = Function.createDelegate(this, this.$n_0);
+    this.$R_0 = new Array(0);
+    this.$D_0 = new Sys.EventHandlerList();
+    if (IsNull(postTextBox)) {
+        throw Error.create('A text area was not supplied.');
+    }
+    if (postTextBox.length !== 1) {
+        throw Error.create('Only one instance of a mention enabled text area is allowed.');
+    }
+    this.$0_0 = postTextBox;
+    this.$F_0 = (this.$0_0).parent('div[role=\'combobox\']');
+    if (!IsNull(postButton)) {
+        this.$Q_0 = postButton;
+    }
+    if (!IsNull(overflowScrollContainer)) {
+        this.$A_0 = overflowScrollContainer;
+    }
+    this.$1_0 = new ActivityFeeds.Mentions.Models.MentionsModel(this.$0_0, textMaxLength);
+    this.$1_0.initialize();
+    var $$t_5 = this;
+    Wall.Control.Utils.WindowUtils.add_onWindowUnload(function($p1_0) {
+        $$t_5.hideMruMenu();
+        $$t_5.$A_0 = null;
+        $$t_5.$1_0 = null;
+    });
+}
+ActivityFeeds.Mentions.Models.MruMenuViewModel.$X = function ActivityFeeds_Mentions_Models_MruMenuViewModel$$X($p0) {
+    if (IsNull($p0) || $p0.length < 1) {
+        return 0;
+    }
+    var $v_0 = $p0.css('padding-left').split('px')[0];
+    var $v_1 = $p0.css('padding-right').split('px')[0];
+    var $v_2 = parseInt($v_0);
+    var $v_3 = parseInt($v_1);
+    return $v_2 + $v_3;
+}
+ActivityFeeds.Mentions.Models.MruMenuViewModel.$Y = function ActivityFeeds_Mentions_Models_MruMenuViewModel$$Y($p0) {
+    if (IsNull($p0)) {
+        return null;
+    }
+    var $v_0 = $P_CRM($p0);
+    var $v_1 = $v_0.tmplItem();
+    while (IsNull($v_1) && ($v_0).parent().length > 0) {
+        var $v_2 = ($v_0).parent();
+        $v_1 = $v_2.tmplItem();
+    }
+    return (IsNull($v_1)) ? null : $v_1.data;
+}
+ActivityFeeds.Mentions.Models.MruMenuViewModel.$O = function ActivityFeeds_Mentions_Models_MruMenuViewModel$$O($p0) {
+    if (IsNull($p0)) {
+        return;
+    }
+    $p0.preventDefault();
+    $p0.stopImmediatePropagation();
+}
+ActivityFeeds.Mentions.Models.MruMenuViewModel.prototype = {
+    
+    add_onMruMenuShow: function ActivityFeeds_Mentions_Models_MruMenuViewModel$add_onMruMenuShow(value) {
+        this.$D_0.addHandler('OnMruMenuShow', value);
+    },
+    
+    remove_onMruMenuShow: function ActivityFeeds_Mentions_Models_MruMenuViewModel$remove_onMruMenuShow(value) {
+        this.$D_0.removeHandler('OnMruMenuShow', value);
+    },
+    
+    add_onMruMenuHide: function ActivityFeeds_Mentions_Models_MruMenuViewModel$add_onMruMenuHide(value) {
+        this.$D_0.addHandler('OnMruMenuHide', value);
+    },
+    
+    remove_onMruMenuHide: function ActivityFeeds_Mentions_Models_MruMenuViewModel$remove_onMruMenuHide(value) {
+        this.$D_0.removeHandler('OnMruMenuHide', value);
+    },
+    
+    $F_0: null,
+    $1_0: null,
+    $0_0: null,
+    $Q_0: null,
+    $A_0: null,
+    $3_0: null,
+    $G_0: '',
+    $2_0: null,
+    $K_0: false,
+    $S_0: 0,
+    
+    get_postButton: function ActivityFeeds_Mentions_Models_MruMenuViewModel$get_postButton() {
+        return this.$Q_0;
+    },
+    
+    get_selectedItem: function ActivityFeeds_Mentions_Models_MruMenuViewModel$get_selectedItem() {
+        return ActivityFeeds.Mentions.Models.MruMenuViewModel.$Y(this.$2_0.get(0));
+    },
+    
+    get_recentlyViewedItems: function ActivityFeeds_Mentions_Models_MruMenuViewModel$get_recentlyViewedItems() {
+        return this.$R_0;
+    },
+    
+    get_isMentioning: function ActivityFeeds_Mentions_Models_MruMenuViewModel$get_isMentioning() {
+        return this.$1_0.get_isMentioning();
+    },
+    
+    get_replacedPostText: function ActivityFeeds_Mentions_Models_MruMenuViewModel$get_replacedPostText() {
+        return this.$1_0.get_replacedPostText();
+    },
+    
+    showMruMenu: function ActivityFeeds_Mentions_Models_MruMenuViewModel$showMruMenu() {
+        if (this.get_isMentioning() || !this.$1_0.get_canMention()) {
+            return;
+        }
+        var $$t_A = this;
+        $P_CRM('.ActivityFeeds-Mentions-DropDown').each(function($p1_0, $p1_1) {
+            var $v_0 = $P_CRM($p1_1);
+            var $v_1 = $v_0.tmplItem();
+            var $v_2 = $v_1.data;
+            $v_2.hideMruMenu();
+        });
+        this.$1_0.set_isMentioning(true);
+        this.$1_0.loadMruData();
+        this.$K_0 = true;
+        this.refreshMruList();
+        _Event.fireEvent(Sys.EventArgs, this.$D_0, 'OnMruMenuShow', this, new Sys.EventArgs());
+        var $$t_B = this;
+        window.setTimeout(function() {
+            if ($$t_B.$3_0) {
+                var $v_3 = $$t_B.$A_0.filter('html,body').length > 0;
+                var $v_4 = $$t_B.$3_0.position().top;
+                var $v_5 = $$t_B.$3_0.children('ul').first();
+                var $v_6 = ($v_3) ? $v_4 - $$t_B.$A_0.scrollTop() : $v_4;
+                var $v_7 = $v_5.outerHeight();
+                if ($v_6 + $v_7 > $$t_B.$A_0.height()) {
+                    $$t_B.$A_0.scrollTop($$t_B.$A_0.scrollTop() + $v_6 + $v_7 - $$t_B.$A_0.height());
+                }
+            }
+        }, 250);
+    },
+    
+    hideMruMenu: function ActivityFeeds_Mentions_Models_MruMenuViewModel$hideMruMenu() {
+        if (IsNull(this.$3_0)) {
+            return;
+        }
+        this.$3_0.remove();
+        this.$3_0 = null;
+        this.$1_0.set_isMentioning(false);
+        this.$1_0.set_startPosition(-1);
+        this.$2_0 = null;
+        this.$F_0.attr('aria-activedescendant', this.$0_0.attr('id'));
+        this.$F_0.attr('aria-expanded', 'false');
+        this.$0_0.removeAttr('aria-activedescendant');
+        this.$0_0.attr('aria-selected', 'true');
+        this.$0_0.unbind('resize', this.$$d_$n_0);
+        this.$0_0.unbind('click', ActivityFeeds.Mentions.Models.MruMenuViewModel.$O);
+        $P_CRM(document).unbind('click', this.$$d_$f_0);
+        _Event.fireEvent(Sys.EventArgs, this.$D_0, 'OnMruMenuHide', this, new Sys.EventArgs());
+    },
+    
+    selectNextMruItem: function ActivityFeeds_Mentions_Models_MruMenuViewModel$selectNextMruItem() {
+        if (!this.get_isMentioning()) {
+            return;
+        }
+        var $v_0 = this.$3_0.find('.DropDownRow');
+        var $v_1 = $v_0.filter('[aria-selected=\"true\"]');
+        if ($v_0.length < 1) {
+            return;
+        }
+        if ($v_1.length > 0) {
+            var $v_2 = ($v_1.index() + 1) % $v_0.length;
+            $v_1.removeAttr('aria-selected');
+            $v_1.removeClass('Selected');
+            this.$2_0 = $P_CRM($v_0[$v_2]);
+        }
+        else {
+            this.$2_0 = $v_0.first();
+        }
+        this.$U_0();
+        this.$M_0();
+    },
+    
+    selectPreviousMruItem: function ActivityFeeds_Mentions_Models_MruMenuViewModel$selectPreviousMruItem() {
+        if (!this.get_isMentioning()) {
+            return;
+        }
+        var $v_0 = this.$3_0.find('.DropDownRow');
+        var $v_1 = $v_0.filter('[aria-selected=\"true\"]');
+        if ($v_0.length < 1) {
+            return;
+        }
+        if ($v_1.length > 0) {
+            var $v_2 = ($v_1.index() + $v_0.length - 1) % $v_0.length;
+            $v_1.removeAttr('aria-selected');
+            $v_1.removeClass('Selected');
+            this.$2_0 = $P_CRM($v_0[$v_2]);
+        }
+        else {
+            this.$2_0 = $v_0.first();
+        }
+        this.$U_0();
+        this.$M_0();
+    },
+    
+    refreshMruList: function ActivityFeeds_Mentions_Models_MruMenuViewModel$refreshMruList() {
+        var $v_0 = this.$1_0.get_caretPosition();
+        this.$1_0.updateTracking();
+        if (this.get_isMentioning()) {
+            if (!this.$1_0.get_canMention()) {
+                this.hideMruMenu();
+            }
+            else {
+                if (this.$0_0.val().charAt($v_0 - 1) === '@' && this.$1_0.get_startPosition() === -1) {
+                    this.$1_0.set_startPosition($v_0);
+                }
+                if (this.$1_0.get_startPosition() === -1) {
+                    this.hideMruMenu();
+                    return;
+                }
+                this.$G_0 = this.$0_0.val().substring(this.$1_0.get_startPosition(), $v_0);
+                this.$R_0 = this.$1_0.filterMruList(this.$G_0);
+                this.$p_0();
+            }
+        }
+        else {
+            for (var $v_1 = 1; $v_1 <= $v_0; $v_1++) {
+                var $v_2 = this.$0_0.val().charAt($v_0 - $v_1);
+                if ($v_2 === ' ' || $v_2 === '\r' || $v_2 === '\t' || $v_2 === '\n') {
+                    break;
+                }
+                if ($v_2 !== '@' || this.$1_0.get_startPosition() !== -1) {
+                    continue;
+                }
+                this.$1_0.set_startPosition($v_0 - $v_1 + 1);
+                this.showMruMenu();
+                break;
+            }
+        }
+    },
+    
+    resolveMention: function ActivityFeeds_Mentions_Models_MruMenuViewModel$resolveMention() {
+        if (!this.get_isMentioning()) {
+            return;
+        }
+        this.$S_0 = this.$1_0.get_caretPosition();
+        if (this.$2_0.hasClass('LookUpMoreRecords')) {
+            this.$h_0(this.$$d_$W_0);
+        }
+        else {
+            var $v_0 = ActivityFeeds.Mentions.Models.MruMenuViewModel.$Y(this.$2_0.get(0));
+            this.$W_0($v_0);
+        }
+    },
+    
+    reset: function ActivityFeeds_Mentions_Models_MruMenuViewModel$reset() {
+        this.$1_0.reset();
+    },
+    
+    traverseMentions: function ActivityFeeds_Mentions_Models_MruMenuViewModel$traverseMentions(e) {
+        this.$1_0.traverseMentions(e);
+    },
+    
+    $W_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$W_0($p0) {
+        if (!$p0) {
+            return;
+        }
+        if (!this.$1_0.resolveMention($p0, this.$S_0)) {
+            displayErrorMessage(String.format(ActivityFeeds.Resources.ActivityFeedsUI.mentionsPostTextLengthOverflow, this.$1_0.get_textBoxMaxLength()));
+            return;
+        }
+        var $v_0 = this.$0_0.attr('title');
+        var $v_1 = String.format(ActivityFeeds.Resources.ActivityFeedsUI.mentionComboBoxSelected, $p0.get_title());
+        this.$0_0.attr('title', $v_1);
+        this.$0_0.attr('alt', $v_0);
+        var $$t_3 = this;
+        window.setTimeout(function() {
+            $$t_3.hideMruMenu();
+            $$t_3.$0_0.focus();
+            Wall.Control.Utils.TextRangeUtils.setCaretPosition($$t_3.$0_0.get(0), $$t_3.$0_0.val().length);
+        }, 10);
+    },
+    
+    $h_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$h_0($p0) {
+        var $v_0 = GetGlobalContext();
+        var $v_1 = $v_0.getClientUrl();
+        var $v_2 = {};
+        $v_2['lookupstyle'] = 'single';
+        $v_2['shownewbutton'] = '0';
+        $v_2['crmattributeid'] = '84a5c84a-6210-11e0-834f-1cc1de634cfe';
+        $v_2['search'] = this.$G_0;
+        $v_2['DefaultType'] = '8';
+        var $v_3 = createEncodedQueryString($v_2);
+        var $v_4 = $v_1 + '/_controls/lookup/lookupinfo.aspx?' + $v_3;
+        var $v_5 = Mscrm.CrmUri.create($v_4);
+        var $v_6 = 550;
+        var $v_7 = 550;
+        var $v_8 = Mscrm.Utilities.createCallbackFunctionObject('parseLookupItems', this, [ $p0 ], false);
+        var $v_9 = new Mscrm.CrmDialog($v_5, null, $v_6, $v_7, null);
+        $v_9.setCallbackReference($v_8);
+        $v_9.show();
+    },
+    
+    parseLookupItems: function ActivityFeeds_Mentions_Models_MruMenuViewModel$parseLookupItems(lookupItems, dialogCallback) {
+        var $v_0 = null;
+        if (!IsNull(lookupItems) && lookupItems.items.length > 0) {
+            var $v_1 = new Xrm.Objects.RecentlyViewedItem();
+            $v_1.title = lookupItems.items[0].name;
+            $v_1.objectId = lookupItems.items[0].id;
+            if (!isNullOrEmptyString(lookupItems.items[0].type)) {
+                $v_1.entityTypeCode = Number.parseInvariant(lookupItems.items[0].type);
+            }
+            $v_0 = new ActivityFeeds.Mentions.Models.RecentlyViewedItem($v_1);
+        }
+        dialogCallback($v_0);
+    },
+    
+    $p_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$p_0() {
+        if (IsNull(this.$0_0) || this.$0_0.length < 1) {
+            return;
+        }
+        (this.$0_0).parent().children('.ActivityFeeds-Mentions-DropDown').remove();
+        this.$3_0 = ($P_CRM('#mentionsDropDownTemplate')).tmpl(this).appendTo((this.$0_0).parent());
+        if (detectHighContrastMode(CrmSoapServiceProxy.ObjectModel.ProfileImage.get_defaultProfileImageUrl())) {
+            this.$3_0.addClass('HighContrast');
+        }
+        var $v_0 = this.$3_0.find('.DropDownRow');
+        var $$t_B = this;
+        var $v_1 = function($p1_0, $p1_1) {
+            var $v_2 = $P_CRM($p1_1).find('.Title');
+            $v_2.css('font-weight', 'bold');
+            $v_2.data('originalWidth', $v_2.outerWidth());
+            $v_2.css('font-weight', 'normal');
+        };
+        $v_0.not('.LookUpMoreRecords').each($v_1);
+        if (this.$G_0.length > 0) {
+            var $$t_C = this;
+            var $v_3 = function($p1_0, $p1_1) {
+                var $v_4 = $P_CRM($p1_1);
+                var $v_5 = Sales.Common.CrmSoapServiceProxy.Utils.EncodingUtils.htmlEncode($v_4.text().trim());
+                var $v_6 = _String.insert($v_5, Sales.Common.CrmSoapServiceProxy.Utils.EncodingUtils.htmlEncode($$t_C.$G_0).length, '</strong>');
+                $v_6 = '<strong>' + $v_6;
+                $v_4.html($v_6);
+            };
+            $v_0.not('.LookUpMoreRecords').find('.Title').each($v_3);
+        }
+        this.$Z_0();
+        this.$F_0.attr('aria-expanded', 'true');
+        this.$F_0.removeAttr('aria-activedescendant');
+        this.$0_0.removeAttr('aria-selected');
+        this.$0_0.resize(this.$$d_$n_0);
+        this.$k_0($v_0);
+        this.$m_0($v_0);
+        this.$l_0();
+    },
+    
+    $Z_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$Z_0() {
+        if (!this.get_isMentioning() || IsNull(this.$3_0) || this.$3_0.length < 1 || IsNull(this.$0_0) || this.$0_0.length < 1) {
+            return;
+        }
+        var $v_0 = this.$0_0.innerWidth();
+        this.$3_0.children('ul').first().width($v_0);
+        var $v_1 = ActivityFeeds.Mentions.Models.MruMenuViewModel.$X(this.$3_0.find('.DropDownRow'));
+        var $v_2 = ActivityFeeds.Mentions.Models.MruMenuViewModel.$X(this.$3_0);
+        var $v_3 = this.$3_0.find('.EntityIcon').outerWidth(true);
+        var $v_4 = this.$3_0.find('.DisplayName').outerWidth(true);
+        var $v_5 = $v_0 - $v_1 - $v_2 - $v_3 - $v_4 - 10;
+        var $$t_B = this;
+        var $v_6 = function($p1_0, $p1_1) {
+            var $v_7 = $P_CRM($p1_1);
+            if ($v_5 < 0) {
+                $v_5 = $v_0 - $v_1 - $v_3 - 4;
+            }
+            else if ($v_7.outerWidth() <= $v_5) {
+                var $v_8 = $v_7.data('originalWidth');
+                $v_5 = ($v_8 > $v_5) ? $v_5 : $v_8;
+            }
+            $v_7.width($v_5);
+        };
+        this.$3_0.find('.Title').each($v_6);
+    },
+    
+    $n_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$n_0($p0) {
+        this.$Z_0();
+    },
+    
+    $k_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$k_0($p0) {
+        if (IsNull($p0) || $p0.length < 1) {
+            return;
+        }
+        this.$2_0 = $p0.first();
+        if (this.$K_0) {
+            var $v_0 = this.$2_0.attr('title');
+            var $v_1 = String.format(ActivityFeeds.Resources.ActivityFeedsUI.mentionComboBoxOpened, this.$2_0.attr('title'));
+            this.$2_0.attr('title', $v_1).attr('alt', $v_0);
+            this.$2_0.addClass('HasAriaLabel');
+            this.$K_0 = false;
+        }
+        this.$M_0();
+        var $$t_4 = this;
+        $p0.mouseover(function($p1_0) {
+            $$t_4.$U_0();
+            if ($p1_0.currentTarget === $$t_4.$2_0.get(0)) {
+                return;
+            }
+            $$t_4.$2_0 = $P_CRM($p1_0.currentTarget);
+            $$t_4.$2_0.siblings().removeAttr('aria-selected');
+            $$t_4.$2_0.siblings().removeClass('Selected');
+            $$t_4.$M_0();
+        });
+    },
+    
+    $M_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$M_0() {
+        this.$2_0.attr('aria-selected', 'true');
+        this.$2_0.addClass('Selected');
+        this.$0_0.attr('aria-activedescendant', (this.$2_0.hasClass('LookUpMoreRecords')) ? 'MruMenuLookUpMoreRecordsLink' : this.get_selectedItem().get_id());
+    },
+    
+    $U_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$U_0() {
+        var $v_0 = this.$2_0.siblings('.HasAriaLabel').first();
+        if ($v_0.length < 1) {
+            return;
+        }
+        var $v_1 = $v_0.attr('alt');
+        $v_0.attr('title', $v_1).removeClass('HasAriaLabel');
+    },
+    
+    $m_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$m_0($p0) {
+        if (IsNull($p0) || $p0.length < 1) {
+            return;
+        }
+        var $v_0 = $p0.not('.LookUpMoreRecords');
+        var $$t_3 = this;
+        $v_0.click(function() {
+            $$t_3.resolveMention();
+        });
+        var $$t_4 = this;
+        $v_0.find('*').click(function() {
+            $$t_4.resolveMention();
+        });
+        var $v_1 = $p0.filter('.LookUpMoreRecords');
+        var $$t_5 = this;
+        $v_1.click(function() {
+            $$t_5.resolveMention();
+        });
+        var $$t_6 = this;
+        $v_1.find('*').click(function() {
+            $$t_6.resolveMention();
+        });
+    },
+    
+    $l_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$l_0() {
+        if (IsNull(this.$0_0) || this.$0_0.length < 1) {
+            return;
+        }
+        this.$0_0.click(ActivityFeeds.Mentions.Models.MruMenuViewModel.$O);
+        $P_CRM('.ActivityFeeds-Mentions-DropDown').click(ActivityFeeds.Mentions.Models.MruMenuViewModel.$O);
+        $P_CRM('.ActivityFeeds-Mentions-DropDown').find('*').click(ActivityFeeds.Mentions.Models.MruMenuViewModel.$O);
+        $P_CRM(document).click(this.$$d_$f_0);
+    },
+    
+    $f_0: function ActivityFeeds_Mentions_Models_MruMenuViewModel$$f_0($p0) {
+        this.hideMruMenu();
+    }
+}
+
+
+ActivityFeeds.Mentions.Models.RecentlyViewedItem = function ActivityFeeds_Mentions_Models_RecentlyViewedItem(item) {
+    this.$B_0 = -1;
+    if (IsNull(item)) {
+        this.$8_0 = new Xrm.Objects.RecentlyViewedItem();
+        return;
+    }
+    this.$8_0 = item;
+}
+ActivityFeeds.Mentions.Models.RecentlyViewedItem.$N = function ActivityFeeds_Mentions_Models_RecentlyViewedItem$$N($p0) {
+    return (IsNull($p0)) ? '' : $p0;
+}
+ActivityFeeds.Mentions.Models.RecentlyViewedItem.prototype = {
+    $8_0: null,
+    
+    get_startPosition: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_startPosition() {
+        return this.$B_0;
+    },
+    
+    set_startPosition: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$set_startPosition(value) {
+        this.$B_0 = value;
+        return value;
+    },
+    
+    get_title: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_title() {
+        return ActivityFeeds.Mentions.Models.RecentlyViewedItem.$N(this.$8_0.title);
+    },
+    
+    get_id: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_id() {
+        return ActivityFeeds.Mentions.Models.RecentlyViewedItem.$N(this.$8_0.objectId);
+    },
+    
+    get_displayName: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_displayName() {
+        return ActivityFeeds.Mentions.Models.RecentlyViewedItem.$N(this.$8_0.displayName);
+    },
+    
+    get_typeCode: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_typeCode() {
+        return (IsNull(this.$8_0.entityTypeCode)) ? -1 : this.$8_0.entityTypeCode;
+    },
+    
+    get_iconPath: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_iconPath() {
+        var $v_0 = ActivityFeeds.Mentions.Models.RecentlyViewedItem.$N(this.$8_0.iconPath);
+        if ($v_0 === '' && this.get_typeCode() !== -1) {
+            $v_0 = Mscrm.Utilities.getIconPath(this.get_typeCode());
+            if (this.get_typeCode() >= 10000 && $v_0.startsWith('/_Common')) {
+                $v_0 = Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage().getClientUrl() + '/' + $v_0;
+            }
+        }
+        return $v_0;
+    },
+    
+    get_lastAccessed: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_lastAccessed() {
+        return (IsNull(this.$8_0.lastAccessed)) ? _DateTime.empty : this.$8_0.lastAccessed;
+    },
+    
+    set_lastAccessed: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$set_lastAccessed(value) {
+        this.$8_0.lastAccessed = value;
+        return value;
+    },
+    
+    get_mentionDisplayTag: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$get_mentionDisplayTag() {
+        var $v_0 = this.get_title();
+        if ($v_0.length > 18) {
+            $v_0 = $v_0.substr(0, 15);
+            $v_0 += '...';
+        }
+        $v_0 = '{' + $v_0 + '}';
+        return $v_0;
+    },
+    
+    toMentionElement: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$toMentionElement() {
+        return String.format('@[{0},{1},\"{2}\"]', this.get_typeCode(), Sales.Common.CrmSoapServiceProxy.Utils.Utils.removeBeginEndBracket(this.get_id()), this.get_title());
+    },
+    
+    toXrm: function ActivityFeeds_Mentions_Models_RecentlyViewedItem$toXrm() {
+        return this.$8_0.clone();
+    }
+}
+
+
+ActivityFeeds.Mentions.Models.MentionsFactory = function ActivityFeeds_Mentions_Models_MentionsFactory() {
+}
+ActivityFeeds.Mentions.Models.MentionsFactory.createDataSource = function ActivityFeeds_Mentions_Models_MentionsFactory$createDataSource() {
+    return new ActivityFeeds.Mentions.Models.MentionsDataSource();
+}
+ActivityFeeds.Mentions.Models.MentionsFactory.createMentionsMap = function ActivityFeeds_Mentions_Models_MentionsFactory$createMentionsMap(textBoxMaxLength) {
+    return new ActivityFeeds.Mentions.Models.MentionsMap(textBoxMaxLength);
+}
+ActivityFeeds.Mentions.Models.MentionsFactory.createRecentlyViewedItem = function ActivityFeeds_Mentions_Models_MentionsFactory$createRecentlyViewedItem(fields) {
+    return new ActivityFeeds.Mentions.Models.RecentlyViewedItem(fields);
+}
+
+
+ActivityFeeds.Mentions.Models.MentionsDataSource = function ActivityFeeds_Mentions_Models_MentionsDataSource() {
+    this.$$d_$r_0 = Function.createDelegate(this, this.$r_0);
+    var $$t_1 = this;
+    Wall.Control.Utils.WindowUtils.add_onWindowUnload(function($p1_0) {
+        Xrm.Internal.trace.warningT(ActivityFeeds.Mentions.Models.MentionsDataSource, 'disposed by window unload');
+        $$t_1.$d_0();
+    });
+}
+ActivityFeeds.Mentions.Models.MentionsDataSource.$C = function ActivityFeeds_Mentions_Models_MentionsDataSource$$C($p0, $p1) {
+    var $v_0 = $p0.selectSingleNode($p1);
+    if (!IsNull($v_0)) {
+        return $v_0.get_innerText();
+    }
+    else {
+        return null;
+    }
+}
+ActivityFeeds.Mentions.Models.MentionsDataSource.parseMruXml = function ActivityFeeds_Mentions_Models_MentionsDataSource$parseMruXml(xml, dataElementPath) {
+    var $v_0 = Sales.Common.CrmSoapServiceProxy.Parser.XmlNodeFactory.create(Wall.Control.Utils.XmlUtils.parseXmlDocument(xml));
+    var $v_1 = new Array(0);
+    var $v_2 = $v_0.selectNodes(dataElementPath);
+    if (!IsNull($v_2)) {
+        for (var $v_3 = 0; $v_3 < $v_2.get_count(); $v_3++) {
+            var $v_4 = $v_2.get_item($v_3);
+            var $v_5 = parseInt(ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'Type'), 10);
+            var $v_6 = ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'ObjectId');
+            if (IsNull($v_6) || IsNull(Sales.Common.CrmSoapServiceProxy.Utils.Utils.tryParseGuid($v_6))) {
+                continue;
+            }
+            var $v_7 = new Xrm.Objects.RecentlyViewedItem();
+            $v_7.displayName = ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'DisplayName');
+            $v_7.title = ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'Title');
+            $v_7.action = ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'Action');
+            $v_7.iconPath = ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'IconPath');
+            $v_7.entityTypeCode = Number.parseInvariant(ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'EntityTypeCode'));
+            $v_7.lastAccessed = new Date(ActivityFeeds.Mentions.Models.MentionsDataSource.$C($v_4, 'LastAccessed'));
+            $v_7.objectId = $v_6;
+            $v_7.type = $v_5;
+            $v_1[$v_1.length] = $v_7;
+        }
+    }
+    $v_1.reverse();
+    $v_1.sort(Sales.Common.CrmSoapServiceProxy.ObjectModel.MruUtilities.lastAccessedComparer);
+    return $v_1;
+}
+ActivityFeeds.Mentions.Models.MentionsDataSource.prototype = {
+    $P_0: null,
+    
+    $d_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$d_0() {
+        this.$P_0 = null;
+        ActivityFeeds.Mentions.Models.MentionsDataSource.$9 = null;
+    },
+    
+    loadMruData: function ActivityFeeds_Mentions_Models_MentionsDataSource$loadMruData() {
+        this.$T_0(null);
+    },
+    
+    $T_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$T_0($p0) {
+        ActivityFeeds.Mentions.Models.MentionsDataSource.$9 = new Array(0);
+        var $v_0 = Xrm.Internal.getServiceDirectory() || Mscrm.PageManager.getParentWindowXrmInternal().getServiceDirectory();
+        var $v_1 = $v_0.find(Xrm.Interfaces.Services.IMostRecentlyViewedService);
+        if ($v_1 && !Wall.Control.Utils.OutlookUtils.isOutlookHostedWindow()) {
+            Xrm.Internal.trace.warningT(ActivityFeeds.Mentions.Models.MentionsDataSource, 'Passing existing MRU XML is not implemented for LoadMruFromRecentlyViewedControl. Passed: ' + $p0);
+            var $$t_4 = this;
+            $v_1.loadRecentlyViewedAsync().done(function($p1_0) {
+                ActivityFeeds.Mentions.Models.MentionsDataSource.$9 = Array.clone($p1_0);
+                ActivityFeeds.Mentions.Models.MentionsDataSource.$9.sort(Sales.Common.CrmSoapServiceProxy.ObjectModel.MruUtilities.lastAccessedComparer);
+            });
+        }
+        else {
+            if (Wall.Control.Utils.OutlookUtils.isOutlookHostedWindow()) {
+                this.$i_0();
+            }
+            else {
+                this.$j_0();
+            }
+        }
+    },
+    
+    $i_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$i_0() {
+        var $v_0 = Wall.Control.Utils.OutlookUtils.getMruXml();
+        if (!_String.isNullOrEmpty($v_0)) {
+            ActivityFeeds.Mentions.Models.MentionsDataSource.$9 = ActivityFeeds.Mentions.Models.MentionsDataSource.parseMruXml($v_0, 'RecentlyViewedData/RecentlyViewedItem');
+        }
+    },
+    
+    $j_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$j_0() {
+        var $v_0 = Wall.Control.Utils.RemoteCommandFactory.createRemoteCommand('RecentlyViewedWebService', 'RetrieveRecentlyViewedData', null);
+        var $$t_6 = this;
+        $v_0.ErrorHandler = function($p1_0, $p1_1) {
+            $$t_6.$V_0($p1_0, $p1_1);
+        };
+        var $$t_7 = this;
+        $v_0.Execute(function($p1_0, $p1_1) {
+            if (!IsNull($p1_0) && !IsNull($p1_0.ReturnValue) && $p1_0.Success) {
+                var $v_1 = $p1_0.ReturnValue;
+                ActivityFeeds.Mentions.Models.MentionsDataSource.$9 = ActivityFeeds.Mentions.Models.MentionsDataSource.parseMruXml($v_1, 'RecentlyViewedData/RecentlyViewedEntityData/RecentlyViewedItem');
+            }
+        });
+    },
+    
+    filterMruList: function ActivityFeeds_Mentions_Models_MentionsDataSource$filterMruList(search) {
+        var $v_0 = new Array(0);
+        if (!ActivityFeeds.Mentions.Models.MentionsDataSource.$9.length) {
+            return $v_0;
+        }
+        if (IsNull(search)) {
+            return null;
+        }
+        var $v_1 = 0;
+        for (var $v_2 = 0; $v_2 < ActivityFeeds.Mentions.Models.MentionsDataSource.$9.length; $v_2++) {
+            if (ActivityFeeds.Mentions.Models.MentionsDataSource.$9[$v_2].title.toLowerCase().startsWith(search.toLowerCase())) {
+                $v_0[$v_1++] = ActivityFeeds.Mentions.Models.MentionsFactory.createRecentlyViewedItem(ActivityFeeds.Mentions.Models.MentionsDataSource.$9[$v_2]);
+            }
+        }
+        return $v_0;
+    },
+    
+    save: function ActivityFeeds_Mentions_Models_MentionsDataSource$save(items) {
+        if (IsNull(items) || !items.length) {
+            return;
+        }
+        for (var $v_5 = 0; $v_5 < items.length; $v_5++) {
+            var $v_6 = _DateTime.get_now();
+            $v_6.setHours($v_6.getHours() + $v_6.getTimezoneOffset() / 60);
+            items[$v_5].set_lastAccessed($v_6);
+        }
+        this.$P_0 = null;
+        var $v_0 = items;
+        var $v_1 = this.$q_0($v_0);
+        var $v_2 = Xrm.Internal.getServiceDirectory() || Mscrm.PageManager.getParentWindowXrmInternal().getServiceDirectory();
+        var $v_3 = $v_2.find(Xrm.Interfaces.Services.IMostRecentlyViewedService);
+        if ($v_3) {
+            var $$t_B = this;
+            $v_3.updateRecentlyViewedRecordsAsync($v_1).done(function() {
+                $$t_B.$T_0(null);
+            });
+            return;
+        }
+        Xrm.Internal.trace.warningT(ActivityFeeds.Mentions.Models.MentionsDataSource, 'Was not able to find IMostRecentlyViewedService implementation, falling back');
+        var $v_4 = Sales.Common.CrmSoapServiceProxy.ObjectModel.MruUtilities.serializeMruXml($v_1);
+        if (IsNull($v_4)) {
+            return;
+        }
+        if (Wall.Control.Utils.OutlookUtils.isOutlookHostedWindow()) {
+            Wall.Control.Utils.OutlookUtils.saveMruXml($v_4);
+            return;
+        }
+        else {
+            var $v_7 = Wall.Control.Utils.RemoteCommandFactory.createRemoteCommand('RecentlyViewedWebService', 'UploadRecentlyViewed', null);
+            var $$t_C = this;
+            $v_7.ErrorHandler = function($p1_0, $p1_1) {
+                $$t_C.$V_0($p1_0, $p1_1);
+            };
+            $v_7.SetParameter('recentlyViewedXml', $v_4);
+            $v_7.SetParameter('retrieveAfterUpdated', true);
+            $v_7.Execute(this.$$d_$r_0);
+        }
+    },
+    
+    $q_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$q_0($p0) {
+        var $v_0 = new Array($p0.length);
+        for (var $v_1 = 0; $v_1 < $p0.length; $v_1++) {
+            $v_0[$v_1] = $p0[$v_1].toXrm();
+        }
+        return $v_0;
+    },
+    
+    $V_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$V_0($p0, $p1) {
+        if (!IsNull($p1)) {
+        }
+        else {
+        }
+    },
+    
+    $r_0: function ActivityFeeds_Mentions_Models_MentionsDataSource$$r_0($p0, $p1) {
+        if (!IsNull($p0) && $p0.Success) {
+            var $v_0 = $p0.ReturnValue.toString();
+            if (!IsNull($v_0) && $v_0.length > 150) {
+                this.$T_0($v_0);
+            }
+        }
+    }
+}
+
+
+ActivityFeeds.Mentions.Models.DiffState = function ActivityFeeds_Mentions_Models_DiffState() {
+    this.start = -1;
+    this.end = -1;
+}
+
+
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList = function ActivityFeeds_Mentions_Models_ObjectTypeCodesWhiteList() {
+}
+
+
+ActivityFeeds.Mentions.Models.MentionsModel = function ActivityFeeds_Mentions_Models_MentionsModel(postTextBox, textMaxLength) {
+    this.$B_0 = -1;
+    if (IsNull(postTextBox)) {
+        throw Error.create('A text area was not supplied.');
+    }
+    if (postTextBox.length !== 1) {
+        throw Error.create('Only one instance of a mention enabled text area is allowed.');
+    }
+    this.$E_0 = textMaxLength;
+    this.$0_0 = postTextBox;
+}
+ActivityFeeds.Mentions.Models.MentionsModel.prototype = {
+    $4_0: '',
+    $6_0: '',
+    $0_0: null,
+    $5_0: null,
+    $I_0: null,
+    $L_0: false,
+    $E_0: 0,
+    
+    get_startPosition: function ActivityFeeds_Mentions_Models_MentionsModel$get_startPosition() {
+        return this.$B_0;
+    },
+    
+    set_startPosition: function ActivityFeeds_Mentions_Models_MentionsModel$set_startPosition(value) {
+        this.$B_0 = value;
+        return value;
+    },
+    
+    get_caretPosition: function ActivityFeeds_Mentions_Models_MentionsModel$get_caretPosition() {
+        if (IsNull(this.$0_0) || this.$0_0.length < 1) {
+            return -1;
+        }
+        return Wall.Control.Utils.TextRangeUtils.getCaretPosition(this.$0_0.get(0));
+    },
+    
+    get_textBoxMaxLength: function ActivityFeeds_Mentions_Models_MentionsModel$get_textBoxMaxLength() {
+        return this.$E_0;
+    },
+    
+    get_replacedPostText: function ActivityFeeds_Mentions_Models_MentionsModel$get_replacedPostText() {
+        var $v_0 = '';
+        if (!this.$5_0.get_count()) {
+            $v_0 = this.$0_0.val();
+        }
+        else {
+            $v_0 = this.$5_0.replaceMentionTags(this.$0_0.val());
+        }
+        return $v_0;
+    },
+    
+    get_canMention: function ActivityFeeds_Mentions_Models_MentionsModel$get_canMention() {
+        if (this.get_caretPosition() < this.$B_0) {
+            return false;
+        }
+        if (this.$6_0.length >= this.$E_0) {
+            return false;
+        }
+        var $v_0 = this.$e_0();
+        if (this.$L_0 && !IsNull($v_0) && !_String.isNullOrEmpty($v_0.text)) {
+            return false;
+        }
+        return true;
+    },
+    
+    get_isMentioning: function ActivityFeeds_Mentions_Models_MentionsModel$get_isMentioning() {
+        return this.$L_0;
+    },
+    
+    set_isMentioning: function ActivityFeeds_Mentions_Models_MentionsModel$set_isMentioning(value) {
+        this.$L_0 = value;
+        return value;
+    },
+    
+    initialize: function ActivityFeeds_Mentions_Models_MentionsModel$initialize() {
+        this.$I_0 = ActivityFeeds.Mentions.Models.MentionsFactory.createDataSource();
+        this.$5_0 = ActivityFeeds.Mentions.Models.MentionsFactory.createMentionsMap(this.$E_0);
+    },
+    
+    filterMruList: function ActivityFeeds_Mentions_Models_MentionsModel$filterMruList(mentionToken) {
+        var $v_0 = this.$I_0.filterMruList(mentionToken);
+        var $v_1 = new Array(0);
+        for (var $v_2 = 0; $v_2 < $v_0.length; $v_2++) {
+            if (this.$g_0($v_0[$v_2].get_typeCode())) {
+                if ($v_1.length < 7) {
+                    $v_1[$v_1.length] = $v_0[$v_2];
+                }
+            }
+        }
+        return $v_1;
+    },
+    
+    loadMruData: function ActivityFeeds_Mentions_Models_MentionsModel$loadMruData() {
+        this.$I_0.loadMruData();
+    },
+    
+    resolveMention: function ActivityFeeds_Mentions_Models_MentionsModel$resolveMention(recentlyViewedItem, caretPositionBeforeDialog) {
+        var $v_0 = recentlyViewedItem.get_mentionDisplayTag();
+        var $v_1 = this.$B_0 - 1;
+        var $v_2 = this.$0_0.val().substring(0, $v_1);
+        var $v_3 = this.$0_0.val().substr(caretPositionBeforeDialog);
+        var $v_4 = $v_2 + $v_0 + $v_3;
+        if ($v_4.length > this.$E_0) {
+            return false;
+        }
+        this.$5_0.add($v_1, recentlyViewedItem);
+        this.$0_0.val($v_4);
+        this.$b_0();
+        this.$a_0($v_1);
+        return true;
+    },
+    
+    reset: function ActivityFeeds_Mentions_Models_MentionsModel$reset() {
+        this.$I_0.save(this.$5_0.get_mentions());
+        this.$5_0.clear();
+    },
+    
+    updateTracking: function ActivityFeeds_Mentions_Models_MentionsModel$updateTracking() {
+        this.$b_0();
+        if (this.$4_0 === this.$6_0) {
+            return;
+        }
+        var $v_0 = this.$c_0();
+        if ((!this.$4_0.length || this.$4_0.length === 1) && $v_0.start === -1 && $v_0.end === -1) {
+            $v_0.start = 0;
+            $v_0.end = 0;
+        }
+        if (this.$4_0.length === this.$6_0.length) {
+        }
+        else if (this.$4_0.length < this.$6_0.length) {
+            if (this.$4_0.length > 0 && $v_0.start === -1 && $v_0.end === this.$4_0.length - 1) {
+                return;
+            }
+        }
+        else {
+            if (this.$4_0.length > 0 && $v_0.start === -1 && $v_0.end === this.$4_0.length - 1) {
+                $v_0.start = $v_0.end;
+            }
+            if ($v_0.start > $v_0.end) {
+                $v_0.end = $v_0.start;
+            }
+        }
+        var $v_1 = this.$o_0($v_0.start, $v_0.end + 1);
+        if (!IsNull($v_1) && $v_1.length === 1) {
+            var $v_2 = $v_1[0];
+            var $v_3, $v_4;
+            $v_3 = this.$4_0.substring(0, $v_2.get_startPosition());
+            $v_4 = this.$4_0.substring($v_2.get_startPosition() + $v_2.get_mentionDisplayTag().length, this.$4_0.length);
+            this.$6_0 = $v_3 + $v_4;
+            this.$0_0.val(this.$6_0);
+            if ($v_0.start === $v_2.get_startPosition()) {
+                this.$H_0($v_0.start);
+            }
+            if ($v_0.start === $v_2.get_startPosition() + $v_2.get_mentionDisplayTag().length - 1) {
+                this.$H_0($v_0.start - $v_2.get_mentionDisplayTag().length + 1);
+            }
+        }
+        this.$a_0($v_0.end);
+    },
+    
+    traverseMentions: function ActivityFeeds_Mentions_Models_MentionsModel$traverseMentions(e) {
+        if (Wall.Control.Utils.jQueryEventHelper.getShiftKey(e)) {
+            return;
+        }
+        var $v_0 = this.$0_0.get(0);
+        var $v_1 = Wall.Control.Utils.TextRangeUtils.getSelection($v_0);
+        if (!(IsNull($v_1) || _String.isNullOrEmpty($v_1.text))) {
+            return;
+        }
+        var $v_2 = Wall.Control.Utils.jQueryEventHelper.getKeyCode(e);
+        var $v_3 = null;
+        var $v_4 = this.get_caretPosition();
+        if (($v_2 === 39 && !isRTL()) || (isRTL() && $v_2 === 37)) {
+            $v_3 = this.$5_0.findTag(this.get_caretPosition() + 1);
+            if (IsNull($v_3)) {
+                return;
+            }
+            $v_4 = $v_3.get_startPosition() + $v_3.get_mentionDisplayTag().length;
+            this.$H_0($v_4 - 1);
+        }
+        if (($v_2 === 37 && !isRTL()) || (isRTL() && $v_2 === 39)) {
+            $v_3 = this.$5_0.findTag(this.get_caretPosition() - 1);
+            if (IsNull($v_3)) {
+                return;
+            }
+            $v_4 = $v_3.get_startPosition();
+            this.$H_0($v_4 + 1);
+        }
+        switch ($v_2) {
+            case 38:
+            case 36:
+                $v_3 = this.$5_0.findTag($v_4);
+                if (IsNull($v_3)) {
+                    return;
+                }
+                this.$H_0($v_3.get_startPosition());
+                break;
+            case 40:
+            case 35:
+                $v_3 = this.$5_0.findTag($v_4);
+                if (IsNull($v_3)) {
+                    return;
+                }
+                this.$H_0($v_3.get_startPosition() + $v_3.get_mentionDisplayTag().length);
+                break;
+        }
+    },
+    
+    $e_0: function ActivityFeeds_Mentions_Models_MentionsModel$$e_0() {
+        return Wall.Control.Utils.TextRangeUtils.getSelection(this.$0_0.get(0));
+    },
+    
+    $H_0: function ActivityFeeds_Mentions_Models_MentionsModel$$H_0($p0) {
+        if (0 > $p0 || $p0 > this.$E_0 + 1) {
+            return;
+        }
+        Wall.Control.Utils.TextRangeUtils.setCaretPosition(this.$0_0.get(0), $p0);
+    },
+    
+    $b_0: function ActivityFeeds_Mentions_Models_MentionsModel$$b_0() {
+        if (this.$4_0 !== this.$6_0) {
+            this.$4_0 = this.$6_0;
+        }
+        this.$6_0 = this.$0_0.val();
+    },
+    
+    $c_0: function ActivityFeeds_Mentions_Models_MentionsModel$$c_0() {
+        var $v_0 = new ActivityFeeds.Mentions.Models.DiffState();
+        var $v_1, $v_2;
+        $v_1 = $v_2 = 0;
+        while ($v_1 < this.$4_0.length && $v_2 < this.$6_0.length) {
+            if (this.$4_0.charAt($v_1) !== this.$6_0.charAt($v_2)) {
+                $v_0.start = $v_1;
+                break;
+            }
+            ++$v_1;
+            ++$v_2;
+        }
+        $v_1 = this.$4_0.length;
+        $v_2 = this.$6_0.length;
+        while ($v_1 > 0 && $v_2 > 0) {
+            if (this.$4_0.charAt($v_1 - 1) !== this.$6_0.charAt($v_2 - 1)) {
+                $v_0.end = $v_1 - 1;
+                break;
+            }
+            --$v_1;
+            --$v_2;
+        }
+        return $v_0;
+    },
+    
+    $a_0: function ActivityFeeds_Mentions_Models_MentionsModel$$a_0($p0) {
+        var $v_0 = this.$5_0.get_mentions();
+        for (var $v_1 = 0; $v_1 < $v_0.length; $v_1++) {
+            var $v_2 = $v_0[$v_1];
+            if ($v_2.get_startPosition() > $p0) {
+                var $v_3 = this.$6_0.length - this.$4_0.length;
+                this.$5_0.remove($v_2.get_startPosition());
+                this.$5_0.add($v_2.get_startPosition() + $v_3, $v_2);
+            }
+        }
+    },
+    
+    $o_0: function ActivityFeeds_Mentions_Models_MentionsModel$$o_0($p0, $p1) {
+        var $v_0 = this.$5_0.findTags($p0, $p1);
+        if (!IsNull($v_0)) {
+            for (var $v_1 = 0; $v_1 < $v_0.length; $v_1++) {
+                this.$5_0.remove($v_0[$v_1].get_startPosition());
+            }
+        }
+        return $v_0;
+    },
+    
+    $g_0: function ActivityFeeds_Mentions_Models_MentionsModel$$g_0($p0) {
+        $p0 = parseInt($p0);
+        if ($p0 === 1 || $p0 === 4201 || $p0 === 123 || $p0 === 2 || $p0 === 112 || $p0 === 127 || $p0 === 4 || $p0 === 3 || $p0 === 4210 || $p0 === 1024 || $p0 === 4251 || $p0 === 1038 || $p0 === 4212 || $p0 === 2013 || $p0 === 8 || $p0 >= 10000) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
+
+
+ActivityFeeds.Mentions.Models.MentionsMap = function ActivityFeeds_Mentions_Models_MentionsMap(textBoxMaxLength) {
+    this.$7_0 = {};
+    this.$J_0 = textBoxMaxLength;
+}
+ActivityFeeds.Mentions.Models.MentionsMap.prototype = {
+    $7_0: null,
+    $J_0: 0,
+    
+    get_count: function ActivityFeeds_Mentions_Models_MentionsMap$get_count() {
+        return _Dictionary.count(this.$7_0);
+    },
+    
+    get_mentions: function ActivityFeeds_Mentions_Models_MentionsMap$get_mentions() {
+        var $v_0 = new Array(0);
+        var $$dict_2 = this.$7_0;
+        for (var $$key_3 in $$dict_2) {
+            var $v_1 = { key: $$key_3, value: $$dict_2[$$key_3] };
+            $v_0[$v_0.length] = $v_1.value;
+        }
+        return $v_0;
+    },
+    
+    findTag: function ActivityFeeds_Mentions_Models_MentionsMap$findTag(cursorPosition) {
+        if (cursorPosition < 0 || cursorPosition > this.$J_0) {
+            return null;
+        }
+        if ((((cursorPosition - 1)) in this.$7_0)) {
+            return this.$7_0[(cursorPosition - 1)];
+        }
+        var $$dict_4 = this.$7_0;
+        for (var $$key_5 in $$dict_4) {
+            var $v_0 = { key: $$key_5, value: $$dict_4[$$key_5] };
+            var $v_1 = parseInt($v_0.key);
+            var $v_2 = this.$7_0[$v_1];
+            if ($v_1 < cursorPosition && cursorPosition < $v_1 + $v_2.get_mentionDisplayTag().length) {
+                return $v_2;
+            }
+        }
+        return null;
+    },
+    
+    findTags: function ActivityFeeds_Mentions_Models_MentionsMap$findTags(selectionStart, selectionEnd) {
+        if (selectionStart < 0 || selectionEnd > this.$J_0) {
+            return null;
+        }
+        if (selectionStart > selectionEnd) {
+            return null;
+        }
+        var $v_0 = new Array(0);
+        var $$dict_6 = this.$7_0;
+        for (var $$key_7 in $$dict_6) {
+            var $v_1 = { key: $$key_7, value: $$dict_6[$$key_7] };
+            var $v_2 = parseInt($v_1.key);
+            var $v_3 = this.$7_0[$v_2];
+            if (selectionStart <= $v_2 && $v_2 < selectionEnd) {
+                $v_0[$v_0.length] = $v_3;
+            }
+            else {
+                $v_3 = this.findTag(selectionStart);
+                if (IsNull($v_3) || Array.contains($v_0, $v_3)) {
+                    continue;
+                }
+                $v_0[$v_0.length] = $v_3;
+            }
+        }
+        if ($v_0.length > 0) {
+            return $v_0;
+        }
+        return null;
+    },
+    
+    add: function ActivityFeeds_Mentions_Models_MentionsMap$add(index, value) {
+        if (index < 0 || index > this.$J_0) {
+            return;
+        }
+        this.$7_0[index] = value;
+        value.set_startPosition(index);
+    },
+    
+    remove: function ActivityFeeds_Mentions_Models_MentionsMap$remove(index) {
+        if (((index) in this.$7_0)) {
+            delete this.$7_0[index];
+        }
+    },
+    
+    replaceMentionTags: function ActivityFeeds_Mentions_Models_MentionsMap$replaceMentionTags(postMessage) {
+        var $v_0 = postMessage;
+        var $v_1 = 0;
+        var $$dict_A = this.$7_0;
+        for (var $$key_B in $$dict_A) {
+            var $v_2 = { key: $$key_B, value: $$dict_A[$$key_B] };
+            var $v_3 = parseInt($v_2.key);
+            var $v_4 = $v_0.substring(0, $v_3 + $v_1);
+            var $v_5 = $v_3 + $v_1 + ($v_2.value).get_mentionDisplayTag().length;
+            var $v_6 = $v_0.substr($v_5);
+            var $v_7 = $v_2.value;
+            var $v_8 = $v_7.toMentionElement();
+            $v_0 = $v_4 + $v_8 + $v_6;
+            $v_1 += $v_8.length;
+            $v_1 -= $v_7.get_mentionDisplayTag().length;
+        }
+        return $v_0;
+    },
+    
+    clear: function ActivityFeeds_Mentions_Models_MentionsMap$clear() {
+        this.$7_0 = {};
+    }
+}
+
+
+ActivityFeeds.Mentions.Models.MruMenuViewModel.registerClass('ActivityFeeds.Mentions.Models.MruMenuViewModel', null, ActivityFeeds.Mentions.Interfaces.IMruMenu);
+ActivityFeeds.Mentions.Models.RecentlyViewedItem.registerClass('ActivityFeeds.Mentions.Models.RecentlyViewedItem', null, ActivityFeeds.Mentions.Interfaces.IRecentlyViewedItem);
+ActivityFeeds.Mentions.Models.MentionsFactory.registerClass('ActivityFeeds.Mentions.Models.MentionsFactory');
+ActivityFeeds.Mentions.Models.MentionsDataSource.registerClass('ActivityFeeds.Mentions.Models.MentionsDataSource', null, ActivityFeeds.Mentions.Interfaces.IMentionsDataSource);
+ActivityFeeds.Mentions.Models.DiffState.registerClass('ActivityFeeds.Mentions.Models.DiffState');
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.registerClass('ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList');
+ActivityFeeds.Mentions.Models.MentionsModel.registerClass('ActivityFeeds.Mentions.Models.MentionsModel', null, ActivityFeeds.Mentions.Interfaces.IMentions);
+ActivityFeeds.Mentions.Models.MentionsMap.registerClass('ActivityFeeds.Mentions.Models.MentionsMap', null, ActivityFeeds.Mentions.Interfaces.IMentionsMap);
+ActivityFeeds.Mentions.Models.MruMenuViewModel.titleAttributeName = 'title';
+ActivityFeeds.Mentions.Models.MruMenuViewModel.altAttributeName = 'alt';
+ActivityFeeds.Mentions.Models.MentionsDataSource.$9 = null;
+ActivityFeeds.Mentions.Models.MentionsDataSource.dateFormat = 'MM/dd/yyyy HH:mm:ss';
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.account = 1;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.appointment = 4201;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.competitor = 123;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.contact = 2;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.incident = 112;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.kbArticle = 127;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.lead = 4;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.opportunity = 3;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.phoneCall = 4210;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.product = 1024;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.recurringAppointment = 4251;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.salesLiterature = 1038;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.task = 4212;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.territory = 2013;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.user = 8;
+ActivityFeeds.Mentions.Models.ObjectTypeCodesWhiteList.custom = 10000;
+//@ sourceMappingURL=file:///d:/dbs/sh/dccm2/0227_160625/cmd/7/Target/retail/amd64/.srcmap

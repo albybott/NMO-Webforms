@@ -1,0 +1,188 @@
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    'use strict';
+    var UCIFormFactor;
+    (function (UCIFormFactor) {
+        UCIFormFactor[UCIFormFactor["Unknown"] = 0] = "Unknown";
+        UCIFormFactor[UCIFormFactor["Desktop"] = 1] = "Desktop";
+        UCIFormFactor[UCIFormFactor["Tablet"] = 2] = "Tablet";
+        UCIFormFactor[UCIFormFactor["Phone"] = 3] = "Phone";
+    })(UCIFormFactor = _MicrosoftNPSSurvey.UCIFormFactor || (_MicrosoftNPSSurvey.UCIFormFactor = {}));
+    var NPSBootstrap = (function () {
+        function NPSBootstrap() {
+            this.EnvType = 'DEV';
+        }
+        NPSBootstrap.prototype.loadNPS = function () {
+            try {
+                this.EnvType = this.getEnvType();
+                var successCallback = function (self) {
+                    if (self.shouldLoadNPS()) {
+                        self.loadNPSScript();
+                    }
+                };
+                this.checkXrmExists(this, successCallback, NPSBootstrap.XrmInterval, NPSBootstrap.XrmMaxTries, 0);
+            }
+            catch (e) {
+                console.log("ERROR IN INITIALIZING NPS SURVEY : " + e);
+            }
+        };
+        NPSBootstrap.prototype.checkXrmExists = function (self, successCallback, interval, maxTries, count) {
+            try {
+                var xrm = window.Xrm;
+                if (xrm === undefined || xrm === null) {
+                    throw new Error("Xrm Object Not Available");
+                }
+                else {
+                    successCallback(self);
+                }
+            }
+            catch (e) {
+                if (count < maxTries) {
+                    setTimeout(function () { return self.checkXrmExists(self, successCallback, interval, maxTries, count + 1); }, interval);
+                }
+                else {
+                    console.log("Failed to Load NPS : " + e);
+                }
+            }
+        };
+        NPSBootstrap.prototype.shouldLoadNPS = function () {
+            var Xrm = window.Xrm;
+            if (Xrm === undefined || Xrm === null)
+                return false;
+            var shouldLoadNPS = true;
+            shouldLoadNPS = !this.isDomainBlocked();
+            if (shouldLoadNPS) {
+                try {
+                    if (Xrm.Internal.isUci && Xrm.Internal.isUci()) {
+                        var clientName = Xrm.Utility.getGlobalContext().client.getClient();
+                        if (Xrm.Utility.getGlobalContext().client.getFormFactor() === _MicrosoftNPSSurvey.UCIFormFactor.Phone)
+                            shouldLoadNPS = false;
+                        if (clientName === Xrm.Constants.ClientNames.outlook)
+                            shouldLoadNPS = false;
+                        if (clientName === Xrm.Constants.ClientNames.unifiedServiceDesk && !Xrm.Internal.isFeatureEnabled("USDNPSSurvey"))
+                            shouldLoadNPS = false;
+                    }
+                    else {
+                        var clientName = Xrm.Page.context.client.getClient();
+                        if (Xrm.Page.context.client.getFormFactor() === Xrm.FormFactor.phone)
+                            shouldLoadNPS = false;
+                        if (clientName === Xrm.ClientName.outlook)
+                            shouldLoadNPS = false;
+                        if (clientName === Xrm.ClientName.unifiedServiceDesk && !Xrm.Internal.isFeatureEnabled("FCB.USDNPSSurvey"))
+                            shouldLoadNPS = false;
+                    }
+                }
+                catch (e) {
+                    console.log("NPS could not be initialized" + e);
+                    shouldLoadNPS = false;
+                }
+            }
+            if (shouldLoadNPS) {
+                switch (this.EnvType) {
+                    case 'PROD':
+                        shouldLoadNPS = NPSBootstrap.PRODEnabled;
+                        NPSBootstrap.isTelemetryEnabled = true;
+                        NPSBootstrap.configURL = "https://crmprodnpssurvey.azureedge.net/survey/DynamicsNPSConfig.json";
+                        break;
+                    case 'INT':
+                        shouldLoadNPS = NPSBootstrap.INTEnabled;
+                        NPSBootstrap.configURL = "https://crmintnpssurvey.azureedge.net/survey/DynamicsNPSConfig.json";
+                        break;
+                    case 'TIE':
+                        shouldLoadNPS = NPSBootstrap.TIEEnabled;
+                        NPSBootstrap.configURL = "https://crmtienpsurvey.azureedge.net/survey/DynamicsNPSConfig.json";
+                        break;
+                    default:
+                        shouldLoadNPS = true;
+                        NPSBootstrap.configURL = "https://crmnpssurvey.blob.core.windows.net/survey/DynamicsNPSConfig.json";
+                }
+            }
+            return shouldLoadNPS;
+        };
+        NPSBootstrap.prototype.getEnvType = function () {
+            var hostVal = this.getHostVal();
+            if (this.CheckIfHostEndsWith(hostVal, "crm10.dynamics.com")) {
+                return 'INT';
+            }
+            else if (this.CheckIfHostEndsWith(hostVal, "dynamics.com")) {
+                return 'PROD';
+            }
+            else if (this.CheckIfHostEndsWith(hostVal, "dynamics-int.com")) {
+                return 'INT';
+            }
+            else if (this.CheckIfHostEndsWith(hostVal, "crmlivetie.com")) {
+                return 'TIE';
+            }
+            else {
+                return 'DEV';
+            }
+        };
+        NPSBootstrap.prototype.loadNPSScript = function () {
+            this.readConfig(NPSBootstrap.configURL);
+        };
+        NPSBootstrap.prototype.CheckIfHostEndsWith = function (hostUrl, stringEnd) {
+            return (hostUrl.substring(hostUrl.length - stringEnd.length, hostUrl.length) === stringEnd);
+        };
+        NPSBootstrap.prototype.readConfig = function (configUrl) {
+            var deferred = jQuery.Deferred();
+            var promise = jQuery.ajax({
+                url: configUrl,
+                type: 'GET',
+                dataType: 'json',
+            });
+            var self = this;
+            promise.done(function (data) {
+                var surveyScriptURL = data.CDNUrl;
+                self.loadScript(surveyScriptURL);
+            });
+            promise.fail(function () {
+                console.log('Error in Reading config file or config file does not exists : ' + configUrl);
+                deferred.reject();
+            });
+            return deferred.promise();
+        };
+        NPSBootstrap.prototype.getHostVal = function () {
+            var hostVal = window.location.host;
+            if (!hostVal)
+                hostVal = window.parent.location.host;
+            return hostVal;
+        };
+        NPSBootstrap.prototype.isDomainBlocked = function () {
+            return (this.CheckIfHostEndsWith(this.getHostVal(), "crm9.dynamics.com") ||
+                this.CheckIfHostEndsWith(this.getHostVal(), "crm.microsoftdynamics.de"));
+        };
+        NPSBootstrap.prototype.loadScript = function (url) {
+            var serverUrl = url + 'NPSSurvey.js';
+            if (document.getElementById(serverUrl)) {
+                console.log(serverUrl + " already loaded");
+                return;
+            }
+            else {
+                var script = document.createElement('script');
+                script.onerror = function (errMessage) {
+                    console.log("Error in loading script" + serverUrl + " : " + errMessage);
+                };
+                script.onload = function () {
+                    console.log(serverUrl + " loaded");
+                };
+                script.src = serverUrl;
+                script.id = serverUrl;
+                script.type = "text/javascript";
+                document.getElementsByTagName("head")[0].appendChild(script);
+            }
+        };
+        NPSBootstrap.configURL = "";
+        NPSBootstrap.TIEEnabled = true;
+        NPSBootstrap.INTEnabled = true;
+        NPSBootstrap.PRODEnabled = true;
+        NPSBootstrap.XrmMaxTries = 5;
+        NPSBootstrap.XrmInterval = 1000;
+        NPSBootstrap.isTelemetryEnabled = false;
+        return NPSBootstrap;
+    }());
+    _MicrosoftNPSSurvey.NPSBootstrap = NPSBootstrap;
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+(function () {
+    var bootstrap = new _MicrosoftNPSSurvey.NPSBootstrap();
+    bootstrap.loadNPS();
+})();

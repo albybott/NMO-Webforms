@@ -1,0 +1,52 @@
+//Initialize Xrm object in current frame
+var Xrm = window.parent['Xrm'];
+
+function returnValue(rValue) {
+	return rValue;
+}
+
+//function to check if sample data is installed
+function isSampleDataInstalled()
+{
+	var request = new XMLHttpRequest();
+	request.open('GET', Xrm.Page.context.getClientUrl() + '/api/data/v8.0/organizations?$select=sampledataimportid', false);  
+	request.send(null);
+	if (request.status === 200) {
+		var response = JSON.parse(request.responseText);
+		if (response.value.length > 0) {
+			var solutionImportID = response.value[0]["sampledataimportid"];
+			if (solutionImportID !== null && solutionImportID !== "00000000-0000-0000-0000-000000000000")
+				return true;
+		}
+	}
+	return false;
+}
+
+//function to check if given solution is installed
+function isSolutionInstalled(solutionName) {
+	var request = new XMLHttpRequest();
+	var response = _MicrosoftMars.Client.Utility.Util.TryRetrieve(request, Xrm.Page.context.getClientUrl() + '/api/data/v8.0/solutions?$select=uniquename', 3600);
+	if (request.readyState == 4 && request.status == 200) {
+	response = jQuery.parseJSON(response);
+		for (i = 0; i < response.value.length; i++) {
+			if (solutionName === response.value[i]["uniquename"]) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+//function to retrieve solution version
+function getSolutionVersion(solutionName) {
+	var request = new XMLHttpRequest();
+	request.open('GET', Xrm.Page.context.getClientUrl() + '/api/data/v8.0/solutions?$select=version,uniquename&$filter=uniquename eq \''+ solutionName + '\'', false);  
+	request.send(null);
+	if (request.status === 200) {
+		var response = JSON.parse(request.responseText);
+		if (response.value.length > 0) {
+			return response.value[0]["version"];
+		}
+	}
+	return "";
+}

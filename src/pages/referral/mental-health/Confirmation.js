@@ -12,9 +12,8 @@ const styles = theme => ({
         <CardHeader title="Nga Mihi" titleTypographyProps={{ variant: "h5" }} />
         <CardContent>
           <Typography variant="subtitle1">
-            Your order number is #2001539. We have emailed your order
-            confirmation, and will send you an update when your order has
-            shipped.
+            Your referral has been sent. We have emailed your referral
+            confirmation, and will send you an update when it has been reviewed.
           </Typography>
         </CardContent>
       </>

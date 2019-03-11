@@ -1,0 +1,292 @@
+var Microsoft;
+(function (Microsoft) {
+    var Mars;
+    (function (Mars) {
+        var Client;
+        (function (Client) {
+            var Validator;
+            (function (Validator) {
+                "use strict";
+                var JsonResponseValidator = (function () {
+                    function JsonResponseValidator() {
+                    }
+                    JsonResponseValidator.ValidateDesigner = function (requestData, responseData, scenarioId) {
+                        JsonResponseValidator.errorMessage = '';
+                        if (scenarioId == 5 /* BuildControl */ || scenarioId == 6 /* PublishControl */) {
+                            var isAsExpected = true;
+                            if (requestData.ControlIds == null || requestData.ControlIds.length == 0) {
+                                isAsExpected = false;
+                                JsonResponseValidator.errorMessage += "Request does not have ControlId. ";
+                            }
+                            if (requestData.Type == "Publish" && requestData.PublishEnvironment == undefined) {
+                                isAsExpected = false;
+                                JsonResponseValidator.errorMessage += "Publish doesn't have a valid environment type. ";
+                            }
+                            if (requestData.Type != "Build" && requestData.Type != "Publish") {
+                                isAsExpected = false;
+                                JsonResponseValidator.errorMessage += "Request is neither build not publish. ";
+                            }
+                            JsonResponseValidator.saveToDataBase(requestData, responseData, scenarioId, isAsExpected);
+                        }
+                        else
+                            JsonResponseValidator.saveToDataBase(requestData, responseData, scenarioId, JsonResponseValidator.validateRequestResponseJsons(requestData, responseData));
+                    };
+                    JsonResponseValidator.ValidateRuntime = function (requestData, responseData, scenarioId) {
+                        JsonResponseValidator.errorMessage = '';
+                        var isAsExpected;
+                        isAsExpected = true;
+                        if (typeof requestData === "string")
+                            requestData = JSON.parse(requestData);
+                        JsonResponseValidator.saveToDataBase(requestData, responseData, scenarioId, JsonResponseValidator.validateRequestResponseJsonsRuntime(requestData, responseData, scenarioId) && JsonResponseValidator.validateJson(responseData));
+                    };
+                    JsonResponseValidator.saveToDataBase = function (requestData, responseData, scenarioId, isAsExpected) {
+                        var serviceUrl = _MicrosoftMars.Client.Loader.serverUrl;
+                        var vmUrl = window.location.href;
+                        _MicrosoftMars.Client.Loader.ServiceProxy.webApiBaseUrl = _MicrosoftMars.Client.Loader.webApiBaseUrl;
+                        var marsValidator = new _MicrosoftMars.Client.Loader.MarsValidatorApi();
+                        var params = { ScenarioId: scenarioId, VMUrl: vmUrl, ServiceUrl: serviceUrl, RequestJSON: JSON.stringify(requestData), ResponseJSON: JSON.stringify(responseData), ValidationResult: isAsExpected, ValidationMessage: JsonResponseValidator.errorMessage, ValidationDate: new Date() };
+                        var marsValidatorApiPromise = marsValidator.post(params, 'Add');
+                        marsValidatorApiPromise.done(function (data) {
+                        });
+                    };
+                    JsonResponseValidator.validateRequestResponseJsons = function (requestData, responseData) {
+                        var isAsExpected = true;
+                        if (responseData) {
+                            var controlName = responseData.ControlName;
+                            isAsExpected = isAsExpected && JsonResponseValidator.validateJson(requestData);
+                            isAsExpected = isAsExpected && JsonResponseValidator.validateJson(responseData);
+                            var requestChildControls = requestData.ChildControls;
+                            var responseChildControls = responseData.ChildControls;
+                            if (((requestChildControls == null || requestChildControls.length == 0) && responseChildControls != null && responseChildControls.length != 0) || (requestChildControls != null && requestChildControls.length != 0 && (responseChildControls == null || responseChildControls.length == 0))) {
+                                JsonResponseValidator.errorMessage += "Either request or response doesn't have the ChildControls for Control " + controlName + ". ";
+                                isAsExpected = false;
+                            }
+                            if (requestChildControls != null && responseChildControls != null) {
+                                if (requestChildControls.length != responseChildControls.length) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same number of ChildControls for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                                else {
+                                    for (var i = 0; i < responseChildControls.length; i++) {
+                                        var requestControlType = requestChildControls[i].ControlType;
+                                        if (requestControlType != responseChildControls[i].ControlType) {
+                                            JsonResponseValidator.errorMessage += "Request and Response doesn't have the same controlType for Control " + responseChildControls[i].ControlName + ". ";
+                                            isAsExpected = false;
+                                        }
+                                        if (requestControlType == 3 || requestControlType == 4 || requestControlType == 6) {
+                                            var requestElementIdentifier = requestChildControls[i].ElementIdentifier;
+                                            var responseElementIdentifier = responseChildControls[i].ElementIdentifier;
+                                            if (requestElementIdentifier == null || requestElementIdentifier == "") {
+                                                JsonResponseValidator.errorMessage += "Request does not have Element Identifier " + responseChildControls[i].ControlName + ". ";
+                                                isAsExpected = false;
+                                            }
+                                            if (responseElementIdentifier == null || responseElementIdentifier == "") {
+                                                JsonResponseValidator.errorMessage += "Response does not have Element Identifier " + responseChildControls[i].ControlName + ". ";
+                                                isAsExpected = false;
+                                            }
+                                            if (responseElementIdentifier != requestElementIdentifier) {
+                                                JsonResponseValidator.errorMessage += "Request and Response doesn't have the same Element Identifier for Control " + responseChildControls[i].ControlName + ". ";
+                                                isAsExpected = false;
+                                            }
+                                        }
+                                        isAsExpected = isAsExpected && JsonResponseValidator.validateRequestResponseJsons(requestChildControls[i], responseChildControls[i]);
+                                    }
+                                }
+                            }
+                            var requestEvents = requestData.Events;
+                            if (typeof requestEvents === "string")
+                                requestEvents = JSON.parse(requestEvents);
+                            var responseEvents = responseData.Events;
+                            if ((requestEvents != null && responseEvents == null) || (requestEvents == null && responseEvents != null) || (requestEvents.length != requestEvents.length)) {
+                                JsonResponseValidator.errorMessage += "Request and Response doesn't have the same number of events for Control " + controlName + ". ";
+                                isAsExpected = false;
+                            }
+                            else {
+                                if (requestControlType == 3 || requestControlType == 4 || requestControlType == 6) {
+                                    if (requestEvents.length == 0) {
+                                        JsonResponseValidator.errorMessage += "There are no events in the request for Control " + controlName + ". ";
+                                        isAsExpected = false;
+                                    }
+                                }
+                                for (var i = 0; i < requestEvents.length; i++) {
+                                    if (requestEvents[i].Trigger != responseEvents[i].Trigger || requestEvents[i].Action != responseEvents[i].Action) {
+                                        isAsExpected = false;
+                                        JsonResponseValidator.errorMessage += "Request and Response Trigger doesn't match for Control " + controlName + ". ";
+                                    }
+                                }
+                            }
+                            var requestCustomAttributes = requestData.CustomAttributes;
+                            var responseCustomAttributes = responseData.CustomAttributes;
+                            if (typeof requestCustomAttributes === "string")
+                                requestCustomAttributes = JSON.parse(requestCustomAttributes);
+                            if ((requestCustomAttributes != null && responseCustomAttributes == null) || (requestCustomAttributes == null && responseCustomAttributes != null) || (requestCustomAttributes.length != responseCustomAttributes.length)) {
+                                isAsExpected = false;
+                                JsonResponseValidator.errorMessage += "Request and Response doesn't have the same number of Custom Attributes for Control " + controlName + ". ";
+                            }
+                            else {
+                                for (var i = 0; i < requestCustomAttributes.length; i++) {
+                                    if (requestCustomAttributes[i].Expression != responseCustomAttributes[i].Expression || requestCustomAttributes[i].ExpressionValue != responseCustomAttributes[i].ExpressionValue || requestCustomAttributes[i].SubKey != responseCustomAttributes[i].SubKey || requestCustomAttributes[i].SubValue != responseCustomAttributes[i].SubValue) {
+                                        isAsExpected = false;
+                                        JsonResponseValidator.errorMessage += "Request and Response Custom Attribute Parameters doesn't match for Control " + controlName + ". ";
+                                    }
+                                }
+                            }
+                            var requestChildControlIds = requestData.ChildControlIds;
+                            var responseChildControlIds = responseData.ChildControlIds;
+                            if ((requestChildControlIds != undefined && responseChildControlIds != undefined) && ((requestChildControlIds != null && responseChildControlIds == null) || (requestChildControlIds == null && responseChildControlIds != null) || (requestChildControlIds.length != responseChildControlIds.length))) {
+                                isAsExpected = false;
+                                JsonResponseValidator.errorMessage += "Request and Response doesn't have the same number of childControlIds " + controlName + ". ";
+                            }
+                        }
+                        else {
+                            JsonResponseValidator.errorMessage += "Response data is null. ";
+                            isAsExpected = false;
+                        }
+                        return isAsExpected;
+                    };
+                    JsonResponseValidator.validateJson = function (data) {
+                        var childControls = data.ChildControls;
+                        var controlName = data.ControlName;
+                        var isAsExpected = true;
+                        var controlId = data.ControlId;
+                        if (!controlId) {
+                            controlId = data.Id;
+                        }
+                        if (childControls != null && childControls.length > 0) {
+                            for (var i = 0; i < childControls.length; i++) {
+                                isAsExpected = isAsExpected && JsonResponseValidator.validateJson(childControls[i]);
+                                var parentControlId = [].concat(childControls[i].ParentControlId);
+                                if (parentControlId[0] != controlId) {
+                                    JsonResponseValidator.errorMessage += "No Proper parent for control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                            }
+                        }
+                        var authorName = data.AuthorName;
+                        var controlType = data.ControlType;
+                        var childControlIds = data.ChildControlIds;
+                        var events = data.Events;
+                        if (controlName == null || controlName == "")
+                            isAsExpected = false;
+                        if (authorName == null || authorName == "") {
+                            JsonResponseValidator.errorMessage += "Author Name is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if (controlType == null || controlType == "") {
+                            JsonResponseValidator.errorMessage += "Control Type is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        var appContext = data.AppContext;
+                        var productEnvironmentType = appContext.ProductEnvironmentType;
+                        var locale = appContext.Locale;
+                        var lifeCycleStages;
+                        lifeCycleStages = appContext.LifeCycleStages;
+                        var userRoles;
+                        userRoles = appContext.UserRoles;
+                        var product = appContext.Product;
+                        var pageNavigationInfo = appContext.PageNavigationInfo;
+                        var elementIdentifier = appContext.ElementIdentifier;
+                        if (productEnvironmentType == null || productEnvironmentType == "") {
+                            JsonResponseValidator.errorMessage += "Environment Type is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if (locale == null || locale == "") {
+                            JsonResponseValidator.errorMessage += "Locale is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if (product == null || product == "") {
+                            JsonResponseValidator.errorMessage += "Product is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if ((controlType == 3 || controlType == 6 || controlType == 4 || controlType == "PassiveStep" || controlType == "ActiveStep" || controlType == "InfoBubble") && (pageNavigationInfo == null || pageNavigationInfo == "")) {
+                            JsonResponseValidator.errorMessage += "PageNavigation Info is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if ((controlType == 2) && (childControlIds == null || childControlIds.length == 0)) {
+                            JsonResponseValidator.errorMessage += "Child Control Ids is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if ((controlType == 3 || controlType == 6 || controlType == 4) && (elementIdentifier == null || elementIdentifier == "")) {
+                            JsonResponseValidator.errorMessage += "Element Identifier is null for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        if ((controlType == 3 || controlType == 6) && (events == null || events.length < 2)) {
+                            JsonResponseValidator.errorMessage += "No sufficient Events for Control " + controlName + ". ";
+                            isAsExpected = false;
+                        }
+                        return isAsExpected;
+                    };
+                    JsonResponseValidator.validateRequestResponseJsonsRuntime = function (requestData, responseData, scenarioId) {
+                        var isAsExpected = true;
+                        if (responseData) {
+                            var controlName = responseData.ControlName;
+                            if (scenarioId == 7 /* ControlByContext */) {
+                                if (!responseData.AppContext.ClientType.includes(requestData.ClientType)) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same controlType for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                                if (!responseData.AppContext.ProductEnvironmentType == requestData.Environment) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same EnvironmentType for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                                if (!responseData.AppContext.FormFactor.includes(requestData.FormFactor)) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same FormFactor for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                                if (!responseData.AppContext.PageNavigationInfo == requestData.PageNavigationInfo) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same Page Navigation Info for Control" + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                                if (!responseData.AppContext.Product == requestData.Product) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same Product Name Info for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                            }
+                            else if (scenarioId == 8 /* ControlById */) {
+                                if (_MicrosoftMars.Client.Loader.$mars.inArray(responseData.ControlId, requestData.ControlIds)) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same ControlId for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                                if (!responseData.ProductEnvironmentType == requestData.Environment) {
+                                    JsonResponseValidator.errorMessage += "Request and Response doesn't have the same EnvironmentType for Control " + controlName + ". ";
+                                    isAsExpected = false;
+                                }
+                            }
+                        }
+                        else {
+                            JsonResponseValidator.errorMessage += "Response data is null. ";
+                            isAsExpected = false;
+                        }
+                        return isAsExpected;
+                    };
+                    return JsonResponseValidator;
+                })();
+                Validator.JsonResponseValidator = JsonResponseValidator;
+            })(Validator = Client.Validator || (Client.Validator = {}));
+        })(Client = Mars.Client || (Mars.Client = {}));
+    })(Mars = Microsoft.Mars || (Microsoft.Mars = {}));
+})(Microsoft || (Microsoft = {}));
+var Microsoft;
+(function (Microsoft) {
+    var Mars;
+    (function (Mars) {
+        var Client;
+        (function (Client) {
+            var Validator;
+            (function (Validator) {
+                "use strict";
+                (function (ScenarioIds) {
+                    ScenarioIds[ScenarioIds["CreateGuidedTask"] = 1] = "CreateGuidedTask";
+                    ScenarioIds[ScenarioIds["EditGuidedTask"] = 2] = "EditGuidedTask";
+                    ScenarioIds[ScenarioIds["CreateAnswerPanel"] = 3] = "CreateAnswerPanel";
+                    ScenarioIds[ScenarioIds["EditAnswerPanel"] = 4] = "EditAnswerPanel";
+                    ScenarioIds[ScenarioIds["BuildControl"] = 5] = "BuildControl";
+                    ScenarioIds[ScenarioIds["PublishControl"] = 6] = "PublishControl";
+                    ScenarioIds[ScenarioIds["ControlByContext"] = 7] = "ControlByContext";
+                    ScenarioIds[ScenarioIds["ControlById"] = 8] = "ControlById";
+                })(Validator.ScenarioIds || (Validator.ScenarioIds = {}));
+                var ScenarioIds = Validator.ScenarioIds;
+            })(Validator = Client.Validator || (Client.Validator = {}));
+        })(Client = Mars.Client || (Mars.Client = {}));
+    })(Mars = Microsoft.Mars || (Microsoft.Mars = {}));
+})(Microsoft || (Microsoft = {}));

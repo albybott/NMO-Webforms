@@ -1,0 +1,259 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        "use strict";
+        var EventParameter = (function () {
+            function EventParameter(parameterName, value) {
+                this.parameterName = parameterName;
+                this.value = value;
+            }
+            EventParameter.prototype.ParameterName = function () {
+                return this.parameterName;
+            };
+            EventParameter.prototype.Value = function () {
+                return this.value;
+            };
+            return EventParameter;
+        }());
+        Telemetry.EventParameter = EventParameter;
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        'use strict';
+        var NPSTelemetryEvent = (function () {
+            function NPSTelemetryEvent(eventName) {
+                this.eventName = eventName;
+                this.eventParameters = [];
+            }
+            NPSTelemetryEvent.prototype.AddEventParameter = function (name, value) {
+                this.eventParameters.push(new Telemetry.EventParameter(name, value));
+            };
+            NPSTelemetryEvent.prototype.ToJson = function () {
+                var jsonObject = {};
+                var eventValues = {};
+                for (var param = 0; param < this.eventParameters.length; param++) {
+                    eventValues[this.eventParameters[param].ParameterName()] = this.eventParameters[param].Value();
+                }
+                jsonObject["EventValues"] = eventValues;
+                return jsonObject;
+            };
+            NPSTelemetryEvent.prototype.EventName = function () {
+                return this.eventName;
+            };
+            NPSTelemetryEvent.prototype.EventParameters = function () {
+                return this.eventParameters;
+            };
+            NPSTelemetryEvent.prototype.SetUserActivityInfo = function (userId, orgId, crmVersion, clientName, lcid, formfactor, crmgeo, orgtype, tenantid, appName, appPublisherName, appUniqueName, appVersion, subTenant) {
+                this.AddEventParameter(UserInfoParameters.orgid, orgId);
+                this.AddEventParameter(UserInfoParameters.userid, userId);
+                this.AddEventParameter(UserInfoParameters.crmversion, crmVersion);
+                this.AddEventParameter(UserInfoParameters.clientname, clientName);
+                this.AddEventParameter(UserInfoParameters.lcid, lcid);
+                this.AddEventParameter(UserInfoParameters.formfactor, formfactor.toString());
+                this.AddEventParameter(UserInfoParameters.crmgeo, crmgeo);
+                this.AddEventParameter(UserInfoParameters.orgtype, orgtype.toString());
+                this.AddEventParameter(UserInfoParameters.tenantid, tenantid);
+                this.AddEventParameter(UserInfoParameters.appName, appName);
+                this.AddEventParameter(UserInfoParameters.appPublisherName, appPublisherName);
+                this.AddEventParameter(UserInfoParameters.appUniqueName, appUniqueName);
+                this.AddEventParameter(UserInfoParameters.appVersion, appVersion);
+                this.AddEventParameter(UserInfoParameters.subTenant, subTenant);
+            };
+            return NPSTelemetryEvent;
+        }());
+        Telemetry.NPSTelemetryEvent = NPSTelemetryEvent;
+        var UserInfoParameters = (function () {
+            function UserInfoParameters() {
+            }
+            UserInfoParameters.userid = "userid";
+            UserInfoParameters.orgid = "orgid";
+            UserInfoParameters.clientname = "clientname";
+            UserInfoParameters.lcid = "lcid";
+            UserInfoParameters.crmversion = "crmversion";
+            UserInfoParameters.formfactor = "formfactor";
+            UserInfoParameters.crmgeo = "crmgeo";
+            UserInfoParameters.orgtype = "orgtype";
+            UserInfoParameters.tenantid = "tenantid";
+            UserInfoParameters.appName = "appname";
+            UserInfoParameters.appPublisherName = "apppublishername";
+            UserInfoParameters.appUniqueName = "appuniquename";
+            UserInfoParameters.appVersion = "appversion";
+            UserInfoParameters.subTenant = "subtenant";
+            return UserInfoParameters;
+        }());
+        Telemetry.UserInfoParameters = UserInfoParameters;
+        var ActivityName = (function () {
+            function ActivityName() {
+            }
+            ActivityName.init = "init";
+            ActivityName.eligibilitycheck = "eligibilitycheck";
+            ActivityName.startTimer = "startTimer";
+            ActivityName.complete = "complete";
+            ActivityName.terminate = "terminate";
+            ActivityName.eligible = "eligible";
+            ActivityName.ineligible = "ineligible";
+            ActivityName.show = "show";
+            ActivityName.error = "error";
+            ActivityName.setTimeout = "setTimeout";
+            ActivityName.activeTimerExists = "activeTimerExists";
+            ActivityName.entityNotWhitelisted = "entityNotWhitelisted";
+            ActivityName.resetTimer = "resetTimer";
+            return ActivityName;
+        }());
+        Telemetry.ActivityName = ActivityName;
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        "use strict";
+        var TelemetryReporter = (function () {
+            function TelemetryReporter() {
+                this.appInsights = window.appInsights;
+            }
+            TelemetryReporter.Instance = function () {
+                if (TelemetryReporter.instance == null) {
+                    TelemetryReporter.instance = new TelemetryReporter();
+                }
+                return TelemetryReporter.instance;
+            };
+            TelemetryReporter.prototype.ReportEvent = function (npsevent) {
+                if (TelemetryReporter.isEnabled) {
+                    var eventParamsJSON = npsevent.ToJson();
+                    var eventName = npsevent.EventName();
+                    var eventParams = eventParamsJSON.EventValues;
+                    this.appInsights.trackEvent(eventName, eventParams);
+                }
+            };
+            TelemetryReporter.prototype.ReportError = function (errorMsg, data, textStatus, errorThrown) {
+                if (!data && !data.responseText) {
+                    errorMsg += ' Response Text : ' + data.responseText;
+                }
+                if (!textStatus) {
+                    errorMsg += ' Text Status : ' + textStatus;
+                }
+                if (!errorThrown) {
+                    errorMsg += ' Error Thrown : ' + errorThrown;
+                }
+                Telemetry.NPSLogger.getChainOfLoggers().message(Telemetry.LogLevel.Error, errorMsg);
+            };
+            TelemetryReporter.isEnabled = false;
+            return TelemetryReporter;
+        }());
+        Telemetry.TelemetryReporter = TelemetryReporter;
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        'use strict';
+        var BaseLogger = (function () {
+            function BaseLogger(severity) {
+                this.logLevel = severity;
+            }
+            BaseLogger.prototype.logMessage = function (msg) {
+                console.log(msg);
+            };
+            BaseLogger.prototype.setNextLogger = function (logger) {
+                this.nextLogger = logger;
+            };
+            BaseLogger.prototype.message = function (severity, msg) {
+                if (severity & this.logLevel) {
+                    this.logMessage(msg);
+                }
+                else {
+                    this.nextLogger.message(severity, msg);
+                }
+            };
+            return BaseLogger;
+        }());
+        Telemetry.BaseLogger = BaseLogger;
+        var LogLevel;
+        (function (LogLevel) {
+            LogLevel[LogLevel["None"] = 0] = "None";
+            LogLevel[LogLevel["Info"] = 1] = "Info";
+            LogLevel[LogLevel["Debug"] = 2] = "Debug";
+            LogLevel[LogLevel["Error"] = 4] = "Error";
+            LogLevel[LogLevel["All"] = 7] = "All";
+        })(LogLevel = Telemetry.LogLevel || (Telemetry.LogLevel = {}));
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        'use strict';
+        var ConsoleLogger = (function (_super) {
+            __extends(ConsoleLogger, _super);
+            function ConsoleLogger(severity) {
+                return _super.call(this, severity) || this;
+            }
+            ConsoleLogger.prototype.logMessage = function (msg) {
+                console.log(msg);
+            };
+            return ConsoleLogger;
+        }(Telemetry.BaseLogger));
+        Telemetry.ConsoleLogger = ConsoleLogger;
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        'use strict';
+        var TelemetryLogger = (function (_super) {
+            __extends(TelemetryLogger, _super);
+            function TelemetryLogger(severity) {
+                var _this = _super.call(this, severity) || this;
+                _this.appInsights = window.appInsights;
+                return _this;
+            }
+            TelemetryLogger.prototype.logMessage = function (msg) {
+                console.error(msg);
+                var error = new Error(msg);
+                var errString = JSON.stringify(error, ["name", "message", "stack"]);
+                this.appInsights.trackEvent(Telemetry.ActivityName.error, JSON.parse(errString));
+            };
+            return TelemetryLogger;
+        }(Telemetry.BaseLogger));
+        Telemetry.TelemetryLogger = TelemetryLogger;
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));
+var _MicrosoftNPSSurvey;
+(function (_MicrosoftNPSSurvey) {
+    var Telemetry;
+    (function (Telemetry) {
+        'use strict';
+        var NPSLogger = (function () {
+            function NPSLogger() {
+                NPSLogger.errorLogger = new Telemetry.TelemetryLogger(Telemetry.LogLevel.Error);
+                NPSLogger.errorLogger.setNextLogger(new Telemetry.ConsoleLogger(Telemetry.LogLevel.All));
+            }
+            NPSLogger.getChainOfLoggers = function () {
+                if (NPSLogger.instance == null) {
+                    NPSLogger.instance = new NPSLogger();
+                }
+                return NPSLogger.errorLogger;
+            };
+            NPSLogger.instance = null;
+            return NPSLogger;
+        }());
+        Telemetry.NPSLogger = NPSLogger;
+    })(Telemetry = _MicrosoftNPSSurvey.Telemetry || (_MicrosoftNPSSurvey.Telemetry = {}));
+})(_MicrosoftNPSSurvey || (_MicrosoftNPSSurvey = {}));

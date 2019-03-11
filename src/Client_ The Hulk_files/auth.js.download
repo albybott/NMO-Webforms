@@ -1,0 +1,340 @@
+var AuthManager = (function () {
+    var constants = {
+        env: {
+            dev: "dev",
+            ppe: "ppe",
+            prod: "prod"
+        },
+        client: {
+            web: "web",
+            outlook: "outlook",
+            moca: "moca"
+        }
+    };
+
+    var configs = {};
+    configs[constants.env.dev] = {
+        clientId: "d32ecdc8-79fb-4d3a-a02c-82d4a0f937b0",
+        loginAuthority: "https://login.microsoftonline.com/"
+    };
+    configs[constants.env.ppe] = {
+        clientId: "e64aa8bc-8eb4-40e2-898b-cf261a25954f",
+        loginAuthority: "https://login.windows-ppe.net/"
+    };
+    configs[constants.env.prod] = {
+        clientId: "e64aa8bc-8eb4-40e2-898b-cf261a25954f",
+        loginAuthority: "https://login.windows.net/"
+    };
+
+    var settings = {
+        loginFailedTimeout: 5000,
+        keepCookie: false
+    };
+
+    var instances = {}
+    var emptyManager = {
+        constants: constants,
+        configs: configs,
+        getInstance: function() { return null }
+    };
+
+    function init(env, client, preAuthenticationContextCall, tenant) {
+        if (!env
+            || !constants.env[env]
+            || !client
+            || !constants.client[client]) {
+            return emptyManager;
+        }
+
+        var userLoginResolve;
+        var userLoginReject;
+
+        var iframeLoginReject;
+        var iframeLogin = new Promise(function(resolve, reject) {
+            iframeLoginResolve = resolve;
+            iframeLoginReject = reject;
+        });
+
+        var userLoginPromiseFulfilled = false;
+
+        var adalLoginCallback = function () {
+            // isFulfilled() is not supported in ES6 Promise, and is only available in BlueBird API only. 
+            // For newer browsers BlueBird uses the real ES6 promise object, and this fails.
+            // TODO: For now using userLoginPromiseFulfilled as a safe bare minimum, but this needs to be changes to ES6 Promise as Dynamics 365 stops supporting
+            // old browsers and hence we deprecate BlueBird usage.
+            if ((userLoginPromise.isFulfilled && userLoginPromise.isFulfilled()) || userLoginPromiseFulfilled) {
+                return;
+            }
+
+            window.clearTimeout(window.loginTimeoutId);
+            window.adalLoginCallback = null;
+
+            var iframe = document.getElementById("loginIframe");
+            if (iframe) {
+                iframe.parentElement.removeChild(iframe);
+            }
+
+            var cookieDate = new Date;
+            cookieDate.setFullYear(cookieDate.getFullYear() + 2);
+            document.cookie = "waitForSilentLoginCookie=true;path=/;expires=" + cookieDate.toGMTString();            
+
+            if (userLoginResolve) {
+                userLoginResolve();
+            }
+        }
+
+        var adalWaitForSilentLoginCallback = function () {
+            var waitForSilentLoginIntervalId = window.setInterval(function () {
+                if (document.cookie.indexOf("waitForSilentLoginCookie=true") < 0) {
+                    return;
+                }
+
+                window.clearTimeout(waitForSilentLoginIntervalId);
+                window.adalWaitForSilentLoginCallback = null;
+
+                window.clearTimeout(window.loginTimeoutId);
+
+                if (userLoginResolve) {
+                    userLoginResolve();
+                }
+            }, 200);
+        }
+
+        var loginFailedHandler = function(url) {
+            window.clearTimeout(window.loginTimeoutId);
+            window.adalLoginCallback = null;
+
+            // Remove the silent login iframe
+            var iframe = document.getElementById("loginIframe");
+            if (iframe) {
+                iframe.parentElement.removeChild(iframe);
+            }
+            window.adalLoginCallback = adalLoginCallback;
+
+            iframeLoginReject(url);
+
+            if (userLoginReject) {
+                userLoginReject(
+                {
+                    message: "Authentication failed, please authenticate at the provided Url",
+                    url: url
+                });
+            }
+        }
+
+        var displayCallHandler = function(url) {
+            window.adalLoginCallback = adalLoginCallback;
+            window.adalWaitForSilentLoginCallback = adalWaitForSilentLoginCallback;
+
+            var iframe = document.getElementById("loginIframe");
+            if (!iframe) {
+                iframe = document.createElement("iframe");
+                iframe.id = "loginIframe";
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
+            }
+            window.loginTimeoutId =
+                window.setTimeout(
+                    function() {
+                        loginFailedHandler(url);
+                    },
+                    settings.loginFailedTimeout);
+
+            iframe.src = url;
+        }
+
+        var redirectPage = "/authRedirect.html";
+        if (client === constants.env.outlook) {
+            redirectPage = "/authRedirectOutlook.html";
+        }
+
+        var redirectUrl =
+            window.location.protocol
+                + "//"
+                + window.location.host
+                + "/Auth/v2/"
+                + redirectPage;
+
+        var config = {
+            clientId: configs[env].clientId,
+            instance: configs[env].loginAuthority,
+            redirectUri: redirectUrl,
+            displayCall: displayCallHandler,
+            tenant: tenant
+        };
+
+        var context = new AuthenticationContext(config);
+
+        if (preAuthenticationContextCall) {
+            preAuthenticationContextCall(context);
+        }
+
+        var userLoginPromise = new Promise(function (resolve, reject) {
+            var cachedUser = context.getCachedUser();
+            // Verify the user is logged into the correct tenant
+            if (cachedUser && (!tenant || (cachedUser.profile && cachedUser.profile.tid === tenant))) {
+                resolve(true);
+                userLoginPromiseFulfilled = true;
+            } else {
+                userLoginResolve = resolve;
+                userLoginReject = reject;
+                // set cookie to default state
+                var cookieDate = new Date;
+                cookieDate.setFullYear(cookieDate.getFullYear() + 2);
+                document.cookie = "waitForSilentLoginCookie=false;path=/;expires=" + cookieDate.toGMTString();                
+                context.login();
+            }
+        });
+
+        var getTokenForResource = function (resource, promptLoginOnGenericError) {
+            var userLoginPromiseLocal = userLoginPromise;
+
+            return new Promise(function(resolve, reject) {
+                userLoginPromiseLocal.then(function () {
+                    context.getCachedUser();
+                    window.adalLoginCallback = adalLoginCallback;
+
+                    if (preAuthenticationContextCall) {
+                        preAuthenticationContextCall(context);
+                    }
+
+                    context.acquireToken(
+                        resource,
+                        function(error, accessToken) {
+                            if (error && (error === 'User login is required' || error.indexOf('AADSTS50058') === 0)) {
+                                // AADSTS50058: User account identifier is not provided, which happens when the session is left inactive for a couple days.
+                                // AADSTS50058: A silent sign-in request was sent but no user is signed in. The cookies used to represent the user's session were not sent in the request to Azure AD. This can happen if the user is using Internet Explorer or Edge, and the web app sending the silent sign-in request is in different IE security zone than the Azure AD endpoint (login.microsoftonline.com).
+
+                                context.login();
+                                reject(error);
+                            }
+                            else if (error && error.indexOf('AADSTS50001') === 0) {
+                                // AADSTS50001: This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You might have sent your authentication request to the wrong tenant.
+                                // This is a third party App issue, and not aplicable to first party app
+
+                                // This clears the state, and later prompts the user to re-auth to the consent changes
+                                context.login();
+                                reject(error);
+                            }
+                            else if ((typeof error === 'string' && error.indexOf('AADSTS65001') === 0)
+                                || (error && promptLoginOnGenericError)) { // interaction required
+                                if (promptLoginOnGenericError) {
+                                    context.login();
+                                }
+                                var urlNavigate = getNavigateUrl();
+                                reject({
+                                    error: error,
+                                    url: urlNavigate
+                                });
+                            }
+                            else if (error) {
+                                reject(error);
+                            } else if (accessToken) {
+                                resolve(accessToken);
+                            }
+                        });
+                }, 
+                function (error) {
+                    if (promptLoginOnGenericError) {
+                        context.login();
+                        var urlNavigate = getNavigateUrl();
+                        reject({
+                            error: error,
+                            url: urlNavigate
+                        });
+                    } else {
+                        reject(error);
+                    }
+                });
+
+                function getNavigateUrl() {
+                    var urlNavigate = context._getNavigateUrl('token', resource);
+                    if (context._user) {
+                        urlNavigate += '&login_hint=' + encodeURIComponent(context._user.userName);
+                    }
+                    return urlNavigate;
+                }
+            });
+        }
+
+        return {
+            getTokenForResource: getTokenForResource,
+            iframeLogin: iframeLogin,
+            authenticationContext: context,
+            clientType: client
+        }
+    }
+
+    function initMoca(componentId) {
+        // User login is handled by shim in MoCA
+        // So this is expected to already be completed by the time authManager is loaded
+        var iframeLogin = new Promise(function (resolve, reject) {
+            resolve();
+        });
+
+        var token;
+        function getTokenForResource(resource) {
+            return new Promise(function (resolve, reject) {
+                if (token) {
+                    resolve(token);
+                    return;
+                }
+
+                var cookieIndex = document.cookie.indexOf(componentId + "=");
+                if (cookieIndex < 0) {
+                    reject("Token not found in cookie");
+                    return;
+                }
+
+                var cookieEndIndex = document.cookie.indexOf(";", cookieIndex);
+                cookieEndIndex = cookieEndIndex === -1 ? document.cookie.length : cookieEndIndex;
+                token = document.cookie.substr(cookieIndex + componentId.length + 1, cookieEndIndex - cookieIndex - componentId.length - 1);
+
+                if (!settings.keepCookie) {
+                    document.cookie = componentId + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+                }
+
+                resolve(token);
+            });
+        }
+
+        return {
+            getTokenForResource: getTokenForResource,
+            iframeLogin: iframeLogin,
+            clientType: constants.env.moca
+        };
+    }
+
+    return {
+        constants: constants,
+        configs: configs,
+        settings: settings,
+        getInstance: function (env, client, componentId, preAuthenticationContextCall, tenant) {
+            if (!env || !client) {
+                return emptyManager;
+            }
+
+            if (client === AuthManager.constants.client.moca) {
+                if (!componentId) {
+                    return emptyManager;
+                }
+
+                if (!instances[env + client + componentId]) {
+                    instances[env + client + componentId] = initMoca(componentId);
+                }
+
+                return instances[env + client + componentId];
+            }
+
+            var instanceKey = env + client + tenant;
+            if (!instances[instanceKey]) {
+                instances[instanceKey] = init(env, client, preAuthenticationContextCall, tenant);
+            }
+
+            return instances[instanceKey];
+        },
+        clearInstances: function() {
+            instances = {};
+        }
+    }
+})();

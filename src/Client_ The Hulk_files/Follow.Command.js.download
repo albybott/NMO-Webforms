@@ -1,0 +1,617 @@
+Type.registerNamespace('Sales.Common.Framework');
+
+function __Type() {
+}
+__Type.hasField = function __Type$hasField(instance, name) {
+    return !IsNull(instance[name]);
+}
+__Type.hasMethod = function __Type$hasMethod(instance, name) {
+    return typeof(instance[name]) === 'function';
+}
+__Type.hasProperty = function __Type$hasProperty(instance, name) {
+    return !IsNull(instance['get_' + name]());
+}
+
+
+Type.registerNamespace('Follow');
+
+Follow.FollowEnableYammerCheck = function Follow_FollowEnableYammerCheck() {
+}
+Follow.FollowEnableYammerCheck.shouldEnableFollow = function Follow_FollowEnableYammerCheck$shouldEnableFollow(primaryEntityCode, selectedEntityCode) {
+    try {
+        if (Xrm.Internal.isUci() && Xrm.Utility.getGlobalContext().client.getClientState() === 'Offline') {
+            return false;
+        }
+        if (Xrm.Page.context.client.getClient() !== 'Mobile') {
+            if (!window.YAMMER_IS_INSTALLED || !window.YAMMER_IS_CONFIGURED_FOR_ORG) {
+                return true;
+            }
+            if (Mscrm.CrmBrowser.get_currentBrowser().get_isMobileSafari()) {
+                return false;
+            }
+        }
+        else {
+            if (!Follow.FollowEnableYammerCheck.$N() || !Follow.FollowEnableYammerCheck.$M(Xrm.Page.context.getOrgUniqueName())) {
+                return true;
+            }
+        }
+        if (selectedEntityCode !== 8 && !primaryEntityCode) {
+            return true;
+        }
+        if (!selectedEntityCode && primaryEntityCode !== 8) {
+            return true;
+        }
+        if (Xrm.Page.context.client.getClient() !== 'Mobile') {
+            if (!window.YAMMER_IS_CONFIGURED_FOR_USER) {
+                return false;
+            }
+        }
+        else {
+            return Follow.FollowEnableYammerCheck.$B(Xrm.Page.context.getUserId());
+        }
+        if (primaryEntityCode === 8) {
+            if (Xrm.Page.context.client.getClient() !== 'Mobile') {
+                return window.YAMMER_IS_CONFIGURED_FOR_TARGET_USER;
+            }
+            else {
+                return Follow.FollowEnableYammerCheck.$B(Xrm.Page.data.entity.getId());
+            }
+        }
+        return true;
+    }
+    catch ($v_0) {
+        console.log('Exception occurred in ShouldEnableFollow: {0}', $v_0.toString());
+        return false;
+    }
+}
+Follow.FollowEnableYammerCheck.$B = function Follow_FollowEnableYammerCheck$$B($p0) {
+    return Follow.FollowEnableYammerCheck.$8($p0, 3);
+}
+Follow.FollowEnableYammerCheck.$M = function Follow_FollowEnableYammerCheck$$M($p0) {
+    return Follow.FollowEnableYammerCheck.$8($p0, 1);
+}
+Follow.FollowEnableYammerCheck.$N = function Follow_FollowEnableYammerCheck$$N() {
+    return Follow.FollowEnableYammerCheck.$8('ActivityFeedsCore', 2);
+}
+Follow.FollowEnableYammerCheck.$8 = function Follow_FollowEnableYammerCheck$$8($p0, $p1) {
+    var $v_0 = ActivityFeeds.Services.FollowServiceFactory.getFollowService();
+    var $v_1 = '';
+    var $v_2 = '';
+    switch ($p1) {
+        case 1:
+            $v_1 = 'YammerNetworkPermalink';
+            $v_2 = '{0}/XRMServices/2011/OrganizationData.svc/OrganizationSet?$select=YammerNetworkPermalink&$filter=(YammerNetworkPermalink ne null and Name eq \'{1}\')';
+            break;
+        case 2:
+            $v_1 = 'SolutionId';
+            $v_2 = '{0}/XRMServices/2011/OrganizationData.svc/SolutionSet?$select=SolutionId&$filter=(UniqueName eq \'{1}\')';
+            break;
+        case 3:
+            $v_1 = 'YammerEmailAddress';
+            $v_2 = '{0}/XRMServices/2011/OrganizationData.svc/SystemUserSet(guid\'{1}\')?$select=YammerEmailAddress&$filter=(YammerEmailAddress ne null)';
+            break;
+        default:
+            return false;
+    }
+    if (!(($p0) in Follow.FollowEnableYammerCheck.$4)) {
+        Follow.FollowEnableYammerCheck.$4[$p0] = new ActivityFeeds.Services.FollowEnabledState();
+        (Follow.FollowEnableYammerCheck.$4[$p0]).inProgress = true;
+        Follow.FollowEnableYammerCheck.$L($p0, $v_2, function($p1_0) {
+            var $v_3 = new ActivityFeeds.Services.FollowEnabledState();
+            $v_3.enableUnFollow = $p1_0.indexOf($v_1) > 0;
+            $v_3.enableFollow = $v_3.enableUnFollow;
+            Follow.FollowEnableYammerCheck.$4[$p0] = $v_3;
+        });
+    }
+    else {
+        if ((Follow.FollowEnableYammerCheck.$4[$p0]).inProgress) {
+            return false;
+        }
+        return (Follow.FollowEnableYammerCheck.$4[$p0]).enableFollow;
+    }
+    return false;
+}
+Follow.FollowEnableYammerCheck.$L = function Follow_FollowEnableYammerCheck$$L($p0, $p1, $p2) {
+    var $v_0 = Xrm.Page.context.getClientUrl();
+    var $v_1 = String.format($p1, $v_0, encodeURI(String.format('{0}', $p0)));
+    var $v_2 = new XMLHttpRequest();
+    $v_2.open('GET', $v_1, true);
+    $v_2.setRequestHeader('Accept', 'application/json');
+    $v_2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    $v_2.onreadystatechange = function() {
+        if ($v_2.readyState !== 4) {
+            return;
+        }
+        $p2($v_2.responseText);
+        $v_2.onreadystatechange = null;
+    };
+    $v_2.send(null);
+}
+
+
+Follow.FollowCommands = function Follow_FollowCommands(dialogArguments, gridControl) {
+    this.$$d_$I_0 = Function.createDelegate(this, this.$I_0);
+    this.$2_0 = dialogArguments;
+    this.$3_0 = gridControl;
+    this.$6_0 = Xrm.Page.context;
+}
+Follow.FollowCommands.dummy = function Follow_FollowCommands$dummy() {
+    return true;
+}
+Follow.FollowCommands.followFromGrid = function Follow_FollowCommands$followFromGrid(gridControl, selectedRecords, entityTypeCode) {
+    Follow.FollowCommands.$1 = null;
+    var $v_0 = {};
+    $v_0['selectedRecords'] = selectedRecords;
+    $v_0['entityTypeCode'] = entityTypeCode;
+    $v_0['action'] = 'follow';
+    Follow.FollowCommands.$1 = new Follow.FollowCommands($v_0, gridControl);
+    Follow.FollowCommands.$1.execute();
+    Follow.FollowCommands.$1 = null;
+}
+Follow.FollowCommands.unfollowFromGrid = function Follow_FollowCommands$unfollowFromGrid(gridControl, selectedRecords, entityTypeCode) {
+    Follow.FollowCommands.$1 = null;
+    var $v_0 = {};
+    $v_0['selectedRecords'] = selectedRecords;
+    $v_0['entityTypeCode'] = entityTypeCode;
+    $v_0['action'] = 'unfollow';
+    Follow.FollowCommands.$1 = new Follow.FollowCommands($v_0, gridControl);
+    Follow.FollowCommands.$1.execute();
+    Follow.FollowCommands.$1 = null;
+}
+Follow.FollowCommands.followFromForm = function Follow_FollowCommands$followFromForm(selectedRecordId, entityLogicalName, entityTypeCode) {
+    Follow.FollowCommands.$1 = null;
+    var $v_0 = {};
+    $v_0['selectedRecords'] = Follow.FollowCommands.$E(selectedRecordId, entityLogicalName);
+    $v_0['entityTypeCode'] = entityTypeCode;
+    $v_0['action'] = 'follow';
+    $v_0['formAction'] = true;
+    $v_0['window'] = window.self;
+    Follow.FollowCommands.$1 = new Follow.FollowCommands($v_0, null);
+    Follow.FollowCommands.$1.execute();
+    Follow.FollowCommands.$1 = null;
+}
+Follow.FollowCommands.unfollowFromForm = function Follow_FollowCommands$unfollowFromForm(selectedRecordId, entityLogicalName, entityTypeCode) {
+    Follow.FollowCommands.$1 = null;
+    var $v_0 = {};
+    $v_0['selectedRecords'] = Follow.FollowCommands.$E(selectedRecordId, entityLogicalName);
+    $v_0['entityTypeCode'] = entityTypeCode;
+    $v_0['action'] = 'unfollow';
+    $v_0['formAction'] = true;
+    $v_0['window'] = window.self;
+    Follow.FollowCommands.$1 = new Follow.FollowCommands($v_0, null);
+    Follow.FollowCommands.$1.execute();
+    Follow.FollowCommands.$1 = null;
+}
+Follow.FollowCommands.$E = function Follow_FollowCommands$$E($p0, $p1) {
+    var $v_0 = new Array(1);
+    $v_0[0] = {};
+    $v_0[0].Id = $p0;
+    $v_0[0].TypeName = $p1;
+    return $v_0;
+}
+Follow.FollowCommands.$D = function Follow_FollowCommands$$D($p0) {
+    if (!Follow.FollowCommands.isNullOrUndefined($p0) && Xrm.Page.context.client.getClient() === 'Mobile') {
+        ($p0).refresh();
+    }
+}
+Follow.FollowCommands.$9 = function Follow_FollowCommands$$9($p0) {
+    var $v_0 = Xrm.Page.context.getClientUrl();
+    var $v_1 = new RegExp('\"code\":\\s\"(-?\\d+)\"', 'im');
+    var $v_2 = $p0.match($v_1);
+    if ($v_2 && $v_2.length >= 2) {
+        var $v_3 = parseInt($v_2[1]);
+        if ($v_3 === -2147220937 || $v_3 === -2147220969) {
+            return;
+        }
+        if (Xrm.Internal.isUci()) {
+            var $v_4 = {};
+            $v_4.errorCode = $v_3;
+            $v_4.message = '';
+            $v_4.details = '';
+            Xrm.Navigation.openErrorDialog($v_4);
+        }
+        else {
+            Xrm.Internal.openErrorDialog($v_3, '', '');
+        }
+    }
+}
+Follow.FollowCommands.isNullOrUndefined = function Follow_FollowCommands$isNullOrUndefined(obj) {
+    return !obj || typeof(obj) === 'undefined';
+}
+Follow.FollowCommands.$K = function Follow_FollowCommands$$K() {
+    var $v_0 = window._installedLocales;
+    if (!$v_0 || $v_0 === 'undefined') {
+        return [ 1033 ];
+    }
+    return $v_0;
+}
+Follow.FollowCommands.getFallbackLcid = function Follow_FollowCommands$getFallbackLcid(userLcid, orgLcid) {
+    var $v_0 = Follow.FollowCommands.$K();
+    for (var $v_1 = 0; $v_1 < $v_0.length; $v_1++) {
+        if ($v_0[$v_1] === userLcid) {
+            return userLcid;
+        }
+    }
+    for (var $v_2 = 0; $v_2 < $v_0.length; $v_2++) {
+        if ($v_0[$v_2] === orgLcid) {
+            return orgLcid;
+        }
+    }
+    return 1033;
+}
+Follow.FollowCommands.$C = function Follow_FollowCommands$$C($p0, $p1, $p2) {
+    var $v_0 = ActivityFeeds.Services.FollowServiceFactory.getFollowService();
+    if (IsNull($v_0)) {
+        Xrm.Internal.trace.warning('ActivityFeeds.FollowEnabled', 'Can\'t refresh follow/unfollow in ribbon - IActivityFeedService is unavailable');
+        return;
+    }
+    $v_0.refreshFormFollowEnabled($p0, $p2);
+}
+Follow.FollowCommands.prototype = {
+    $2_0: null,
+    $3_0: null,
+    $6_0: null,
+    
+    $A_0: function Follow_FollowCommands$$A_0($p0, $p1) {
+        var $v_0 = $p0.Id;
+        var $v_1 = $p0.TypeName;
+        if (Follow.FollowCommands.isNullOrUndefined($v_1)) {
+            $v_1 = Xrm.Internal.getEntityName($p0.TypeCode);
+        }
+        switch ($p1) {
+            case 'follow':
+                this.$H_0($v_0, $v_1);
+                break;
+            case 'unfollow':
+                this.$J_0($v_0, $v_1);
+                break;
+        }
+    },
+    
+    execute: function Follow_FollowCommands$execute() {
+        if (!this.$2_0 || !this.$2_0['action']) {
+            return;
+        }
+        var $v_0 = this.$2_0['selectedRecords'];
+        var $v_1 = !Follow.FollowCommands.isNullOrUndefined(this.$2_0['formAction']) && this.$2_0['formAction'];
+        var $v_2 = this.$2_0['action'];
+        if ($v_0.length === 1 && $v_1) {
+            this.$A_0($v_0[0], $v_2);
+        }
+        else if ($v_0.length === 1 && !$v_1 && Xrm.Internal.isUci()) {
+            var $v_3 = {};
+            if ($v_2 === 'follow') {
+                $v_3.title = ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowTitleBold;
+                $v_3.text = ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowMessageSingular;
+            }
+            else if ($v_2 === 'unfollow') {
+                $v_3.title = ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowTitleBold;
+                $v_3.text = ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowMessageSingular;
+            }
+            var $$t_A = this;
+            Xrm.Navigation.openConfirmDialog($v_3, null).then(function($p1_0) {
+                if ($p1_0.confirmed) {
+                    $v_2 = $$t_A.$2_0['action'];
+                    $v_0 = $$t_A.$2_0['selectedRecords'];
+                    $$t_A.$A_0($v_0[0], $v_2);
+                }
+            }, null);
+        }
+        else {
+            var $v_4 = Follow.FollowCommands.getFallbackLcid(this.$6_0.getUserLcid(), this.$6_0.getOrgLcid());
+            var $v_5 = String.format('FollowDialog.{0}.htm', $v_4);
+            var $v_6 = String.format('{0}/WebResources/msdyn_/{1}', this.$6_0.getClientUrl(), $v_5);
+            var $v_7 = new Xrm.DialogOptions();
+            $v_7.width = 450;
+            $v_7.height = 300;
+            var $v_8 = this.$$d_$I_0;
+            Xrm.Internal.openDialog($v_6, $v_7, this.$2_0, null, $v_8);
+        }
+    },
+    
+    $I_0: function Follow_FollowCommands$$I_0($p0) {
+        if ($p0 && $p0 === -1) {
+            return;
+        }
+        if (this.$3_0) {
+            this.$3_0.refresh();
+        }
+    },
+    
+    $H_0: function Follow_FollowCommands$$H_0($p0, $p1) {
+        var $v_0 = Xrm.Page.context.getClientUrl();
+        var $v_1 = String.format('\'Id\': \'{0}\', \'LogicalName\': \'{1}\'', $p0, $p1);
+        var $v_2 = '{\'RegardingObjectId\': {' + $v_1 + '}}';
+        var $v_3 = String.format('{0}/xrmservices/2011/OrganizationData.svc/PostFollowSet', $v_0);
+        var $v_4 = new XMLHttpRequest();
+        $v_4.open('POST', $v_3, true);
+        $v_4.setRequestHeader('Accept', 'application/json');
+        $v_4.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        var $$t_8 = this;
+        $v_4.onreadystatechange = function() {
+            if ($v_4.readyState !== 4) {
+                return;
+            }
+            var $v_5 = $v_4.responseText;
+            if ($v_5.indexOf('\"error\"') > 0) {
+                Follow.FollowCommands.$9($v_5);
+            }
+            else {
+                Follow.FollowCommands.$C($p0, $p1, true);
+                Follow.FollowCommands.$D($$t_8.$3_0);
+                $$t_8.refreshRibbonForUCI('follow');
+            }
+        };
+        $v_4.send($v_2);
+    },
+    
+    $J_0: function Follow_FollowCommands$$J_0($p0, $p1) {
+        var $v_0 = Xrm.Page.context.getClientUrl();
+        var $v_1 = String.format('{0}/xrmservices/2011/OrganizationData.svc/PostFollowSet?$select=PostFollowId&$filter=RegardingObjectId/Id eq guid\'{1}\' and OwnerId/Id eq guid\'{2}\'', $v_0, $p0, Xrm.Page.context.getUserId());
+        var $v_2 = new XMLHttpRequest();
+        $v_2.open('GET', $v_1, true);
+        $v_2.setRequestHeader('Accept', 'application/json');
+        $v_2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        var $$t_8 = this;
+        $v_2.onreadystatechange = function() {
+            if ($v_2.readyState !== 4) {
+                return;
+            }
+            var $v_3 = new RegExp('\"PostFollowId\":\\s\"(-?.*)\"', 'im');
+            var $v_4 = $v_2.responseText.match($v_3);
+            if ($v_4 && $v_4.length >= 2) {
+                var $v_5 = $v_4[1];
+                $$t_8.$R_0($v_5, $p0, $p1);
+            }
+        };
+        $v_2.send(null);
+    },
+    
+    $R_0: function Follow_FollowCommands$$R_0($p0, $p1, $p2) {
+        var $v_0 = Xrm.Page.context.getClientUrl();
+        var $v_1 = String.format('{0}/xrmservices/2011/OrganizationData.svc/PostFollowSet(guid\'{1}\')', $v_0, $p0);
+        var $v_2 = new XMLHttpRequest();
+        $v_2.open('POST', $v_1, true);
+        $v_2.setRequestHeader('Accept', 'application/json');
+        $v_2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        $v_2.setRequestHeader('X-HTTP-Method', 'DELETE');
+        var $$t_7 = this;
+        $v_2.onreadystatechange = function() {
+            if ($v_2.readyState !== 4) {
+                return;
+            }
+            var $v_3 = $v_2.responseText;
+            if ($v_3.indexOf('\"error\"') > 0) {
+                Follow.FollowCommands.$9($v_3);
+            }
+            else {
+                Follow.FollowCommands.$C($p1, $p2, false);
+                Follow.FollowCommands.$D($$t_7.$3_0);
+                $$t_7.refreshRibbonForUCI('unfollow');
+            }
+        };
+        $v_2.send(null);
+    },
+    
+    refreshRibbonForUCI: function Follow_FollowCommands$refreshRibbonForUCI(actionType) {
+        if (Xrm.Internal.isUci()) {
+            if (IsNull(this.$3_0)) {
+                Xrm.Page.ui.refreshRibbon();
+            }
+        }
+    }
+}
+
+
+Follow.FollowEnabled = function Follow_FollowEnabled() {
+}
+Follow.FollowEnabled.preCreateRows = function Follow_FollowEnabled$preCreateRows(gridControl) {
+    if (Follow.FollowEnabled.$7) {
+        Follow.FollowEnabled.retrieveAllActivityFeedEnabledEntities(gridControl);
+        Follow.FollowEnabled.$7 = false;
+    }
+    return true;
+}
+Follow.FollowEnabled.dummy = function Follow_FollowEnabled$dummy() {
+    return true;
+}
+Follow.FollowEnabled.$Q = function Follow_FollowEnabled$$Q() {
+    var $v_0 = !Follow.FollowEnabled.$5 && !IsNull(ActivityFeeds.Resources);
+    return $v_0;
+}
+Follow.FollowEnabled.loadResources = function Follow_FollowEnabled$loadResources() {
+    if (!Follow.FollowEnabled.$Q()) {
+        var $v_0 = Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage();
+        var $v_1 = $v_0.getClientUrl();
+        loadLocalizedContent($v_1 + '/WebResources/msdyn_/ActivityFeeds.Resources.js', $v_0, function($p1_0) {
+            eval($p1_0);
+            Follow.FollowEnabled.$5 = false;
+        });
+    }
+    return true;
+}
+Follow.FollowEnabled.$O = function Follow_FollowEnabled$$O() {
+    if (IsNull(ActivityFeeds.Resources) && !Follow.FollowEnabled.$5) {
+        Follow.FollowEnabled.$5 = true;
+        var $v_0 = Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage();
+        var $v_1 = $v_0.getClientUrl();
+        var $v_2 = Follow.FollowCommands.getFallbackLcid($v_0.getUserLcid(), $v_0.getOrgLcid());
+        var $v_3 = $v_1 + '/WebResources/msdyn_/ActivityFeeds.Resources.js';
+        var $v_4 = getLocalizedFileName($v_3, $v_0.getUserLcid(), $v_0.getOrgLcid());
+        var $v_5 = new XMLHttpRequest();
+        $v_5.open('GET', $v_4, true);
+        $v_5.setRequestHeader('Accept', 'application/json');
+        $v_5.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        $v_5.onreadystatechange = function() {
+            if ($v_5.readyState !== 4) {
+                return;
+            }
+            var $v_6 = $v_5.responseText;
+            eval($v_6);
+            Follow.FollowEnabled.$5 = false;
+        };
+        $v_5.send(null);
+    }
+}
+Follow.FollowEnabled.isMultiRecordFollowAllowed = function Follow_FollowEnabled$isMultiRecordFollowAllowed(gridControl, records) {
+    try {
+        var $v_0 = false;
+        if (Xrm.Internal.isUci()) {
+            if (Xrm.Utility.getGlobalContext().client.getClientState() === 'Offline') {
+                return false;
+            }
+            if (records.length === 1) {
+                Follow.FollowEnabled.$O();
+                $v_0 = true;
+            }
+        }
+        else {
+            $v_0 = true;
+        }
+        return $v_0;
+    }
+    catch ($v_1) {
+        console.log('Exception occurred in IsMultiRecordFollowAllowed: {0}', $v_1.toString());
+        return false;
+    }
+}
+Follow.FollowEnabled.activateDeactivateOverride = function Follow_FollowEnabled$activateDeactivateOverride(gridControl, records, otc, activate) {
+    if (activate) {
+        Mscrm.GridRibbonActions.activate(gridControl, records, otc, function() {
+            if (records.length === 1) {
+                alert(ActivityFeeds.Resources.ActivityFeedsUI.postConfigurationPublishChangesNotificationGrid);
+            }
+            else {
+                alert(ActivityFeeds.Resources.ActivityFeedsUI.postConfigurationPublishChangesNotificationGridPlural);
+            }
+        });
+    }
+    else {
+        Mscrm.GridRibbonActions.deactivate(gridControl, records, otc, -1, function() {
+            if (records.length === 1) {
+                alert(ActivityFeeds.Resources.ActivityFeedsUI.postConfigurationPublishChangesNotificationGrid);
+            }
+            else {
+                alert(ActivityFeeds.Resources.ActivityFeedsUI.postConfigurationPublishChangesNotificationGridPlural);
+            }
+        });
+    }
+}
+Follow.FollowEnabled.retrieveAllActivityFeedEnabledEntities = function Follow_FollowEnabled$retrieveAllActivityFeedEnabledEntities(gridControl) {
+    var $v_0 = Xrm.Page.context.getClientUrl();
+    var $v_1 = String.format('{0}/xrmservices/2011/OrganizationData.svc/msdyn_PostRuleConfigSet?$select=msdyn_name&$filter=msdyn_name eq \'{1}\'', $v_0, CrmEncodeDecode.CrmUrlEncode('5EF5871D-FE40-4EB9-9952-39B0AC611895'));
+    var $v_2 = new XMLHttpRequest();
+    $v_2.open('GET', $v_1, true);
+    $v_2.setRequestHeader('Accept', 'application/json');
+    $v_2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    $v_2.onreadystatechange = function() {
+        if ($v_2.readyState !== 4) {
+            return;
+        }
+        var $v_3 = $v_2.responseText;
+        if ($v_3.indexOf('\"error\"') === -1) {
+            if (__Type.hasMethod(gridControl, 'refresh')) {
+                gridControl.refresh();
+            }
+        }
+        $v_2.onreadystatechange = null;
+    };
+    $v_2.send(null);
+    if (__Type.hasMethod(gridControl, 'ShowLoadingMessage')) {
+        gridControl.ShowLoadingMessage();
+    }
+}
+Follow.FollowEnabled.isEntityWallEnabled = function Follow_FollowEnabled$isEntityWallEnabled(selectedControl, logicalName, followButton) {
+    try {
+        if (Xrm.Internal.isUci() && Xrm.Utility.getGlobalContext().client.getClientState() === 'Offline') {
+            return false;
+        }
+        if (IsNull(selectedControl)) {
+            return false;
+        }
+        var $v_0 = null;
+        var $v_1 = null;
+        $v_1 = new Promise(function(_resolve, reject) { $v_0 = _resolve; });
+        if (Follow.FollowEnabled.$0[logicalName] === undefined) {
+            Follow.FollowEnabled.$0[logicalName] = new ActivityFeeds.Services.FollowEnabledState();
+            (Follow.FollowEnabled.$0[logicalName]).promise = $v_1;
+            (Follow.FollowEnabled.$0[logicalName]).inProgress = true;
+            ActivityFeeds.Services.FollowService.getGridEnabledFollow(logicalName, function($p1_0) {
+                Follow.FollowEnabled.$0[logicalName] = $p1_0;
+                (Follow.FollowEnabled.$0[logicalName]).promise = null;
+                (Follow.FollowEnabled.$0[logicalName]).inProgress = false;
+                try {
+                    if (Xrm.Internal.isUci()) {
+                        $v_0((followButton) ? (Follow.FollowEnabled.$0[logicalName]).enableFollow : (Follow.FollowEnabled.$0[logicalName]).enableUnFollow);
+                    }
+                    else {
+                        window.refreshRibbon();
+                    }
+                }
+                catch ($v_2) {
+                    if (Xrm.Internal.isUci()) {
+                        $v_0(false);
+                    }
+                    console.log('Exception occurred in RefreshRibbon {0}', $v_2.toString());
+                }
+            });
+        }
+        else {
+            if (Xrm.Internal.isUci()) {
+                if ((Follow.FollowEnabled.$0[logicalName]).promise) {
+                    return (Follow.FollowEnabled.$0[logicalName]).promise.then(function() { return (followButton) ? (Follow.FollowEnabled.$0[logicalName]).enableFollow : (Follow.FollowEnabled.$0[logicalName]).enableUnFollow; });
+                }
+                $v_0((followButton) ? (Follow.FollowEnabled.$0[logicalName]).enableFollow : (Follow.FollowEnabled.$0[logicalName]).enableUnFollow);
+            }
+            else {
+                if ((Follow.FollowEnabled.$0[logicalName]).inProgress) {
+                    return false;
+                }
+                return (followButton) ? (Follow.FollowEnabled.$0[logicalName]).enableFollow : (Follow.FollowEnabled.$0[logicalName]).enableUnFollow;
+            }
+        }
+        if (Xrm.Internal.isUci()) {
+            return $v_1;
+        }
+        else {
+            return false;
+        }
+    }
+    catch ($v_3) {
+        console.log('Exception occurred in IsEntityWallEnabled: {0}', $v_3.toString());
+        return false;
+    }
+}
+Follow.FollowEnabled.isFollowButtonEnabled = function Follow_FollowEnabled$isFollowButtonEnabled(entityId, logicalName, followButton) {
+    try {
+        if (Xrm.Internal.isUci() && Xrm.Utility.getGlobalContext().client.getClientState() === 'Offline') {
+            return false;
+        }
+        var $v_0 = ActivityFeeds.Services.FollowServiceFactory.getFollowService();
+        return $v_0.isFollowButtonEnabled(entityId, logicalName, followButton);
+    }
+    catch ($v_1) {
+        console.log('Exception occurred in IsFollowButtonEnabled: {0}', $v_1.toString());
+        return false;
+    }
+}
+
+
+Follow.YammerHelper = function Follow_YammerHelper() {
+}
+Follow.YammerHelper.get_isYammerConfiguredForOrganization = function Follow_YammerHelper$get_isYammerConfiguredForOrganization() {
+    return window.YAMMER_IS_CONFIGURED_FOR_ORG;
+}
+
+
+__Type.registerClass('__Type');
+Follow.FollowEnableYammerCheck.registerClass('Follow.FollowEnableYammerCheck');
+Follow.FollowCommands.registerClass('Follow.FollowCommands');
+Follow.FollowEnabled.registerClass('Follow.FollowEnabled');
+Follow.YammerHelper.registerClass('Follow.YammerHelper');
+Follow.FollowEnableYammerCheck.$4 = {};
+Follow.FollowCommands.$1 = null;
+Follow.FollowEnabled.$0 = {};
+Follow.FollowEnabled.$5 = false;
+Follow.FollowEnabled.$7 = true;
+//@ sourceMappingURL=file:///d:/dbs/sh/dccm2/0227_160625/cmd/14/Target/retail/amd64/.srcmap

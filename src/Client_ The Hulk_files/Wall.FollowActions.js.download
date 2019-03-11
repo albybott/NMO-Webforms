@@ -1,0 +1,465 @@
+Type.registerNamespace('Wall.FollowActions');
+
+Wall.FollowActions.Constants = function Wall_FollowActions_Constants() {
+}
+
+
+Wall.FollowActions.FollowResponse = function Wall_FollowActions_FollowResponse() {
+}
+Wall.FollowActions.FollowResponse.prototype = {
+    $A_0: null,
+    $F_0: null,
+    
+    get_regardingObject: function Wall_FollowActions_FollowResponse$get_regardingObject() {
+        return this.$F_0;
+    },
+    
+    set_regardingObject: function Wall_FollowActions_FollowResponse$set_regardingObject(value) {
+        this.$F_0 = value;
+        return value;
+    },
+    
+    get_isSucceeded: function Wall_FollowActions_FollowResponse$get_isSucceeded() {
+        return _String.isNullOrEmpty(this.$A_0);
+    },
+    
+    get_errorMessage: function Wall_FollowActions_FollowResponse$get_errorMessage() {
+        return this.$A_0;
+    },
+    
+    set_errorMessage: function Wall_FollowActions_FollowResponse$set_errorMessage(value) {
+        this.$A_0 = value;
+        return value;
+    }
+}
+
+
+Wall.FollowActions.FollowService = function Wall_FollowActions_FollowService(GlobalContext, action, selectedRecords, isFormAction, windowInstance) {
+    this.$G_0 = GlobalContext;
+    this.$5_0 = new CrmSoapServiceProxy.CrmSoapService(GlobalContext);
+    this.action = action;
+    this.$0_0 = selectedRecords;
+    this.$H_0 = isFormAction;
+    this.state = 'prompt';
+    this.$9_0 = windowInstance;
+    this.setEnableButtonStatus(true, true);
+}
+Wall.FollowActions.FollowService.get_theService = function Wall_FollowActions_FollowService$get_theService() {
+    return Wall.FollowActions.FollowService.$1;
+}
+Wall.FollowActions.FollowService.onLoadDialog = function Wall_FollowActions_FollowService$onLoadDialog() {
+    var $v_0 = getDialogArguments();
+    var $v_1 = Wall.FollowActions.FollowService.$M($v_0['selectedRecords']);
+    var $v_2 = $v_0['action'];
+    var $v_3 = $v_0['formAction'];
+    var $v_4 = $v_0['window'];
+    if (!IsNull($v_1) && $v_1.length > 0) {
+        if ($v_2 === 'follow') {
+            var $v_5 = (window.YAMMER_IS_CONFIGURED_FOR_USER) ? ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowYammerMessageSingular : ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowMessageSingular;
+            var $v_6 = (window.YAMMER_IS_CONFIGURED_FOR_USER) ? ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowYammerMessagePlural : ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowMessagePlural;
+            document.title = ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowWindowTitle;
+            Wall.FollowActions.FollowService.$D(ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowTitleBold, String.format(($v_1.length === 1) ? ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowTitleSingular : ActivityFeeds.Resources.ActivityFeedsUI.confirmFollowTitlePlural, $v_1.length), ($v_1.length === 1) ? $v_5 : $v_6);
+        }
+        else {
+            document.title = ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowWindowTitle;
+            var $v_7 = (window.YAMMER_IS_CONFIGURED_FOR_USER) ? (($v_1.length === 1) ? ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowYammerMessageSingular : ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowYammerMessagePlural) : (($v_1.length === 1) ? ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowMessageSingular : ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowMessagePlural);
+            Wall.FollowActions.FollowService.$D(ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowTitleBold, String.format(($v_1.length === 1) ? ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowTitleSingular : ActivityFeeds.Resources.ActivityFeedsUI.confirmUnfollowTitlePlural, $v_1.length), $v_7);
+        }
+        if (!Wall.FollowActions.FollowService.$O($v_1)) {
+            Wall.FollowActions.FollowService.$7(ActivityFeeds.Resources.ActivityFeedsUI.selectedRecordsHaveToBeSameType);
+            return;
+        }
+        Wall.FollowActions.FollowService.$1 = new Wall.FollowActions.FollowService(GetGlobalContext(), $v_2, $v_1, $v_3, $v_4);
+    }
+}
+Wall.FollowActions.FollowService.$M = function Wall_FollowActions_FollowService$$M($p0) {
+    var $v_0 = new Array(0);
+    for (var $v_1 = 0; $v_1 < $p0.length; $v_1++) {
+        var $v_2 = $p0[$v_1];
+        var $v_3 = new Sales.Common.CrmSoapServiceProxy.ObjectModel.EntityReference();
+        $v_3.id = $v_2.Id;
+        $v_3.logicalName = $v_2.TypeName;
+        if (IsNull($v_3.logicalName)) {
+            var $v_4 = $v_2.TypeCode;
+            switch ($v_4) {
+                case 1:
+                    $v_3.logicalName = 'account';
+                    break;
+                case 2:
+                    $v_3.logicalName = 'contact';
+                    break;
+                case 3:
+                    $v_3.logicalName = 'opportunity';
+                    break;
+                case 4:
+                    $v_3.logicalName = 'lead';
+                    break;
+                default:
+                    $v_3.logicalName = CrmSoapServiceProxy.Utils.convertETCtoETN($v_4);
+                    break;
+            }
+        }
+        $v_3.name = $v_2.Name;
+        $v_0[$v_1] = $v_3;
+    }
+    return $v_0;
+}
+Wall.FollowActions.FollowService.$7 = function Wall_FollowActions_FollowService$$7($p0) {
+    Wall.FollowActions.FollowService.$D(null, null, $p0);
+}
+Wall.FollowActions.FollowService.$D = function Wall_FollowActions_FollowService$$D($p0, $p1, $p2) {
+    if ($p0) {
+        $P_CRM('#divTitle').text($p0);
+    }
+    if ($p1) {
+        $P_CRM('#divDescription').text($p1);
+    }
+    if ($p2) {
+        $P_CRM('#divResult').text($p2);
+    }
+}
+Wall.FollowActions.FollowService.$O = function Wall_FollowActions_FollowService$$O($p0) {
+    for (var $v_0 = 0; $v_0 < $p0.length; $v_0++) {
+        if ($p0[$v_0].logicalName !== $p0[0].logicalName) {
+            return false;
+        }
+    }
+    return true;
+}
+Wall.FollowActions.FollowService.onClickOK = function Wall_FollowActions_FollowService$onClickOK() {
+    switch (Wall.FollowActions.FollowService.$1.state) {
+        case 'prompt':
+            Wall.FollowActions.FollowService.$1.setEnableButtonStatus(false, true);
+            Wall.FollowActions.FollowService.$1.state = 'inprogress';
+            if (Wall.FollowActions.FollowService.$1.action === 'follow') {
+                Wall.FollowActions.FollowService.$1.checkFeedEnabled();
+            }
+            else {
+                Wall.FollowActions.FollowService.$1.checkFollowed();
+            }
+            break;
+        case 'complete':
+            closeWindow();
+            break;
+    }
+}
+Wall.FollowActions.FollowService.onClickCancel = function Wall_FollowActions_FollowService$onClickCancel() {
+    if (Wall.FollowActions.FollowService.$1.state === 'inprogress') {
+        Wall.FollowActions.FollowService.$1.set_cancelRequested(true);
+    }
+    else {
+        window.returnValue = -1;
+        closeWindow();
+    }
+}
+Wall.FollowActions.FollowService.prototype = {
+    $3_0: 0,
+    $B_0: 0,
+    $5_0: null,
+    $G_0: null,
+    $E_0: 0,
+    $8_0: 0,
+    $6_0: null,
+    $0_0: null,
+    
+    get_entityCount: function Wall_FollowActions_FollowService$get_entityCount() {
+        if (!this.$0_0) {
+            return 0;
+        }
+        else {
+            return this.$0_0.length;
+        }
+    },
+    
+    $2_0: 0,
+    action: null,
+    state: null,
+    $H_0: false,
+    $9_0: null,
+    $4_0: false,
+    
+    get_cancelRequested: function Wall_FollowActions_FollowService$get_cancelRequested() {
+        return this.$4_0;
+    },
+    
+    set_cancelRequested: function Wall_FollowActions_FollowService$set_cancelRequested(value) {
+        var $v_0 = $get('cmdDialogCancel');
+        $v_0.disabled = true;
+        this.$4_0 = value;
+        return value;
+    },
+    
+    checkFeedEnabled: function Wall_FollowActions_FollowService$checkFeedEnabled() {
+        var $v_0 = this.$0_0[0].logicalName;
+        var $v_1 = '<fetch version=\"1.0\" output-format=\"xml-platform\" mapping=\"logical\" distinct=\"false\" ><entity name=\"msdyn_postconfig\"><attribute name=\"msdyn_entityname\" /><filter type=\"and\"><condition attribute=\"msdyn_entityname\" operator=\"eq\" value=\"' + Sales.Common.CrmSoapServiceProxy.Utils.EncodingUtils.xmlAttributeEncode($v_0) + '\" />' + '<condition attribute=\"statecode\" operator=\"eq\"  value=\"0\"/>' + '</filter>' + '</entity>' + '</fetch>';
+        if (IsNull($v_0)) {
+            var $v_2 = getDialogArguments()['selectedRecords'];
+            var $v_3 = $v_2[0].TypeCode;
+            $v_1 = '<fetch version=\"1.0\" output-format=\"xml-platform\" mapping=\"logical\" distinct=\"false\" ><entity name=\"msdyn_postconfig\"><attribute name=\"msdyn_entityname\" /><filter type=\"and\"><condition attribute=\"msdyn_otc\" operator=\"eq\" value=\"' + $v_3 + '\" />' + '<condition attribute=\"statecode\" operator=\"eq\"  value=\"0\"/>' + '</filter>' + '</entity>' + '</fetch>';
+        }
+        var $$t_7 = this, $$t_8 = this;
+        this.$5_0.retrieveMultiple($v_1).then(function($p1_0) {
+            if ($p1_0.entities.length < 1) {
+                Wall.FollowActions.FollowService.$7(ActivityFeeds.Resources.ActivityFeedsUI.feedNotEnabled);
+                return;
+            }
+            $$t_7.checkFollowed();
+        }, function($p1_0) {
+            var $v_4 = $p1_0.get_organizationServiceFault().get_errorCode();
+            if ($v_4 === -2147220960 || $v_4 === -2147187962) {
+                $$t_8.checkFollowed();
+                return;
+            }
+            Wall.FollowActions.FollowService.$7(ActivityFeeds.Resources.ActivityFeedsUI.genericSystemError);
+        });
+    },
+    
+    setEnableButtonStatus: function Wall_FollowActions_FollowService$setEnableButtonStatus(enabledOK, enableCancel) {
+        var $v_0 = $get('butBegin');
+        $v_0.disabled = !enabledOK;
+        var $v_1 = $get('cmdDialogCancel');
+        $v_1.disabled = !enableCancel;
+    },
+    
+    checkFollowed: function Wall_FollowActions_FollowService$checkFollowed() {
+        var $v_0 = '';
+        for (var $$arr_1 = this.$0_0, $$len_2 = $$arr_1.length, $$idx_3 = 0; $$idx_3 < $$len_2; ++$$idx_3) {
+            var $v_2 = $$arr_1[$$idx_3];
+            $v_0 = $v_0 + '<value>' + Sales.Common.CrmSoapServiceProxy.Utils.EncodingUtils.htmlEncode($v_2.id) + '</value>';
+        }
+        var $v_1 = '<fetch version=\"1.0\" output-format=\"xml-platform\" mapping=\"logical\" distinct=\"false\" ><entity name=\"postfollow\"><attribute name=\"postfollowid\" /><attribute name=\"regardingobjectid\" /><filter type=\"and\"><condition attribute=\"ownerid\" operator=\"eq\" value=\"' + this.$G_0.getUserId() + '\" />' + '<condition attribute=\"regardingobjectid\" operator=\"in\" >' + $v_0 + '</condition>' + '</filter>' + '</entity>' + '</fetch>';
+        var $$t_8 = this, $$t_9 = this;
+        this.$5_0.retrieveMultiple($v_1, CrmSoapServiceProxy.ObjectModel.PostFollow).then(function($p1_0) {
+            $$t_8.$P_0($p1_0);
+        }, function($p1_0) {
+            $$t_9.$Q_0($p1_0.get_request().responseText);
+        });
+    },
+    
+    $C_0: function Wall_FollowActions_FollowService$$C_0($p0, $p1, $p2) {
+        var $v_0 = $P_CRM($p0);
+        $v_0.css('top', $p1.toString());
+        $v_0.css('width', $p2 + 'px');
+    },
+    
+    $J_0: function Wall_FollowActions_FollowService$$J_0() {
+        var $v_0 = $get('divProgress');
+        $v_0.style.display = 'none';
+        var $v_1 = $get('divMain');
+        $v_1.style.display = 'block';
+    },
+    
+    $R_0: function Wall_FollowActions_FollowService$$R_0() {
+        var $v_0 = $get('tdDialogHeader');
+        var $v_1 = $get('tdDialogFooter');
+        var $v_2 = $get('divFillBg');
+        var $v_3 = $get('divFill');
+        var $v_4 = $get('divStatus');
+        var $v_5 = $get('divProgress');
+        var $v_6 = $get('imgProgress');
+        $v_5.style.display = 'block';
+        var $v_7 = $get('divMain');
+        $v_7.style.display = 'none';
+        var $v_8 = (!$v_0) ? 0 : $v_0.scrollHeight;
+        var $v_9 = (!$v_1) ? 0 : $v_1.scrollHeight;
+        var $v_A = (!$v_2) ? 0 : parseInt($v_2.style.height, 10);
+        var $v_B = window.document.body.clientHeight;
+        var $v_C = (($v_B - ($v_8 + $v_9)) / 2) + $v_8 - ($v_A / 2);
+        this.$3_0 = window.document.body.clientWidth - 40;
+        $v_2.style.display = 'inline';
+        $v_4.style.display = 'inline';
+        $v_3.style.display = 'inline';
+        var $v_D = 0;
+        if (this.$0_0.length === 1) {
+            $v_D = this.$3_0 * 3 / 4;
+            this.$B_0 = this.$3_0 / 4;
+        }
+        else {
+            this.$B_0 = this.$3_0 / this.$0_0.length;
+        }
+        this.$C_0($v_2, $v_C, this.$3_0);
+        this.$C_0($v_3, $v_C, $v_D);
+        this.$C_0($v_4, $v_C, this.$3_0);
+        this.$C_0($v_6, 0, this.$3_0);
+    },
+    
+    $I_0: function Wall_FollowActions_FollowService$$I_0($p0) {
+        var $v_0 = $get('divFill');
+        var $v_1 = $get('divFillBg');
+        if ($p0) {
+            $v_0.style.pixelWidth = $v_1.style.pixelWidth;
+        }
+        else {
+            $v_0.style.pixelWidth = this.$B_0 * this.$2_0 + 2;
+        }
+    },
+    
+    $P_0: function Wall_FollowActions_FollowService$$P_0($p0) {
+        this.$6_0 = {};
+        if ($p0.entities && $p0.entities.length > 0) {
+            var $v_0 = $p0.entities;
+            for (var $v_1 = 0; $v_1 < $v_0.length; $v_1++) {
+                if ($v_0[$v_1].get_regardingObjectId()) {
+                    this.$6_0[$v_0[$v_1].get_regardingObjectId().id.toLowerCase()] = $v_0[$v_1].get_postFollowId();
+                }
+            }
+        }
+        this.$R_0();
+        switch (this.action) {
+            case 'follow':
+                this.followEntity();
+                break;
+            case 'unfollow':
+                this.unfollowEntity();
+                break;
+        }
+    },
+    
+    $L_0: function Wall_FollowActions_FollowService$$L_0($p0) {
+        var $v_0 = confirm(String.format(ActivityFeeds.Resources.ActivityFeedsUI.confirmCancelFollowUnfollowOperation, $p0));
+        var $v_1 = $get('cmdDialogCancel');
+        $v_1.disabled = false;
+        this.$4_0 = false;
+        return $v_0;
+    },
+    
+    followEntity: function Wall_FollowActions_FollowService$followEntity() {
+        if (this.$4_0 && this.$L_0(this.$0_0.length - this.$2_0)) {
+            closeWindow();
+            return;
+        }
+        this.$I_0(false);
+        if (this.$2_0 >= this.$0_0.length) {
+            this.$K_0(this.$8_0);
+            return;
+        }
+        var $v_0 = this.$0_0[this.$2_0++];
+        if (IsNull(this.$6_0[Sales.Common.CrmSoapServiceProxy.Utils.Utils.removeBeginEndBracket($v_0.id).toLowerCase()])) {
+            var $v_1 = new CrmSoapServiceProxy.ObjectModel.PostFollow();
+            $v_1.set_regardingObjectId($v_0);
+            var $$t_4 = this, $$t_5 = this;
+            this.$5_0.create($v_1).then(function($p1_0) {
+                $$t_4.$E_0++;
+                $$t_4.followEntity();
+            }, function($p1_0) {
+                if ($$t_5.$N_0($p1_0) === 1) {
+                    $$t_5.followEntity();
+                }
+                else {
+                    $$t_5.$J_0();
+                    Wall.FollowActions.FollowService.$1.state = 'complete';
+                    $$t_5.setEnableButtonStatus(false, true);
+                }
+            });
+        }
+        else {
+            this.followEntity();
+        }
+    },
+    
+    $K_0: function Wall_FollowActions_FollowService$$K_0($p0) {
+        if (!$p0) {
+            if (this.$H_0 && !IsNull(this.$9_0)) {
+                var $v_0 = Mscrm.PageManager.getXrmInternalFromWindow(this.$9_0);
+                var $v_1 = $v_0.getServiceDirectory().find(ActivityFeeds.Services.IFollowService);
+                if (!$v_1) {
+                    $v_0.trace.warningT(Wall.FollowActions.FollowService, 'Post OperationComplete - can\'t find IFollowService');
+                }
+                else {
+                    var $v_2 = this.action === 'follow';
+                    $v_1.refreshFormFollowEnabled(this.$0_0[0].id, $v_2);
+                }
+            }
+            this.$9_0 = null;
+            Mscrm.Utilities.setReturnValue(true);
+            closeWindow();
+        }
+        else {
+            Wall.FollowActions.FollowService.$1.state = 'complete';
+            Wall.FollowActions.FollowService.$D(ActivityFeeds.Resources.ActivityFeedsUI.notSuccess, '', String.format((this.action === 'follow') ? ActivityFeeds.Resources.ActivityFeedsUI.followWithErrors : ActivityFeeds.Resources.ActivityFeedsUI.unfollowWithErrors, this.$E_0));
+            this.$I_0(true);
+            this.$J_0();
+            this.setEnableButtonStatus(true, false);
+        }
+    },
+    
+    unfollowEntity: function Wall_FollowActions_FollowService$unfollowEntity() {
+        if (this.$4_0 && this.$L_0(this.$0_0.length - this.$2_0)) {
+            closeWindow();
+            return;
+        }
+        this.$I_0(false);
+        if (this.$2_0 >= this.$0_0.length) {
+            this.$K_0(this.$8_0);
+            return;
+        }
+        var $v_0 = this.$0_0[this.$2_0++];
+        if (!IsNull(this.$6_0[Sales.Common.CrmSoapServiceProxy.Utils.Utils.removeBeginEndBracket($v_0.id).toLowerCase()])) {
+            var $v_1 = new CrmSoapServiceProxy.ObjectModel.PostFollow();
+            $v_1.set_regardingObjectId($v_0);
+            $v_1.set_postFollowId(this.$6_0[Sales.Common.CrmSoapServiceProxy.Utils.Utils.removeBeginEndBracket($v_0.id).toLowerCase()]);
+            var $$t_4 = this, $$t_5 = this;
+            this.$5_0.deleteEntity($v_1.get_postFollowId(), 'postfollow').then(function($p1_0) {
+                $$t_4.$E_0++;
+                $$t_4.unfollowEntity();
+            }, function($p1_0) {
+                $$t_5.$8_0++;
+                $$t_5.unfollowEntity();
+            });
+        }
+        else {
+            this.unfollowEntity();
+        }
+    },
+    
+    $Q_0: function Wall_FollowActions_FollowService$$Q_0($p0) {
+        Wall.FollowActions.FollowService.$7($p0);
+    },
+    
+    $N_0: function Wall_FollowActions_FollowService$$N_0($p0) {
+        this.$8_0++;
+        var $v_0 = $p0.get_organizationServiceFault().get_errorCode();
+        switch ($v_0) {
+            case -2147158368:
+                Wall.FollowActions.FollowService.$7(ActivityFeeds.Resources.ActivityFeedsUI.exceedLimits);
+                return -1;
+            case -2147220891:
+                var $v_1 = $p0.get_organizationServiceFault().get_message();
+                if (_String.isNullOrEmpty($v_1)) {
+                    $v_1 = CrmSoapServiceProxy.Utils.getErrorMessage($p0);
+                }
+                Wall.FollowActions.FollowService.$7($v_1);
+                return -1;
+        }
+        return 1;
+    }
+}
+
+
+Wall.FollowActions.Constants.registerClass('Wall.FollowActions.Constants');
+Wall.FollowActions.FollowResponse.registerClass('Wall.FollowActions.FollowResponse');
+Wall.FollowActions.FollowService.registerClass('Wall.FollowActions.FollowService');
+Wall.FollowActions.Constants.selectedRecords = 'selectedRecords';
+Wall.FollowActions.Constants.entityTypeCode = 'entityTypeCode';
+Wall.FollowActions.Constants.refresh = 'refresh';
+Wall.FollowActions.Constants.action = 'action';
+Wall.FollowActions.Constants.followAction = 'follow';
+Wall.FollowActions.Constants.unfollowAction = 'unfollow';
+Wall.FollowActions.Constants.divTitleId = 'divTitle';
+Wall.FollowActions.Constants.divDescriptionId = 'divDescription';
+Wall.FollowActions.Constants.divResultId = 'divResult';
+Wall.FollowActions.Constants.progressBarId = 'divProgress';
+Wall.FollowActions.Constants.butBegin = 'butBegin';
+Wall.FollowActions.Constants.butCancel = 'cmdDialogCancel';
+Wall.FollowActions.Constants.divFill = 'divFill';
+Wall.FollowActions.Constants.divFillBg = 'divFillBg';
+Wall.FollowActions.Constants.tdDialogHeader = 'tdDialogHeader';
+Wall.FollowActions.Constants.tdDialogFooter = 'tdDialogFooter';
+Wall.FollowActions.Constants.divStatus = 'divStatus';
+Wall.FollowActions.Constants.divMain = 'divMain';
+Wall.FollowActions.Constants.imgProgress = 'imgProgress';
+Wall.FollowActions.Constants.statePrompt = 'prompt';
+Wall.FollowActions.Constants.stateInProgress = 'inprogress';
+Wall.FollowActions.Constants.stateComplete = 'complete';
+Wall.FollowActions.FollowService.$1 = null;
+//@ sourceMappingURL=file:///d:/dbs/sh/dccm2/0227_160625/cmd/19/Target/retail/amd64/.srcmap

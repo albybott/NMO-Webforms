@@ -1,0 +1,345 @@
+Type.registerNamespace('Filters.Command');
+
+Filters.Command.CommonUtils = function Filters_Command_CommonUtils() {
+}
+Filters.Command.CommonUtils.toFilterRibbonEntityReferences = function Filters_Command_CommonUtils$toFilterRibbonEntityReferences(ribbonEntityReferences, gridControl) {
+    var $v_0 = new Wall.Control.Utils.GridUtils(gridControl);
+    for (var $v_1 = 0; $v_1 < ribbonEntityReferences.length; $v_1++) {
+        var $v_2 = $v_0.getCellValue('msdyn_isvisiblebit', ribbonEntityReferences[$v_1].Id);
+        if (_String.isNullOrEmpty($v_2) || ($v_2 !== '0' && $v_2 !== '1')) {
+            break;
+        }
+        (ribbonEntityReferences[$v_1]).IsVisible = $v_2 === '1';
+    }
+    return ribbonEntityReferences;
+}
+Filters.Command.CommonUtils.getViewIsVisibleButtonEnabled = function Filters_Command_CommonUtils$getViewIsVisibleButtonEnabled(gridControl, selectedRecords, entityTypeCode, setViewIsVisibleButtonEnabled) {
+    if (IsNull(selectedRecords) || !selectedRecords.length) {
+        return false;
+    }
+    if (!gridControl) {
+        return true;
+    }
+    var $v_0 = Filters.Command.CommonUtils.toFilterRibbonEntityReferences(selectedRecords, gridControl);
+    var $v_1 = 0;
+    var $v_2 = 0;
+    for (var $v_3 = 0; $v_3 < $v_0.length; $v_3++) {
+        if ($v_0[$v_3].IsVisible) {
+            $v_1++;
+            continue;
+        }
+        if (!$v_0[$v_3].IsVisible) {
+            $v_2++;
+            continue;
+        }
+    }
+    if (!$v_1 && !$v_2) {
+        return false;
+    }
+    if ($v_1 > 0 && !setViewIsVisibleButtonEnabled) {
+        return true;
+    }
+    if ($v_2 > 0 && setViewIsVisibleButtonEnabled) {
+        return true;
+    }
+    return false;
+}
+Filters.Command.CommonUtils.filterRibbonEntityReferences = function Filters_Command_CommonUtils$filterRibbonEntityReferences(ribbonEntityReferences, isVisible) {
+    return _Array.filterArray(ribbonEntityReferences, function($p1_0) {
+        return IsNull(isVisible) || ($p1_0).IsVisible === isVisible;
+    });
+}
+Filters.Command.CommonUtils.disableViewLinkAction = function Filters_Command_CommonUtils$disableViewLinkAction(gridControl) {
+    if (IsNull(gridControl)) {
+        return;
+    }
+    var $v_0 = new Wall.Control.Utils.GridUtils(gridControl).get_element();
+    if ($v_0) {
+        $P_CRM($v_0).find('tr.ms-crm-List-Row,tr.ms-crm-List-SelectedRow,tr.ms-crm-List-Row-Lite,tr.ms-crm-List-SelectedRow-Lite').filter(function($p1_0) {
+            var $v_1 = this;
+            return !(('DoubleClickIsBound') in $P_CRM($v_1).data());
+        }).bind('mousedown.filters', function($p1_0) {
+            if ($p1_0.which === 3) {
+                $p1_0.preventDefault();
+                $p1_0.stopPropagation();
+            }
+        }).bind('contextmenu.filters', function($p1_0) {
+            $p1_0.preventDefault();
+            $p1_0.stopPropagation();
+        }).bind('keydown.filters', function($p1_0) {
+            var $v_2 = Wall.Control.Utils.jQueryEventHelper.getKeyCode($p1_0);
+            if ($v_2 === 13) {
+                $p1_0.preventDefault();
+                $p1_0.stopPropagation();
+            }
+        }).bind('dblclick.filters', function($p1_0) {
+            $p1_0.preventDefault();
+            $p1_0.stopPropagation();
+        }).data('DoubleClickIsBound', true);
+    }
+}
+Filters.Command.CommonUtils.bindRefreshRibbonOnGridClickAction = function Filters_Command_CommonUtils$bindRefreshRibbonOnGridClickAction(gridControl) {
+    if (IsNull(gridControl)) {
+        return;
+    }
+    var $v_0 = new Wall.Control.Utils.GridUtils(gridControl).get_element();
+    if ($v_0) {
+        var $v_1 = $P_CRM($v_0);
+        if ((('ClickIsBound') in $v_1.data())) {
+            return;
+        }
+        $v_1.bind('click.filters', function($p1_0) {
+            refreshRibbon();
+        }).data('ClickIsBound', true);
+        Wall.Control.Utils.WindowUtils.add_onWindowUnload(function($p1_0) {
+            Filters.Command.CommonUtils.$B(gridControl);
+        });
+    }
+}
+Filters.Command.CommonUtils.$B = function Filters_Command_CommonUtils$$B($p0) {
+    if (IsNull($p0)) {
+        return;
+    }
+    var $v_0 = new Wall.Control.Utils.GridUtils($p0).get_element();
+    if ($v_0) {
+        var $v_1 = $P_CRM($v_0);
+        $v_1.unbind('.filters').removeData().find('tr.ms-crm-List-Row,tr.ms-crm-List-SelectedRow').unbind('.filters').removeData();
+    }
+}
+Filters.Command.CommonUtils.processError = function Filters_Command_CommonUtils$processError(error) {
+    var $v_0 = ActivityFeeds.Resources.WallService.errorMessage;
+    if (!IsNull(error) && !IsNull(error.get_organizationServiceFault())) {
+        if (error.get_organizationServiceFault().get_errorCode() === -2147220960) {
+            $v_0 = ActivityFeeds.Resources.WallService.noPrivilegeGenericErrorMessage;
+        }
+        else if (error.get_organizationServiceFault().get_errorCode() === -2147220891) {
+            $v_0 = error.get_organizationServiceFault().get_message();
+        }
+    }
+    alert($v_0);
+}
+
+
+Filters.Command.UserCommands = function Filters_Command_UserCommands() {
+}
+Filters.Command.UserCommands.get_$7 = function Filters_Command_UserCommands$get_$7() {
+    if (IsNull(Filters.Command.UserCommands.$0)) {
+        Filters.Command.UserCommands.$0 = new CrmSoapServiceProxy.CrmSoapService(Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage());
+    }
+    return Filters.Command.UserCommands.$0;
+}
+Filters.Command.UserCommands.show = function Filters_Command_UserCommands$show(gridControl, selectedRecords, entityTypeCode) {
+    Filters.Command.UserCommands.$2(gridControl, selectedRecords, false, 'show', null);
+}
+Filters.Command.UserCommands.hide = function Filters_Command_UserCommands$hide(gridControl, selectedRecords, entityTypeCode) {
+    Filters.Command.UserCommands.$2(gridControl, selectedRecords, true, 'hide', null);
+}
+Filters.Command.UserCommands.moveUp = function Filters_Command_UserCommands$moveUp(gridControl, selectedRecords, entityTypeCode) {
+    Filters.Command.UserCommands.$2(gridControl, selectedRecords, null, 'moveup', function() {
+        Filters.Command.UserCommands.$6(new Wall.Control.Utils.GridUtils(gridControl), selectedRecords[0].Id, 10);
+    });
+}
+Filters.Command.UserCommands.moveDown = function Filters_Command_UserCommands$moveDown(gridControl, selectedRecords, entityTypeCode) {
+    Filters.Command.UserCommands.$2(gridControl, selectedRecords, null, 'movedown', function() {
+        Filters.Command.UserCommands.$6(new Wall.Control.Utils.GridUtils(gridControl), selectedRecords[0].Id, 10);
+    });
+}
+Filters.Command.UserCommands.$6 = function Filters_Command_UserCommands$$6($p0, $p1, $p2) {
+    if ($p2 <= 0) {
+        return;
+    }
+    $P_CRM($get(_String.format('checkBox_{0}', $p1))).click();
+    if ($p0.get_isRefreshing() || !$p0.get_selectedIds() || !$p0.get_selectedIds().length) {
+        window.setTimeout(function() {
+            Filters.Command.UserCommands.$6($p0, $p1, --$p2);
+        }, 500);
+    }
+    else {
+        Filters.Command.UserCommands.$3();
+    }
+}
+Filters.Command.UserCommands.$C = function Filters_Command_UserCommands$$C($p0, $p1) {
+    var $v_0 = _Array.map(String, Filters.Command.CommonUtils.filterRibbonEntityReferences($p0, $p1), function($p1_0) {
+        return ($p1_0).Id;
+    });
+    return $v_0.join(',');
+}
+Filters.Command.UserCommands.$2 = function Filters_Command_UserCommands$$2($p0, $p1, $p2, $p3, $p4) {
+    var $v_0 = new CrmSoapServiceProxy.ObjectModel.WallSavedQueryUserSettings();
+    $v_0.set_isVisible(false);
+    $v_0.set_userId(Sales.Common.CrmSoapServiceProxy.ObjectModel.EntityReference.createEntityReference(Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage().getUserId(), 'systemuser'));
+    $v_0.set_id(Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage().getUserId());
+    var $v_1 = Filters.Command.CommonUtils.toFilterRibbonEntityReferences($p1, $p0);
+    var $v_2 = Filters.Command.UserCommands.$C($v_1, $p2);
+    if (_String.isNullOrEmpty($v_2)) {
+        Filters.Command.UserCommands.$3();
+        return;
+    }
+    if ($p0) {
+        new Wall.Control.Utils.GridUtils($p0).showLoadingMessage();
+    }
+    $v_0.set_data($v_2 + ';' + $p3 + ';');
+    Filters.Command.UserCommands.get_$7().update($v_0).then(function($p1_0) {
+        if ($p0) {
+            new Wall.Control.Utils.GridUtils($p0).refresh();
+        }
+        if ($p4) {
+            $p4();
+        }
+    }, function($p1_0) {
+        Filters.Command.CommonUtils.processError($p1_0);
+    });
+}
+Filters.Command.UserCommands.$3 = function Filters_Command_UserCommands$$3() {
+    if (!Filters.Command.UserCommands.$1) {
+        Filters.Command.UserCommands.$1 = true;
+        window.setTimeout(function() {
+            refreshRibbon();
+            window.setTimeout(function() {
+                Filters.Command.UserCommands.$1 = false;
+            }, 200);
+        }, 100);
+    }
+}
+Filters.Command.UserCommands.dummy = function Filters_Command_UserCommands$dummy() {
+    return true;
+}
+Filters.Command.UserCommands.loadResources = function Filters_Command_UserCommands$loadResources() {
+    if (IsNull(ActivityFeeds.Resources) && !Filters.Command.UserCommands.$5) {
+        var $v_0 = Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage();
+        var $v_1 = $v_0.getClientUrl();
+        loadLocalizedContent($v_1 + '/WebResources/msdyn_/ActivityFeeds.Resources.js', $v_0, function($p1_0) {
+            eval($p1_0);
+            Filters.Command.UserCommands.$5 = false;
+            Filters.Command.UserCommands.onLoad();
+        });
+    }
+    return true;
+}
+Filters.Command.UserCommands.onLoad = function Filters_Command_UserCommands$onLoad() {
+    Filters.Command.UserCommands.$3();
+    Wall.Control.Utils.WindowUtils.add_onWindowUnload(function($p1_0) {
+        if (!Filters.Command.UserCommands.$4 && !IsNull(window.parent) && !IsNull(window.parent.opener) && !window.parent.opener.closed && !IsNull(window.parent.opener.refreshViewFilters)) {
+            window.parent.opener.refreshViewFilters();
+            Filters.Command.UserCommands.$4 = true;
+        }
+    });
+}
+Filters.Command.UserCommands.getViewIsVisibleButtonEnabled = function Filters_Command_UserCommands$getViewIsVisibleButtonEnabled(gridControl, selectedRecords, entityTypeCode, setViewIsVisibleButtonEnabled) {
+    if (IsNull(ActivityFeeds.Resources) || IsNull(gridControl)) {
+        return false;
+    }
+    Filters.Command.CommonUtils.disableViewLinkAction(gridControl);
+    Filters.Command.CommonUtils.bindRefreshRibbonOnGridClickAction(gridControl);
+    return Filters.Command.CommonUtils.getViewIsVisibleButtonEnabled(gridControl, selectedRecords, entityTypeCode, setViewIsVisibleButtonEnabled);
+}
+Filters.Command.UserCommands.getMoveUpButtonEnabled = function Filters_Command_UserCommands$getMoveUpButtonEnabled(gridControl, selectedRecords, allRecords) {
+    if (IsNull(selectedRecords) || selectedRecords.length !== 1 || IsNull(allRecords) || !allRecords.length) {
+        return false;
+    }
+    var $v_0 = Filters.Command.CommonUtils.toFilterRibbonEntityReferences(selectedRecords, gridControl);
+    return $v_0[0].IsVisible && $v_0[0].Id !== allRecords[0].Id;
+}
+Filters.Command.UserCommands.getMoveDownButtonEnabled = function Filters_Command_UserCommands$getMoveDownButtonEnabled(gridControl, selectedRecords, allRecords) {
+    if (IsNull(selectedRecords) || selectedRecords.length !== 1 || IsNull(allRecords) || !allRecords.length) {
+        return false;
+    }
+    var $v_0 = Filters.Command.CommonUtils.toFilterRibbonEntityReferences(selectedRecords, gridControl);
+    if (!$v_0[0].IsVisible) {
+        return false;
+    }
+    if ($v_0[0].Id === allRecords[allRecords.length - 1].Id) {
+        return false;
+    }
+    var $v_1 = (_Array.filterArray(allRecords, function($p1_0) {
+        return ($p1_0).Id === $v_0[0].Id;
+    }))[0];
+    var $v_2 = Array.indexOf(allRecords, $v_1);
+    if ($v_2 >= 0 && $v_2 < allRecords.length) {
+        var $v_3 = Filters.Command.CommonUtils.toFilterRibbonEntityReferences([ allRecords[$v_2 + 1] ], gridControl);
+        if (!$v_3[0].IsVisible) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+Filters.Command.AdminCommands = function Filters_Command_AdminCommands() {
+}
+Filters.Command.AdminCommands.get_$7 = function Filters_Command_AdminCommands$get_$7() {
+    if (IsNull(Filters.Command.AdminCommands.$0)) {
+        Filters.Command.AdminCommands.$0 = new CrmSoapServiceProxy.CrmSoapService(Sales.Common.CrmSoapServiceProxy.Utils.Utils.getContextFromXrmPage());
+    }
+    return Filters.Command.AdminCommands.$0;
+}
+Filters.Command.AdminCommands.show = function Filters_Command_AdminCommands$show(gridControl, selectedRecords, entityTypeCode) {
+    Filters.Command.AdminCommands.$9(0, gridControl, selectedRecords, entityTypeCode);
+}
+Filters.Command.AdminCommands.hide = function Filters_Command_AdminCommands$hide(gridControl, selectedRecords, entityTypeCode) {
+    Filters.Command.AdminCommands.$9(1, gridControl, selectedRecords, entityTypeCode);
+}
+Filters.Command.AdminCommands.$9 = function Filters_Command_AdminCommands$$9($p0, $p1, $p2, $p3) {
+    var $v_0 = Filters.Command.CommonUtils.filterRibbonEntityReferences(Filters.Command.CommonUtils.toFilterRibbonEntityReferences($p2, $p1), !!$p0);
+    if (!$v_0.length) {
+        Filters.Command.AdminCommands.$3();
+        return;
+    }
+    var $v_1 = new Wall.Control.Utils.GridUtils($p1);
+    $v_1.showLoadingMessage();
+    Filters.Command.AdminCommands.$8($v_1, $p0, $v_0);
+}
+Filters.Command.AdminCommands.$8 = function Filters_Command_AdminCommands$$8($p0, $p1, $p2) {
+    if (!$p2.length) {
+        $p0.refresh();
+        return;
+    }
+    var $v_0 = new Sales.Common.CrmSoapServiceProxy.ObjectModel.EntityReference();
+    $v_0.id = $p2[0].Id;
+    $v_0.logicalName = 'msdyn_wallsavedquery';
+    Array.removeAt($p2, 0);
+    Filters.Command.AdminCommands.get_$7().setState($v_0, $p1, -1, function($p1_0) {
+        Filters.Command.AdminCommands.$8($p0, $p1, $p2);
+    }, function($p1_0) {
+        Filters.Command.CommonUtils.processError($p1_0);
+        $p0.refresh();
+    });
+}
+Filters.Command.AdminCommands.$3 = function Filters_Command_AdminCommands$$3() {
+    if (!Filters.Command.AdminCommands.$1) {
+        Filters.Command.AdminCommands.$1 = true;
+        window.setTimeout(function() {
+            refreshRibbon();
+            window.setTimeout(function() {
+                Filters.Command.AdminCommands.$1 = false;
+            }, 200);
+        }, 100);
+    }
+}
+Filters.Command.AdminCommands.disableOpeningRecordFromGrid = function Filters_Command_AdminCommands$disableOpeningRecordFromGrid(gridControl) {
+    if (IsNull(gridControl)) {
+        return false;
+    }
+    Filters.Command.CommonUtils.disableViewLinkAction(gridControl);
+    return false;
+}
+Filters.Command.AdminCommands.getViewIsVisibleButtonEnabled = function Filters_Command_AdminCommands$getViewIsVisibleButtonEnabled(gridControl, selectedRecords, entityTypeCode, setViewIsVisibleButtonEnabled) {
+    if (IsNull(gridControl)) {
+        return false;
+    }
+    Filters.Command.CommonUtils.disableViewLinkAction(gridControl);
+    Filters.Command.CommonUtils.bindRefreshRibbonOnGridClickAction(gridControl);
+    return Filters.Command.CommonUtils.getViewIsVisibleButtonEnabled(gridControl, selectedRecords, entityTypeCode, setViewIsVisibleButtonEnabled);
+}
+
+
+Filters.Command.CommonUtils.registerClass('Filters.Command.CommonUtils');
+Filters.Command.UserCommands.registerClass('Filters.Command.UserCommands');
+Filters.Command.AdminCommands.registerClass('Filters.Command.AdminCommands');
+Filters.Command.UserCommands.$0 = null;
+Filters.Command.UserCommands.$1 = false;
+Filters.Command.UserCommands.$5 = false;
+Filters.Command.UserCommands.$4 = false;
+Filters.Command.AdminCommands.$0 = null;
+Filters.Command.AdminCommands.$1 = false;
+//@ sourceMappingURL=file:///d:/dbs/sh/dccm2/0227_160625/cmd/22/Target/retail/amd64/.srcmap

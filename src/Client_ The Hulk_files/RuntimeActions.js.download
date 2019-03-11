@@ -1,1 +1,0 @@
-var _MicrosoftMars;(function(n){var t;(function(n){var t;(function(n){"use strict";(function(n){n[n.ControlByIds=0]="ControlByIds";n[n.ControlByContext=1]="ControlByContext"})(n.RuntimeActions||(n.RuntimeActions={}));var t=n.RuntimeActions})(t=n.Loader||(n.Loader={}))})(t=n.Client||(n.Client={}))})(_MicrosoftMars||(_MicrosoftMars={}));

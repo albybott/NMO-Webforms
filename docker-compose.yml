@@ -5,9 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-    #   - "9929:9929"
-    #   - "9230:9230"
+      - "8000:8000"
     volumes:
       - /home/node/app/node_modules
       - .:/home/node/app
@@ -15,4 +13,3 @@ services:
       - NODE_ENV=development
       - GATSBY_WEBPACK_PUBLICPATH=/
       - CHOKIDAR_USEPOLLING=1
-    # command: gatsby develop -H 0.0.0.0

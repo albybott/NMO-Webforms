@@ -17,7 +17,7 @@ WORKDIR /home/node/app
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.1.1/dumb-init_1.1.1_amd64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
 
-COPY package.json ./
+COPY ./package.json ./
 
 # Don’t generate a yarn.lock lockfile.
 RUN yarn --pure-lockfile

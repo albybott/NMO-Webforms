@@ -1,17 +1,12 @@
-FROM node:alpine
+FROM node:8
+WORKDIR /home/node/app
 
-# Also exposing VSCode debug ports
-EXPOSE 8000 9929 9230
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.1.1/dumb-init_1.1.1_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
 
-RUN \
-  apk add --no-cache python make g++ git && \
-  apk add vips-dev fftw-dev --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing --repository http://dl-3.alpinelinux.org/alpine/edge/main && \
-  rm -fR /var/cache/apk/*
-
-RUN npm install -g gatsby-cli yarn
-
-WORKDIR /app
-COPY ./package.json .
-RUN yarn install && yarn cache clean
+COPY package.json ./
+RUN yarn --pure-lockfile
 COPY . .
-CMD ["gatsby", "develop", "-H", "0.0.0.0" ]
+
+EXPOSE 5000
+CMD ["dumb-init", "./node_modules/.bin/gatsby", "develop", "-H", "0.0.0.0", "-p", "5000"]

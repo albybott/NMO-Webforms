@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, Card, CardHeader, CardContent } from "@material-ui/core";
 import { Field } from "formik";
-import { TextField } from "material-ui-formik-components";
+import { TextField } from "../../../utils/material-ui-formik-components";
 
 const styles = theme => ({
     card: {

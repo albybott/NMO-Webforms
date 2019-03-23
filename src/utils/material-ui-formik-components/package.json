@@ -1,0 +1,65 @@
+{
+  "_from": "material-ui-formik-components",
+  "_id": "material-ui-formik-components@0.2.2",
+  "_inBundle": false,
+  "_integrity": "sha512-qisLBUElo/4W9X458S+UPBQSs4jTR0dWS6Ed/LQswKM3HgTGNMaJ1liIvAsabCUs/rySRA8nwPcg6z5kVWkIgw==",
+  "_location": "/material-ui-formik-components",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "material-ui-formik-components",
+    "name": "material-ui-formik-components",
+    "escapedName": "material-ui-formik-components",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/material-ui-formik-components/-/material-ui-formik-components-0.2.2.tgz",
+  "_shasum": "d02b23878707535100828943ed288555c485f9d3",
+  "_spec": "material-ui-formik-components",
+  "_where": "/home/alby/Documents/NMO-Webforms",
+  "author": {
+    "name": "Gerasimos Chatzidamianos",
+    "url": "https://github.com/gerhat"
+  },
+  "bugs": {
+    "url": "https://github.com/gerhat/material-ui-formik-components/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "We all love [Material-UI](https://material-ui.com) and [Formik](https://jaredpalmer.com/formik), we just need an easy way to make them work seamlessly together. This library was built just for that.",
+  "homepage": "https://github.com/gerhat/material-ui-formik-components#readme",
+  "keywords": [
+    "react",
+    "formik",
+    "material-ui",
+    "form component",
+    "form",
+    "react-select",
+    "autocomplete",
+    "material-ui-pickers"
+  ],
+  "license": "MIT",
+  "main": "./index.js",
+  "module": "./index.es.js",
+  "name": "material-ui-formik-components",
+  "peerDependencies": {
+    "@material-ui/core": ">=3.8.3",
+    "formik": ">=1.4.2",
+    "react": ">=15",
+    "react-dom": ">=15",
+    "react-select": ">=2",
+    "material-ui-pickers": ">=2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gerhat/material-ui-formik-components.git"
+  },
+  "types": "index.d.ts",
+  "version": "0.2.2"
+}

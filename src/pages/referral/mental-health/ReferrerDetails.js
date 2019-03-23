@@ -4,7 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { Grid, CardHeader, CardContent } from "@material-ui/core";
 
 import { Field } from "formik";
-import { TextField } from "material-ui-formik-components";
+import { TextField } from "../../../utils/material-ui-formik-components";
 
 const styles = theme => ({
     root: {}

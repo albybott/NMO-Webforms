@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import { Field } from "formik";
-import { Switch } from "material-ui-formik-components";
+import { Switch } from "../../../utils/material-ui-formik-components";
 
 import {
   Grid,

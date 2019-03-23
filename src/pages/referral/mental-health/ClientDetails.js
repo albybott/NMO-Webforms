@@ -8,7 +8,7 @@ import {
   OutlinedInput
 } from "@material-ui/core";
 import { Field } from "formik";
-import { TextField, Autocomplete, Select } from "material-ui-formik-components";
+import { TextField, Autocomplete, Select } from "../../../utils/material-ui-formik-components";
 
 import iwi from "./data/iwi.json";
 import ethnicities from "./data/ethnicities.json";

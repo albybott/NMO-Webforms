@@ -21,7 +21,7 @@ import Confirmation from "./Confirmation";
 
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-import * as Yup from "yup";
+import { object, string, array } from 'yup'
 
 const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
   mutation CREATE_ELECTRONIC_SUBMISSION_MUTATION(
@@ -105,7 +105,11 @@ const styles = theme => ({
   }
 });
 
-const ValidationSchema = Yup.object().shape({});
+// const ValidationSchema = object().shape({
+//   reasonForReferral: string().required('reasonForReferral is required'),
+//   relevantHistory: string().required('relevantHistory selection is required'),
+//   riskIssues: string().required('riskIssues is required'),
+// })
 
 const steps = ["Client", "Medical", "Important", "Referrer", "Additional"];
 
@@ -232,7 +236,9 @@ ${values.riskIssues}`;
           return (
             <Page className={classes.root} showHeader={false}>
               <Formik
-                validationSchema={ValidationSchema}
+                // validationSchema={ValidationSchema}
+                // validateOnBlur={false}
+                // validateOnChange
                 initialValues={{
                   ...ClientValues,
                   ...MedicalValues,

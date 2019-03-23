@@ -1,3 +1,4 @@
+/* eslint-disable */
 /** @license material-ui-formik-components v0.2.2
  *
  * This source code is licensed under the MIT license found in the

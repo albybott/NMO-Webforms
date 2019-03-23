@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -274,7 +275,7 @@ function (_React$PureComponent) {
           dirty = _this$props$form.dirty,
           touched = _this$props$form.touched,
           errors = _this$props$form.errors || {},
-          values = _this$props$form.values || {},
+          values = _this$props$form.values,
           setFieldValue = _this$props$form.setFieldValue,
           options = _this$props.options,
           isMultiple = _this$props.isMultiple,
@@ -311,7 +312,7 @@ function (_React$PureComponent) {
         onChange: function onChange(value) {
           return setFieldValue(field.name, value);
         },
-        value: values[field.name],
+        value: values != undefined && values[field.name],
         isMulti: isMultiple
       }), hasError && _react.default.createElement(_FormHelperText.default, null, errorText)));
     }

@@ -105,11 +105,11 @@ const styles = theme => ({
   }
 });
 
-// const ValidationSchema = object().shape({
-//   reasonForReferral: string().required('reasonForReferral is required'),
-//   relevantHistory: string().required('relevantHistory selection is required'),
-//   riskIssues: string().required('riskIssues is required'),
-// })
+const ValidationSchema = object().shape({
+  reasonForReferral: string().required('reasonForReferral is required'),
+  relevantHistory: string().required('relevantHistory selection is required'),
+  riskIssues: string().required('riskIssues is required'),
+})
 
 const steps = ["Client", "Medical", "Important", "Referrer", "Additional"];
 
@@ -236,9 +236,9 @@ ${values.riskIssues}`;
           return (
             <Page className={classes.root} showHeader={false}>
               <Formik
-                // validationSchema={ValidationSchema}
-                // validateOnBlur={false}
-                // validateOnChange
+                validationSchema={ValidationSchema}
+                validateOnBlur={false}
+                validateOnChange
                 initialValues={{
                   ...ClientValues,
                   ...MedicalValues,
@@ -250,10 +250,8 @@ ${values.riskIssues}`;
                   createElectronicSubmission({
                     variables: {
                       ...values,
-                      nmo_ethnicitycode: values.ethnicity
-                        ? values.ethnicity[0].value
-                        : "",
-                      nmo_iwicode: values.ethnicity ? values.iwi[0].value : "",
+                      nmo_ethnicitycode: values.ethnicity ? values.ethnicity.value : "",
+                      nmo_iwicode: values.iwi ? values.iwi.value : "",
                       nmo_info: this.getFormattedData(values),
                       nmo_rawdata: this.getFormattedData(values)
                     }
@@ -274,7 +272,7 @@ ${values.riskIssues}`;
                   const {
                     // values,
                     // touched,
-                    errors,
+                    // errors,
                     // dirty,
                     // isSubmitting,
                     // handleChange,

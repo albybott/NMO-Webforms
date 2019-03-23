@@ -1,5 +1,7 @@
+/* eslint-disable */
+
 import ApolloClient from "apollo-boost";
-import fetch from "isomorphic-fetch";
+import fetch from "isomorphic-fetch"; // required for gatsby build
 import { endpoint } from "../../config";
 
 const client = new ApolloClient({

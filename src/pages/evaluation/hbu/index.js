@@ -10,7 +10,7 @@ import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
 import SEO from "../../../components/SEO";
 import HBUExpansionPanel from "./HBUExpansionPanel";
-import questions from "./HBUQuestions";
+import questions from "./data/questions.json";
 import ErrorMessage from "./ErrorMessage";
 
 const CREATE_HBU_EVALUATION_MUTATION = gql`
@@ -58,7 +58,7 @@ const styles = theme => ({
   },
   buttons: {
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "flex-end"
   },
   wrapper: {
     margin: theme.spacing.unit,
@@ -68,7 +68,7 @@ const styles = theme => ({
     color: green[500],
     position: "absolute",
     top: "50%",
-    left: "50%",
+    left: "50%"
   }
 });
 
@@ -106,7 +106,7 @@ class HBUForm extends React.Component {
     const { classes } = this.props;
 
     const createHBUEvaluation = () => {
-      alert('Hi');
+      alert("Hi");
     };
     const loading = false;
     const error = false;
@@ -119,10 +119,7 @@ class HBUForm extends React.Component {
         {(createHBUEvaluation, { loading, error }) => (
           <Page className={classes.root} showHeader title="Whanau Evaluation">
             <SEO title="Whanau Evaluation">
-              <meta
-                name="description"
-                content="HBu Whanau Evaluation Form"
-              />
+              <meta name="description" content="HBu Whanau Evaluation Form" />
             </SEO>
             {questions.map((question, index, array) => {
               // we need the name of the next question to auto expand on radio select
@@ -161,7 +158,7 @@ class HBUForm extends React.Component {
                   size="large"
                 >
                   Submit
-              </Button>
+                </Button>
                 {loading && (
                   <CircularProgress
                     size={24}

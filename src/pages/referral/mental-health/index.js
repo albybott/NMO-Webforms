@@ -234,7 +234,7 @@ ${values.riskIssues}`;
           if (error) return <p>{error.message}</p>;
 
           return (
-            <Page className={classes.root} showHeader={false}>
+            <Page className={classes.root} showHeader>
               <Formik
                 validationSchema={ValidationSchema}
                 validateOnBlur={false}

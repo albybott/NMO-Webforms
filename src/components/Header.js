@@ -13,14 +13,14 @@ const Header = props => {
       <Toolbar>
         <Grid container justify="space-between" spacing={16}>
           <Grid item>
-            <Link key={"home"} to={"/"}>
+            {/* <Link key={"home"} to={"/"}>
               <IconButton style={{ color: "#fff" }}>
                 <Home />
               </IconButton>
-            </Link>
+            </Link> */}
           </Grid>
           <Grid item>
-            <Hidden smDown>
+            {/* <Hidden smDown>
               <Typography
                 style={{ color: "#efefef", flex: 1 }}
                 component="span"
@@ -31,7 +31,7 @@ const Header = props => {
             </Hidden>
             <Hidden mdUp>
               <MenuMobile />
-            </Hidden>
+            </Hidden> */}
           </Grid>
         </Grid>
         <Grid item />

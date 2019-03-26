@@ -105,7 +105,7 @@ class HBUForm extends React.Component {
         variables={this.state.answers}
       >
         {(createHBUEvaluation, { loading, error }) => (
-          <Page className={classes.root} showHeader={false}>
+          <Page className={classes.root} showHeader>
             <SEO title="Whanau Evaluation">
               <meta
                 name="description"

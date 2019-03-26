@@ -1,6 +1,7 @@
 module.exports = {
   pathPrefix: "/gatsby-material-ui-business-starter",
   siteMetadata: {
+    siteUrl: "https://forms.nmowhanau.nz",
     title: "Nga Mataapuna Oranga",
     contact: {
       phone: "07 5794930",
@@ -18,6 +19,12 @@ module.exports = {
     "gatsby-plugin-react-helmet",
     "gatsby-plugin-stylus",
     "gatsby-plugin-remove-serviceworker",
+    {
+      resolve: 'gatsby-plugin-robots-txt',
+      options: {
+        policy: [{ userAgent: '*', disallow: '/' }]
+      }
+    },
     {
       resolve: "gatsby-source-filesystem",
       options: {

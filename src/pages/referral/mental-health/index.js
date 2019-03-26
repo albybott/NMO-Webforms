@@ -309,50 +309,50 @@ ${values.riskIssues}`;
                               <Confirmation />
                             </>
                           ) : (
-                            <>
-                              {getStepContent(activeStep)}
-                              <div className={classes.buttons}>
-                                {activeStep !== 0 && (
-                                  <Button
-                                    onClick={this.handleBack}
-                                    className={classes.button}
-                                  >
-                                    Back
+                              <>
+                                {getStepContent(activeStep)}
+                                <div className={classes.buttons}>
+                                  {activeStep !== 0 && (
+                                    <Button
+                                      onClick={this.handleBack}
+                                      className={classes.button}
+                                    >
+                                      Back
                                   </Button>
-                                )}
+                                  )}
 
-                                {activeStep < steps.length - 1 && (
-                                  <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={this.handleNext}
-                                    className={classes.button}
-                                  >
-                                    Next
-                                  </Button>
-                                )}
-
-                                {activeStep === steps.length - 1 && (
-                                  <div className={classes.wrapper}>
+                                  {activeStep < steps.length - 1 && (
                                     <Button
                                       variant="contained"
-                                      color="primary"
-                                      disabled={loading}
-                                      type="submit"
+                                      color="secondary"
+                                      onClick={this.handleNext}
+                                      className={classes.button}
                                     >
-                                      Send Referral
+                                      Next
+                                  </Button>
+                                  )}
+
+                                  {activeStep === steps.length - 1 && (
+                                    <div className={classes.wrapper}>
+                                      <Button
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={loading}
+                                        type="submit"
+                                      >
+                                        Send Referral
                                     </Button>
-                                    {loading && (
-                                      <CircularProgress
-                                        size={24}
-                                        className={classes.buttonProgress}
-                                      />
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </>
-                          )}
+                                      {loading && (
+                                        <CircularProgress
+                                          size={24}
+                                          className={classes.buttonProgress}
+                                        />
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </>
+                            )}
                         </Card>
                       </Form>
                     </>

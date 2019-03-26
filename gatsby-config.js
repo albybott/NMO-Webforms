@@ -9,8 +9,12 @@ module.exports = {
     },
     menuLinks: [
       {
-        name: "Mental Health",
+        name: "Mental Health Referral",
         link: "/referral/mental-health"
+      },
+      {
+        name: "HBU Evaluation",
+        link: "/evaluation/hbu"
       }
     ]
   },

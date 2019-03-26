@@ -1,5 +1,7 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
+import { Button, CircularProgress } from "@material-ui/core";
+import green from "@material-ui/core/colors/green";
+
 import withStyles from "@material-ui/core/styles/withStyles";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
@@ -56,7 +58,17 @@ const styles = theme => ({
   },
   buttons: {
     display: "flex",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
+  },
+  wrapper: {
+    margin: theme.spacing.unit,
+    position: "relative"
+  },
+  buttonProgress: {
+    color: green[500],
+    position: "absolute",
+    top: "50%",
+    left: "50%",
   }
 });
 
@@ -105,7 +117,7 @@ class HBUForm extends React.Component {
         variables={this.state.answers}
       >
         {(createHBUEvaluation, { loading, error }) => (
-          <Page className={classes.root} showHeader>
+          <Page className={classes.root} showHeader title="Whanau Evaluation">
             <SEO title="Whanau Evaluation">
               <meta
                 name="description"
@@ -131,24 +143,32 @@ class HBUForm extends React.Component {
             })}
 
             <div className={classes.buttons}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  createHBUEvaluation()
-                    .then(result => {
-                      console.log(result);
-                    })
-                    .catch(error => {
-                      console.log(error);
-                    });
-                }}
-                className={classes.button}
-                disabled={loading}
-                size="large"
-              >
-                Submit
+              <div className={classes.wrapper}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    createHBUEvaluation()
+                      .then(result => {
+                        console.log(result);
+                      })
+                      .catch(error => {
+                        console.log(error);
+                      });
+                  }}
+                  className={classes.button}
+                  disabled={loading}
+                  size="large"
+                >
+                  Submit
               </Button>
+                {loading && (
+                  <CircularProgress
+                    size={24}
+                    className={classes.buttonProgress}
+                  />
+                )}
+              </div>
             </div>
 
             <ErrorMessage error={error} />

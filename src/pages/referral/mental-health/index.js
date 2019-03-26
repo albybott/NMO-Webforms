@@ -234,7 +234,7 @@ ${values.riskIssues}`;
           if (error) return <p>{error.message}</p>;
 
           return (
-            <Page className={classes.root} showHeader>
+            <Page className={classes.root} showHeader title="Mental Health Referral">
               <Formik
                 validationSchema={ValidationSchema}
                 validateOnBlur={false}

@@ -8,11 +8,16 @@ import Typography from "@material-ui/core/Typography";
 import { Home } from "mdi-material-ui";
 
 const Header = props => {
+  const { title } = props;
+
   return (
     <AppBar id="appBar">
       <Toolbar>
         <Grid container justify="space-between" spacing={16}>
           <Grid item>
+            <Typography variant="h5" color="inherit">
+              {title}
+            </Typography>
             {/* <Link key={"home"} to={"/"}>
               <IconButton style={{ color: "#fff" }}>
                 <Home />
@@ -55,6 +60,6 @@ export default props => (
         }
       }
     `}
-    render={data => <Header data={data} />}
+    render={data => <Header data={data} title={props.title} />}
   />
 );

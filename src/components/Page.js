@@ -10,21 +10,21 @@ class Page extends React.Component {
     const { title, children, showHeader = true } = this.props;
     return (
       <>
-        {showHeader && <Header />}
+        {showHeader && <Header title={title} />}
         <Grid
           style={showHeader ? { marginTop: "94px" } : { marginTop: "1rem" }}
         >
           <Row>
             <Col xs={12}>
-              {title ? (
+              {/* {title ? (
                 <Typography
-                  variant="h2"
+                  variant="h4"
                   gutterBottom
                   style={{ textAlign: "center" }}
                 >
                   {title}
                 </Typography>
-              ) : null}
+              ) : null} */}
               {children}
               <Footer />
             </Col>

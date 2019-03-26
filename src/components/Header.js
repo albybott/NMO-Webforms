@@ -8,7 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import { Home } from "mdi-material-ui";
 
 const Header = props => {
-  const { title } = props;
+  const { title, info } = props;
 
   return (
     <AppBar id="appBar">
@@ -37,6 +37,9 @@ const Header = props => {
             <Hidden mdUp>
               <MenuMobile />
             </Hidden> */}
+            <Typography variant="h6" color="inherit">
+              {info}
+            </Typography>
           </Grid>
         </Grid>
       </Toolbar>
@@ -59,6 +62,6 @@ export default props => (
         }
       }
     `}
-    render={data => <Header data={data} title={props.title} />}
+    render={data => <Header data={data} title={props.title} info={props.info} />}
   />
 );

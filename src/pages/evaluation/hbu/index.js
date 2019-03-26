@@ -103,13 +103,8 @@ class HBUForm extends React.Component {
 
   render() {
     const { expanded } = this.state;
-    const { classes } = this.props;
-
-    const createHBUEvaluation = () => {
-      alert("Hi");
-    };
-    const loading = false;
-    const error = false;
+    const { classes, location } = this.props;
+    const pagetTitle = location ? `Whanau Evaluation - ${location}` : "Whanau Evaluation";
 
     return (
       <Mutation
@@ -117,9 +112,9 @@ class HBUForm extends React.Component {
         variables={this.state.answers}
       >
         {(createHBUEvaluation, { loading, error }) => (
-          <Page className={classes.root} showHeader title="Whanau Evaluation">
-            <SEO title="Whanau Evaluation">
-              <meta name="description" content="HBu Whanau Evaluation Form" />
+          <Page className={classes.root} showHeader title="Whanau Evaluation" info={location}>
+            <SEO title={pagetTitle}>
+              <meta name="description" content="Whanau Evaluation Form" />
             </SEO>
             {questions.map((question, index, array) => {
               // we need the name of the next question to auto expand on radio select

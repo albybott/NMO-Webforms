@@ -7,10 +7,10 @@ import "../css/style.styl";
 
 class Page extends React.Component {
   render() {
-    const { title, children, showHeader = true } = this.props;
+    const { title, children, showHeader, info = true } = this.props;
     return (
       <>
-        {showHeader && <Header title={title} />}
+        {showHeader && <Header title={title} info={info} />}
         <Grid
           style={showHeader ? { marginTop: "94px" } : { marginTop: "1rem" }}
         >

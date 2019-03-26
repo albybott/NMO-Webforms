@@ -16,6 +16,7 @@ const styles = theme => ({
       <Page>
         <SEO title="Home">
           <meta name="description" content="Nga Mataapuna Oranga - Web forms" />
+          <meta name="robots" content="noindex,nofollow" />
         </SEO>
 
         <Grid

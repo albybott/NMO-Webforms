@@ -39,7 +39,6 @@ const Header = props => {
             </Hidden> */}
           </Grid>
         </Grid>
-        <Grid item />
       </Toolbar>
     </AppBar>
   );

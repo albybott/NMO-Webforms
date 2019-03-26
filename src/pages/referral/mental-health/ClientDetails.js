@@ -70,7 +70,7 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <Field
                 name="nmo_nhi"
                 label="NHI"
@@ -81,7 +81,7 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <Field
                 name="nmo_birthdate"
                 label="Date Of Birth"
@@ -95,7 +95,7 @@ class ClientDetails extends React.Component {
               />
             </Grid>
 
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <Field
                 style={{ zIndex: 101 }}
                 id="nmo_gendercode"

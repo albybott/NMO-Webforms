@@ -16,6 +16,7 @@ import ErrorMessage from "./ErrorMessage";
 const CREATE_HBU_EVALUATION_MUTATION = gql`
   mutation CREATE_HBU_EVALUATION_MUTATION(
     $nmo_name: String!
+    $nmo_location: String
     $nmo_cantrustprogramme: Int
     $nmo_cleanandtidy: Int
     $nmo_culturalrespect: Int
@@ -33,6 +34,7 @@ const CREATE_HBU_EVALUATION_MUTATION = gql`
   ) {
     createHBUEvaluation(
       nmo_name: $nmo_name
+      nmo_location: $nmo_location
       nmo_cantrustprogramme: $nmo_cantrustprogramme
       nmo_cleanandtidy: $nmo_cleanandtidy
       nmo_culturalrespect: $nmo_culturalrespect
@@ -75,7 +77,10 @@ const styles = theme => ({
 class HBUForm extends React.Component {
   state = {
     expanded: questions[0].name, // expand first panel at start
-    answers: { nmo_name: "First HBU Evaluation" }
+    answers: {
+      nmo_name: "First HBU Evaluation",
+      nmo_location: this.props.location
+    }
   };
 
   handlePanelExpand = panel => (event, expanded) => {
@@ -104,7 +109,9 @@ class HBUForm extends React.Component {
   render() {
     const { expanded } = this.state;
     const { classes, location } = this.props;
-    const pagetTitle = location ? `Whanau Evaluation - ${location}` : "Whanau Evaluation";
+    const pagetTitle = location
+      ? `Whanau Evaluation - ${location}`
+      : "Whanau Evaluation";
 
     return (
       <Mutation
@@ -112,7 +119,12 @@ class HBUForm extends React.Component {
         variables={this.state.answers}
       >
         {(createHBUEvaluation, { loading, error }) => (
-          <Page className={classes.root} showHeader title="Whanau Evaluation" info={location}>
+          <Page
+            className={classes.root}
+            showHeader
+            title="Whanau Evaluation"
+            info={location}
+          >
             <SEO title={pagetTitle}>
               <meta name="description" content="Whanau Evaluation Form" />
             </SEO>

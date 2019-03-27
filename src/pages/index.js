@@ -13,7 +13,7 @@ const styles = theme => ({
   }),
   Home = props => {
     return (
-      <Page>
+      <Page showHeader>
         <SEO title="Home">
           <meta name="description" content="Nga Mataapuna Oranga - Web forms" />
           <meta name="robots" content="noindex,nofollow" />

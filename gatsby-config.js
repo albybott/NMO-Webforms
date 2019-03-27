@@ -13,8 +13,12 @@ module.exports = {
         link: "/referral/mental-health"
       },
       {
-        name: "HBU Evaluation",
-        link: "/evaluation/hbu"
+        name: "Whanau Evaluation - Greerton",
+        link: "/evaluation/whanau/greerton"
+      },
+      {
+        name: "Whanau Evaluation - Welcome Bay",
+        link: "/evaluation/whanau/welcome-bay"
       }
     ]
   },

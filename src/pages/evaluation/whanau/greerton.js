@@ -3,15 +3,13 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import withRoot from "../../../utils/withRoot";
 
-import HBUEvaluation from '../hbu'
+import HBUEvaluation from "../../../components/HBUEvaluation";
 
 const styles = theme => ({
-  root: {}
-}),
+    root: {}
+  }),
   Evaluation = props => {
-    return (
-      <HBUEvaluation location="Greerton" />
-    );
+    return <HBUEvaluation location="Greerton" />;
   };
 
 Evaluation.propTypes = {

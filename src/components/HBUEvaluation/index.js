@@ -6,9 +6,9 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
 
-import withRoot from "../../../utils/withRoot";
-import Page from "../../../components/Page";
-import SEO from "../../../components/SEO";
+import withRoot from "../../utils/withRoot";
+import Page from "../../components/Page";
+import SEO from "../../components/SEO";
 import HBUExpansionPanel from "./HBUExpansionPanel";
 import questions from "./data/questions.json";
 import ErrorMessage from "./ErrorMessage";

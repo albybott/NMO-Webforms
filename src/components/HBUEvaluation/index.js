@@ -56,7 +56,7 @@ class HBUEvaluation extends React.Component {
   state = {
     expandedPanel: questions[0].name, // expand first panel at start
     answers: {
-      nmo_name: `${title}: ${format(new Date(), "DD/MM/YYYY hhmmss")}`,
+      nmo_name: `${title}: ${format(new Date(), "dd/MM/yyyy hhmmss")}`,
       nmo_location: this.props.location
     }
   };

@@ -2,15 +2,13 @@ import React from "react";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
 
-import { format } from 'date-fns'
-import withRoot from "../../utils/withRoot";
+import { format } from "date-fns";
 import Page from "../../components/Page";
 import SEO from "../../components/SEO";
 import questions from "./data/questions.json";
 import ErrorMessage from "../ErrorMessage";
 import HBUQuestions from "./HBUQuestions";
 import HBUButtons from "./HBUButtons";
-
 
 const CREATE_HBU_EVALUATION_MUTATION = gql`
   mutation CREATE_HBU_EVALUATION_MUTATION(
@@ -54,16 +52,16 @@ const CREATE_HBU_EVALUATION_MUTATION = gql`
 
 const title = "Whanau Evaluation";
 
-class HBUForm extends React.Component {
+class HBUEvaluation extends React.Component {
   state = {
     expandedPanel: questions[0].name, // expand first panel at start
     answers: {
-      nmo_name: `${title}: ${format(new Date(), 'MM/dd/yyyy')}`,
+      nmo_name: `${title}: ${format(new Date(), "DD/MM/YYYY hhmmss")}`,
       nmo_location: this.props.location
     }
   };
 
-  handlePanelExpand = currentPanel => (expandedPanel) => {
+  handlePanelExpand = currentPanel => expandedPanel => {
     this.setState({
       expandedPanel: expandedPanel ? currentPanel : false
     });
@@ -97,14 +95,20 @@ class HBUForm extends React.Component {
       >
         {(createHBUEvaluation, { loading, error }) => (
           <Page showHeader title={title} info={location}>
-            <SEO title={`${title}${location && ' - ' + location}`}>
+            <SEO title={`${title}${location && " - " + location}`}>
               <meta name="description" content="Whanau Evaluation Form" />
             </SEO>
 
-            <HBUQuestions expandedPanel={expandedPanel} handleExpandPanel={this.handlePanelExpand}
-              handleRadioChange={this.handleRadioChange} />
+            <HBUQuestions
+              expandedPanel={expandedPanel}
+              handleExpandPanel={this.handlePanelExpand}
+              handleRadioChange={this.handleRadioChange}
+            />
 
-            <HBUButtons createHBUEvaluation={createHBUEvaluation} loading={loading} />
+            <HBUButtons
+              createHBUEvaluation={createHBUEvaluation}
+              loading={loading}
+            />
 
             <ErrorMessage error={error} />
           </Page>
@@ -114,4 +118,4 @@ class HBUForm extends React.Component {
   }
 }
 
-export default withRoot(HBUForm);
+export default HBUEvaluation;

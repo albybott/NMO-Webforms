@@ -12,16 +12,18 @@ import stringify from "json-stringify-pretty-compact";
 import withRoot from "../../../utils/withRoot";
 import Page from "../../../components/Page";
 import SEO from "../../../components/SEO";
+
 import ClientDetails, { ClientValues } from "./ClientDetails";
 import MedicalDetails, { MedicalValues } from "./MedicalDetails";
 import Important, { ImportantValues } from "./Important";
 import ReferrerDetails, { ReferrerValues } from "./ReferrerDetails";
 import Additional, { AdditionalValues } from "./Additional";
 import Confirmation from "./Confirmation";
+import ErrorMessage from "../../../components/ErrorMessage";
 
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-import { object, string, array } from 'yup'
+import { object, string } from "yup";
 
 const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
   mutation CREATE_ELECTRONIC_SUBMISSION_MUTATION(
@@ -106,10 +108,10 @@ const styles = theme => ({
 });
 
 const ValidationSchema = object().shape({
-  reasonForReferral: string().required('reasonForReferral is required'),
-  relevantHistory: string().required('relevantHistory selection is required'),
-  riskIssues: string().required('riskIssues is required'),
-})
+  reasonForReferral: string().required("reasonForReferral is required"),
+  relevantHistory: string().required("relevantHistory selection is required"),
+  riskIssues: string().required("riskIssues is required")
+});
 
 const steps = ["Client", "Medical", "Important", "Referrer", "Additional"];
 
@@ -231,10 +233,12 @@ ${values.riskIssues}`;
     return (
       <Mutation mutation={CREATE_ELECTRONIC_SUBMISSION_MUTATION}>
         {(createElectronicSubmission, { loading, error }) => {
-          if (error) return <p>{error.message}</p>;
-
           return (
-            <Page className={classes.root} showHeader title="Mental Health Referral">
+            <Page
+              className={classes.root}
+              showHeader
+              title="Mental Health Referral"
+            >
               <Formik
                 validationSchema={ValidationSchema}
                 validateOnBlur={false}
@@ -250,7 +254,9 @@ ${values.riskIssues}`;
                   createElectronicSubmission({
                     variables: {
                       ...values,
-                      nmo_ethnicitycode: values.ethnicity ? values.ethnicity.value : "",
+                      nmo_ethnicitycode: values.ethnicity
+                        ? values.ethnicity.value
+                        : "",
                       nmo_iwicode: values.iwi ? values.iwi.value : "",
                       nmo_info: this.getFormattedData(values),
                       nmo_rawdata: this.getFormattedData(values)
@@ -269,18 +275,7 @@ ${values.riskIssues}`;
                     });
                 }}
                 render={props => {
-                  const {
-                    // values,
-                    // touched,
-                    // errors,
-                    // dirty,
-                    // isSubmitting,
-                    // handleChange,
-                    // setFieldValue,
-                    // handleBlur,
-                    handleSubmit
-                    // handleReset
-                  } = props;
+                  const { handleSubmit } = props;
 
                   return (
                     <>
@@ -309,50 +304,52 @@ ${values.riskIssues}`;
                               <Confirmation />
                             </>
                           ) : (
-                              <>
-                                {getStepContent(activeStep)}
-                                <div className={classes.buttons}>
-                                  {activeStep !== 0 && (
-                                    <Button
-                                      onClick={this.handleBack}
-                                      className={classes.button}
-                                    >
-                                      Back
+                            <>
+                              {getStepContent(activeStep)}
+                              <div className={classes.buttons}>
+                                {activeStep !== 0 && (
+                                  <Button
+                                    onClick={this.handleBack}
+                                    className={classes.button}
+                                  >
+                                    Back
                                   </Button>
-                                  )}
+                                )}
 
-                                  {activeStep < steps.length - 1 && (
+                                {activeStep < steps.length - 1 && (
+                                  <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={this.handleNext}
+                                    className={classes.button}
+                                  >
+                                    Next
+                                  </Button>
+                                )}
+
+                                {activeStep === steps.length - 1 && (
+                                  <div className={classes.wrapper}>
                                     <Button
                                       variant="contained"
-                                      color="secondary"
-                                      onClick={this.handleNext}
-                                      className={classes.button}
+                                      color="primary"
+                                      disabled={loading}
+                                      type="submit"
                                     >
-                                      Next
-                                  </Button>
-                                  )}
-
-                                  {activeStep === steps.length - 1 && (
-                                    <div className={classes.wrapper}>
-                                      <Button
-                                        variant="contained"
-                                        color="primary"
-                                        disabled={loading}
-                                        type="submit"
-                                      >
-                                        Send Referral
+                                      Send Referral
                                     </Button>
-                                      {loading && (
-                                        <CircularProgress
-                                          size={24}
-                                          className={classes.buttonProgress}
-                                        />
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
+                                    {loading && (
+                                      <CircularProgress
+                                        size={24}
+                                        className={classes.buttonProgress}
+                                      />
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              <ErrorMessage error={error} />
+                            </>
+                          )}
                         </Card>
                       </Form>
                     </>

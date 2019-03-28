@@ -1,11 +1,13 @@
 import React from "react";
 import { StaticQuery, graphql } from "gatsby";
-import Menu from "./Menu";
-import MenuMobile from "./MenuMobile";
-import { Hidden, Toolbar, AppBar, IconButton, Link } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import { Home } from "mdi-material-ui";
+import { Toolbar, AppBar } from "@material-ui/core";
+
+// import Menu from "./Menu";
+// import MenuMobile from "./MenuMobile";
+// import { Hidden, Toolbar, AppBar, IconButton, Link } from "@material-ui/core";
+// import { Home } from "mdi-material-ui";
 
 const Header = props => {
   const { title, info } = props;
@@ -62,6 +64,8 @@ export default props => (
         }
       }
     `}
-    render={data => <Header data={data} title={props.title} info={props.info} />}
+    render={data => (
+      <Header data={data} title={props.title} info={props.info} />
+    )}
   />
 );

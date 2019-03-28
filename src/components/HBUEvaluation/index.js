@@ -1,17 +1,16 @@
 import React from "react";
-import { Button, CircularProgress } from "@material-ui/core";
-import green from "@material-ui/core/colors/green";
-
-import withStyles from "@material-ui/core/styles/withStyles";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
 
+import { format } from 'date-fns'
 import withRoot from "../../utils/withRoot";
 import Page from "../../components/Page";
 import SEO from "../../components/SEO";
-import HBUExpansionPanel from "./HBUExpansionPanel";
 import questions from "./data/questions.json";
-import ErrorMessage from "./ErrorMessage";
+import ErrorMessage from "../ErrorMessage";
+import HBUQuestions from "./HBUQuestions";
+import HBUButtons from "./HBUButtons";
+
 
 const CREATE_HBU_EVALUATION_MUTATION = gql`
   mutation CREATE_HBU_EVALUATION_MUTATION(
@@ -53,43 +52,24 @@ const CREATE_HBU_EVALUATION_MUTATION = gql`
   }
 `;
 
-const styles = theme => ({
-  button: {
-    marginTop: theme.spacing.unit * 3,
-    marginLeft: theme.spacing.unit
-  },
-  buttons: {
-    display: "flex",
-    justifyContent: "flex-end"
-  },
-  wrapper: {
-    margin: theme.spacing.unit,
-    position: "relative"
-  },
-  buttonProgress: {
-    color: green[500],
-    position: "absolute",
-    top: "50%",
-    left: "50%"
-  }
-});
+const title = "Whanau Evaluation";
 
 class HBUForm extends React.Component {
   state = {
-    expanded: questions[0].name, // expand first panel at start
+    expandedPanel: questions[0].name, // expand first panel at start
     answers: {
-      nmo_name: "First HBU Evaluation",
+      nmo_name: `${title}: ${format(new Date(), 'MM/dd/yyyy')}`,
       nmo_location: this.props.location
     }
   };
 
-  handlePanelExpand = panel => (event, expanded) => {
+  handlePanelExpand = currentPanel => (expandedPanel) => {
     this.setState({
-      expanded: expanded ? panel : false
+      expandedPanel: expandedPanel ? currentPanel : false
     });
   };
 
-  handleRadioChange = panel => (event, expanded) => {
+  handleRadioChange = panel => (event, expandedPanel) => {
     const name = event.target.name;
     const value = event.target.value;
     const expandDelay = 300;
@@ -100,18 +80,15 @@ class HBUForm extends React.Component {
 
         return {
           answers: previousState.answers,
-          expanded: expanded ? panel : false
+          expandedPanel: expandedPanel ? panel : false
         };
       });
     }, expandDelay);
   };
 
   render() {
-    const { expanded } = this.state;
-    const { classes, location } = this.props;
-    const pagetTitle = location
-      ? `Whanau Evaluation - ${location}`
-      : "Whanau Evaluation";
+    const { expandedPanel } = this.state;
+    const { location } = this.props;
 
     return (
       <Mutation
@@ -119,61 +96,15 @@ class HBUForm extends React.Component {
         variables={this.state.answers}
       >
         {(createHBUEvaluation, { loading, error }) => (
-          <Page
-            className={classes.root}
-            showHeader
-            title="Whanau Evaluation"
-            info={location}
-          >
-            <SEO title={pagetTitle}>
+          <Page showHeader title={title} info={location}>
+            <SEO title={`${title}${location && ' - ' + location}`}>
               <meta name="description" content="Whanau Evaluation Form" />
             </SEO>
-            {questions.map((question, index, array) => {
-              // we need the name of the next question to auto expand on radio select
-              question.next = array[index + 1]
-                ? array[index + 1].name
-                : question.name;
 
-              return (
-                <HBUExpansionPanel
-                  key={index}
-                  name={question.name}
-                  expanded={expanded === question.name}
-                  expandPanel={this.handlePanelExpand(question.name)}
-                  title={question.title}
-                  handleRadioChange={this.handleRadioChange(question.next)}
-                />
-              );
-            })}
+            <HBUQuestions expandedPanel={expandedPanel} handleExpandPanel={this.handlePanelExpand}
+              handleRadioChange={this.handleRadioChange} />
 
-            <div className={classes.buttons}>
-              <div className={classes.wrapper}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => {
-                    createHBUEvaluation()
-                      .then(result => {
-                        console.log(result);
-                      })
-                      .catch(error => {
-                        console.log(error);
-                      });
-                  }}
-                  className={classes.button}
-                  disabled={loading}
-                  size="large"
-                >
-                  Submit
-                </Button>
-                {loading && (
-                  <CircularProgress
-                    size={24}
-                    className={classes.buttonProgress}
-                  />
-                )}
-              </div>
-            </div>
+            <HBUButtons createHBUEvaluation={createHBUEvaluation} loading={loading} />
 
             <ErrorMessage error={error} />
           </Page>
@@ -183,4 +114,4 @@ class HBUForm extends React.Component {
   }
 }
 
-export default withRoot(withStyles(styles)(HBUForm));
+export default withRoot(HBUForm);

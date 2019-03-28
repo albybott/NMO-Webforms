@@ -53,11 +53,11 @@ const ExpansionPanelDetails = withStyles(theme => ({
 }))(MuiExpansionPanelDetails);
 
 export default props => (
-  <ExpansionPanel square expanded={props.expanded} onChange={props.expandPanel}>
+  <ExpansionPanel square expanded={props.isExpanded} onChange={props.handleExpandPanel}>
     <ExpansionPanelSummary>
       <Typography
-        variant={props.expanded ? "h6" : "subtitle1"}
-        color={props.expanded ? "inherit" : "textSecondary"}
+        variant={props.isExpanded ? "h6" : "subtitle1"}
+        color={props.isExpanded ? "inherit" : "textSecondary"}
       >
         {props.title}
       </Typography>

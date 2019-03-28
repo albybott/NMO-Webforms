@@ -1,34 +1,27 @@
 import React from "react";
 import { withStyles } from "@material-ui/core/styles";
+import MuiRadio from "@material-ui/core/Radio";
+import MuiRadioGroup from "@material-ui/core/RadioGroup";
+import MuiFormControlLabel from "@material-ui/core/FormControlLabel";
+import MuiFormControl from "@material-ui/core/FormControl";
 
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-
-const ButtonControl = withStyles(theme => ({
+const FormControl = withStyles(theme => ({
   root: {
     padding: 0,
     display: "flex"
   }
-}))(FormControl);
+}))(MuiFormControl);
 
-const RadioLabel = withStyles(theme => ({
+const FormControlLabel = withStyles(theme => ({
   root: {
     marginRight: theme.spacing.unit * 4
   },
   label: {
     fontSize: theme.spacing.unit * 2
   }
-}))(FormControlLabel);
+}))(MuiFormControlLabel);
 
-const RadioButton = withStyles(theme => ({
-  root: {
-    // marginRight: theme.spacing.unit * 1
-  }
-}))(Radio);
-
-const RadioButtonGroup = withStyles(theme => ({
+const RadioGroup = withStyles(theme => ({
   root: {
     flexDirection: "column",
 
@@ -36,7 +29,12 @@ const RadioButtonGroup = withStyles(theme => ({
       flexDirection: "row"
     }
   }
-}))(RadioGroup);
+}))(MuiRadioGroup);
+
+const Radio = withStyles(theme => ({
+  root: {
+  }
+}))(MuiRadio);
 
 const radios = [
   {
@@ -66,21 +64,20 @@ const radios = [
 ];
 
 export default props => (
-  <ButtonControl>
-    <RadioButtonGroup
+  <FormControl>
+    <RadioGroup
       aria-label="Evaluaion"
       name={props.name}
       onChange={props.onChange}
-      // row
     >
       {radios.map((radio, index) => (
-        <RadioLabel
+        <FormControlLabel
           key={index}
           value={radio.value}
-          control={<RadioButton />}
+          control={<Radio />}
           label={radio.label}
         />
       ))}
-    </RadioButtonGroup>
-  </ButtonControl>
+    </RadioGroup>
+  </FormControl>
 );

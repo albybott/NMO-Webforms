@@ -3,5 +3,5 @@
 // GraphQL server url yoga.dokku.nmowhanau.nz
 export const endpoint =
   process.env.NODE_ENV === "production"
-    ? `https://yoga.dokku.nmowhanau.nz`
+    ? `https://yoga.dokku.kina.nz`
     : `http://localhost:4444`;

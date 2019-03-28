@@ -6,9 +6,7 @@ import { format } from "date-fns";
 import Page from "../../components/Page";
 import SEO from "../../components/SEO";
 import questions from "./data/questions.json";
-import ErrorMessage from "../ErrorMessage";
-import HBUQuestions from "./HBUQuestions";
-import HBUButtons from "./HBUButtons";
+import HBUForm from './HBUForm'
 
 const CREATE_HBU_EVALUATION_MUTATION = gql`
   mutation CREATE_HBU_EVALUATION_MUTATION(
@@ -99,18 +97,15 @@ class HBUEvaluation extends React.Component {
               <meta name="description" content="Whanau Evaluation Form" />
             </SEO>
 
-            <HBUQuestions
+            <HBUForm
               expandedPanel={expandedPanel}
-              handleExpandPanel={this.handlePanelExpand}
+              handlePanelExpand={this.handlePanelExpand}
               handleRadioChange={this.handleRadioChange}
-            />
-
-            <HBUButtons
               createHBUEvaluation={createHBUEvaluation}
               loading={loading}
+              error={error}
             />
 
-            <ErrorMessage error={error} />
           </Page>
         )}
       </Mutation>

@@ -3,7 +3,7 @@ import questions from "./data/questions.json";
 import HBUPanel from "./HBUPanel";
 
 export default props => {
-  const { expandedPanel, handleExpandPanel, handleRadioChange } = props;
+  const { expandedPanel, handlePanelExpand, handleRadioChange } = props;
 
   return (
     <>
@@ -18,7 +18,7 @@ export default props => {
             name={question.name}
             title={question.title}
             isExpanded={expandedPanel === question.name}
-            handleExpandPanel={handleExpandPanel(question.name)}
+            handlePanelExpand={handlePanelExpand(question.name)}
             handleRadioChange={handleRadioChange(question.next)}
           />
         );

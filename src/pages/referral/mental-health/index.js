@@ -18,7 +18,7 @@ import MedicalDetails, { MedicalValues } from "./MedicalDetails";
 import Important, { ImportantValues } from "./Important";
 import ReferrerDetails, { ReferrerValues } from "./ReferrerDetails";
 import Additional, { AdditionalValues } from "./Additional";
-import Confirmation from "./Confirmation";
+import Confirmation from "../../../components/Confirmation";
 import ErrorMessage from "../../../components/ErrorMessage";
 
 import { Mutation } from "react-apollo";
@@ -301,7 +301,11 @@ ${values.riskIssues}`;
                           </Stepper>
                           {activeStep === steps.length ? (
                             <>
-                              <Confirmation />
+                              <Confirmation>
+                                Your referral has been sent. We have emailed
+                                your referral confirmation, and will send you an
+                                update when it has been reviewed.
+                              </Confirmation>
                             </>
                           ) : (
                             <>

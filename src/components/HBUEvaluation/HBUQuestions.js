@@ -1,6 +1,7 @@
 import React from "react";
 import questions from "./data/questions.json";
 import HBUPanel from "./HBUPanel";
+import HBURadioButtons from "./HBURadioButtons";
 
 export default props => {
   const { expandedPanel, handlePanelExpand, handleRadioChange } = props;
@@ -20,9 +21,14 @@ export default props => {
             isExpanded={expandedPanel === question.name}
             handlePanelExpand={handlePanelExpand(question.name)}
             handleRadioChange={handleRadioChange(question.next)}
-          />
+          >
+            <HBURadioButtons
+              onChange={handleRadioChange(question.next)}
+              name={question.name}
+            />
+          </HBUPanel>
         );
       })}
     </>
-  )
-}
+  );
+};

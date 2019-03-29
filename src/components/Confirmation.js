@@ -9,12 +9,10 @@ const styles = theme => ({
   Confirmation = props => {
     return (
       <>
-        <CardHeader title="Nga Mihi" titleTypographyProps={{ variant: "h5" }} />
+        <CardHeader title="Nga Mihi" titleTypographyProps={{ variant: "h4" }} />
+
         <CardContent>
-          <Typography variant="subtitle1">
-            Your referral has been sent. We have emailed your referral
-            confirmation, and will send you an update when it has been reviewed.
-          </Typography>
+          <Typography variant="subtitle1">{props.children}</Typography>
         </CardContent>
       </>
     );

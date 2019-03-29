@@ -5,8 +5,6 @@ import MuiExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import MuiExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import Typography from "@material-ui/core/Typography";
 
-import HBURadioButtons from "./HBURadioButtons";
-
 const ExpansionPanel = withStyles({
   root: {
     border: "1px solid rgba(0,0,0,.125)",
@@ -53,7 +51,11 @@ const ExpansionPanelDetails = withStyles(theme => ({
 }))(MuiExpansionPanelDetails);
 
 export default props => (
-  <ExpansionPanel square expanded={props.isExpanded} onChange={props.handleExpandPanel}>
+  <ExpansionPanel
+    square
+    expanded={props.isExpanded}
+    onChange={props.handleExpandPanel}
+  >
     <ExpansionPanelSummary>
       <Typography
         variant={props.isExpanded ? "h6" : "subtitle1"}
@@ -62,8 +64,6 @@ export default props => (
         {props.title}
       </Typography>
     </ExpansionPanelSummary>
-    <ExpansionPanelDetails>
-      <HBURadioButtons onChange={props.handleRadioChange} name={props.name} />
-    </ExpansionPanelDetails>
+    <ExpansionPanelDetails>{props.children}</ExpansionPanelDetails>
   </ExpansionPanel>
 );

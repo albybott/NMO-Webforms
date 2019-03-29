@@ -1,16 +1,19 @@
 import React from "react";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-
+import { Formik } from "formik";
 import { format } from "date-fns";
 import Page from "../../components/Page";
 import SEO from "../../components/SEO";
 import questions from "./data/questions.json";
-import HBUForm from './HBUForm'
+import HBUForm from "./HBUForm";
+import Confirmation from "../Confirmation";
 
 const CREATE_HBU_EVALUATION_MUTATION = gql`
   mutation CREATE_HBU_EVALUATION_MUTATION(
     $nmo_name: String!
+    $nmo_firstname: String
+    $nmo_lastname: String
     $nmo_location: String
     $nmo_cantrustprogramme: Int
     $nmo_cleanandtidy: Int
@@ -30,6 +33,8 @@ const CREATE_HBU_EVALUATION_MUTATION = gql`
     createHBUEvaluation(
       nmo_name: $nmo_name
       nmo_location: $nmo_location
+      nmo_firstname: $nmo_firstname
+      nmo_lastname: $nmo_lastname
       nmo_cantrustprogramme: $nmo_cantrustprogramme
       nmo_cleanandtidy: $nmo_cleanandtidy
       nmo_culturalrespect: $nmo_culturalrespect
@@ -53,6 +58,7 @@ const title = "Whanau Evaluation";
 class HBUEvaluation extends React.Component {
   state = {
     expandedPanel: questions[0].name, // expand first panel at start
+    submitted: false,
     answers: {
       nmo_name: `${title}: ${format(new Date(), "dd/MM/yyyy hhmmss")}`,
       nmo_location: this.props.location
@@ -96,16 +102,48 @@ class HBUEvaluation extends React.Component {
             <SEO title={`${title}${location && " - " + location}`}>
               <meta name="description" content="Whanau Evaluation Form" />
             </SEO>
+            <Formik
+              onSubmit={values => {
+                createHBUEvaluation({
+                  variables: {
+                    ...values,
+                    ...this.state.answers
+                  }
+                })
+                  .then(result => {
+                    // go to the last confirmation step
+                    this.setState({
+                      submitted: true
+                    });
+                  })
+                  .catch(error => {
+                    console.log(error);
+                  });
+              }}
+              render={props => {
+                const { handleSubmit } = props;
+                const { submitted } = this.state;
 
-            <HBUForm
-              expandedPanel={expandedPanel}
-              handlePanelExpand={this.handlePanelExpand}
-              handleRadioChange={this.handleRadioChange}
-              createHBUEvaluation={createHBUEvaluation}
-              loading={loading}
-              error={error}
+                return (
+                  <>
+                    {submitted ? (
+                      <Confirmation>
+                        Thank you evaluation has been sent.
+                      </Confirmation>
+                    ) : (
+                      <HBUForm
+                        expandedPanel={expandedPanel}
+                        handlePanelExpand={this.handlePanelExpand}
+                        handleRadioChange={this.handleRadioChange}
+                        handleSubmit={handleSubmit}
+                        loading={loading}
+                        error={error}
+                      />
+                    )}
+                  </>
+                );
+              }}
             />
-
           </Page>
         )}
       </Mutation>

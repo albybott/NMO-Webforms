@@ -25,7 +25,7 @@ const styles = theme => ({
 });
 
 const HBUButtons = props => {
-  const { createHBUEvaluation, loading, classes } = props;
+  const { loading, classes } = props;
 
   return (
     <div className={classes.buttons}>
@@ -33,30 +33,19 @@ const HBUButtons = props => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => {
-            createHBUEvaluation()
-              .then(result => {
-                console.log(result);
-              })
-              .catch(error => {
-                console.log(error);
-              });
-          }}
           className={classes.button}
           disabled={loading}
+          type="submit"
           size="large"
         >
           Submit
-                </Button>
+        </Button>
         {loading && (
-          <CircularProgress
-            size={24}
-            className={classes.buttonProgress}
-          />
+          <CircularProgress size={24} className={classes.buttonProgress} />
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default withStyles(styles)(HBUButtons);

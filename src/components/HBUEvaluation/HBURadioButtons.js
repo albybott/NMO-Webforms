@@ -32,8 +32,7 @@ const RadioGroup = withStyles(theme => ({
 }))(MuiRadioGroup);
 
 const Radio = withStyles(theme => ({
-  root: {
-  }
+  root: {}
 }))(MuiRadio);
 
 const radios = [

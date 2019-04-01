@@ -45,6 +45,11 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
     $nmo_contactname: String
     $nmo_contactphone: String
     $nmo_contactemail: String
+    $nmo_nok1_fullname: String
+    $nmo_nok1_address: String
+    $nmo_nok1_relationship: String
+    $nmo_nok1_telephone1: String
+    $nmo_nok1_telephone2: String
     $nmo_info: String
     $nmo_rawdata: String
   ) {
@@ -63,10 +68,15 @@ const CREATE_ELECTRONIC_SUBMISSION_MUTATION = gql`
       nmo_address1_city: $nmo_address1_city
       nmo_address1_postalcode: $nmo_address1_postalcode
       nmo_ethnicitycode: $nmo_ethnicitycode
+      nmo_iwicode: $nmo_iwicode
       nmo_contactname: $nmo_contactname
       nmo_contactphone: $nmo_contactphone
       nmo_contactemail: $nmo_contactemail
-      nmo_iwicode: $nmo_iwicode
+      nmo_nok1_fullname: $nmo_nok1_fullname
+      nmo_nok1_address: $nmo_nok1_address
+      nmo_nok1_relationship: $nmo_nok1_relationship
+      nmo_nok1_telephone1: $nmo_nok1_telephone1
+      nmo_nok1_telephone2: $nmo_nok1_telephone2
       nmo_info: $nmo_info
       nmo_rawdata: $nmo_rawdata
     )
@@ -183,20 +193,6 @@ ${values.medicalIssues}
 OTHER SERVICES INVOLVED 
 ${values.otherServicesInvolved}
 
-NEXT OF KIN 1
-${values.nok1Fullname}
-${values.nok1RelationshipToClient}
-${values.nok1HomeAddress}
-${values.nok1HomePhone}
-${values.nok1CellPhone}
-
-NEXT OF KIN 2
-${values.nok2Fullname}
-${values.nok2RelationshipToClient}
-${values.nok2HomeAddress}
-${values.nok2HomePhone}
-${values.nok2CellPhone}
-
 IMPORTANT
 Client Consent: ${values.clientConsent ? "Yes" : "No"}
 Is Client Requesting Service: ${values.clientRequestingService ? "Yes" : "No"}
@@ -251,6 +247,7 @@ ${values.riskIssues}`;
                   ...AdditionalValues
                 }}
                 onSubmit={values => {
+                  console.log(values);
                   createElectronicSubmission({
                     variables: {
                       ...values,

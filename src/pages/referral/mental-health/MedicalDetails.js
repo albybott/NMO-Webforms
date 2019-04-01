@@ -69,31 +69,31 @@ const styles = theme => ({
                 <CardHeader title="Next Of Kin" />
                 <CardContent>
                   <Field
-                    name="nok1Fullname"
+                    name="nmo_nok1_fullname"
                     label="Fullname"
                     fullWidth
                     component={TextField}
                   />
                   <Field
-                    name="nok1RelationshipToClient"
+                    name="nmo_nok1_relationship"
                     label="Relationship to client"
                     fullWidth
                     component={TextField}
                   />
                   <Field
-                    name="nok1HomeAddress"
+                    name="nmo_nok1_address"
                     label="Home Address"
                     fullWidth
                     component={TextField}
                   />
                   <Field
-                    name="nok1HomePhone"
+                    name="nmo_nok1_telephone1"
                     label="Home Phone"
                     fullWidth
                     component={TextField}
                   />
                   <Field
-                    name="nok1CellPhone"
+                    name="nmo_nok1_telephone2"
                     label="Cell Phone"
                     fullWidth
                     component={TextField}
@@ -102,7 +102,7 @@ const styles = theme => ({
               </Card>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={6}>
+            {/* <Grid item xs={12} sm={12} md={6}>
               <Card className={props.classes.nextOfKin}>
                 <CardHeader title="Next Of Kin" />
                 <CardContent>
@@ -138,7 +138,7 @@ const styles = theme => ({
                   />
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid> */}
           </Grid>
         </CardContent>
       </>
@@ -154,11 +154,11 @@ const MedicalValues = {
   gpContactNumber: "07 5794930",
   medicalIssues: "Has an alergy to nuts",
   otherServicesInvolved: "Department of social justice",
-  nok1Fullname: "Harry Tutemake",
-  nok1RelationshipToClient: "Brother",
-  nok1HomeAddress: "2300 Jackson Street",
-  nok1HomePhone: "07 5796655",
-  nok1CellPhone: "027 2566565",
+  nmo_nok1_fullname: "Harry Tutemake",
+  nmo_nok1_relationship: "Brother",
+  nmo_nok1_address: "2300 Jackson Street",
+  nmo_nok1_telephone1: "07 5796655",
+  nmo_nok1_telephone2: "027 2566565",
   nok2Fullname: "Sue Tutemake",
   nok2RelationshipToClient: "Sister",
   nok2HomeAddress: "25 Chadwick Rd",

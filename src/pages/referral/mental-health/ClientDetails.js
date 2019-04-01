@@ -8,7 +8,11 @@ import {
   OutlinedInput
 } from "@material-ui/core";
 import { Field } from "formik";
-import { TextField, Autocomplete, Select } from "../../../utils/material-ui-formik-components";
+import {
+  TextField,
+  Autocomplete,
+  Select
+} from "../../../utils/material-ui-formik-components";
 
 import iwi from "./data/iwi.json";
 import ethnicities from "./data/ethnicities.json";
@@ -245,10 +249,10 @@ ClientDetails.propTypes = {
 };
 
 const ClientValues = {
-  // nmo_lastname: "Tutemake",
-  // nmo_firstname: "John",
-  // nmo_perferredname: "JT Jackhammer",
-  // nmo_nhi: "ABC9999",
+  nmo_lastname: "Tutemake",
+  nmo_firstname: "John",
+  nmo_perferredname: "JT Jackhammer",
+  nmo_nhi: "TUT9999",
   nmo_birthdate: "1980-12-28",
   nmo_gendercode: 1,
   nmo_address1_line1: "2300 Esmeralda Street",

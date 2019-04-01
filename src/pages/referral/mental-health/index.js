@@ -256,8 +256,8 @@ ${values.riskIssues}`;
                       ...values,
                       nmo_ethnicitycode: values.ethnicity
                         ? values.ethnicity.value
-                        : "",
-                      nmo_iwicode: values.iwi ? values.iwi.value : "",
+                        : "99",
+                      nmo_iwicode: values.iwi ? values.iwi.value : "99",
                       nmo_info: this.getFormattedData(values),
                       nmo_rawdata: this.getFormattedData(values)
                     }

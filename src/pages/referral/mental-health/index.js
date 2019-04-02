@@ -225,6 +225,13 @@ ${values.riskIssues}`;
   render() {
     const { classes } = this.props;
     const { activeStep } = this.state;
+    const initialValues = {
+      // ...ClientValues,
+      // ...MedicalValues,
+      // ...ImportantValues,
+      // ...ReferrerValues,
+      // ...AdditionalValues
+    };
 
     return (
       <Mutation mutation={CREATE_ELECTRONIC_SUBMISSION_MUTATION}>
@@ -239,13 +246,7 @@ ${values.riskIssues}`;
                 validationSchema={ValidationSchema}
                 validateOnBlur={false}
                 validateOnChange
-                initialValues={{
-                  ...ClientValues,
-                  ...MedicalValues,
-                  ...ImportantValues,
-                  ...ReferrerValues,
-                  ...AdditionalValues
-                }}
+                initialValues={initialValues}
                 onSubmit={values => {
                   console.log(values);
                   createElectronicSubmission({
